@@ -20,21 +20,15 @@
 
 //==================================mask=types==================================
 
-typedef uint8_t merlin_mask2_t;
-typedef uint8_t merlin_mask4_t;
-typedef uint8_t merlin_mask8_t;
-typedef uint16_t merlin_mask16_t;
-typedef uint32_t merlin_mask32_t;
-typedef uint64_t merlin_mask64_t;
+typedef uint32_t merlin_mask_t;
+
+MERLIN_FN_ATTRS static uint32_t
+merlin_mask_first_set(const merlin_mask_t mask) {
+  return __builtin_ctz(mask);
+}
 
 #ifdef MERLIN_DROP_PREFIX
-
-#define mask2_t merlin_mask2_t;
-#define mask4_t merlin_mask4_t;
-#define mask8_t merlin_mask8_t;
-#define mask16_t merlin_mask16_t;
-#define mask32_t merlin_mask32_t;
-#define mask64_t merlin_mask64_t;
+typedef merlin_mask_t mask_t;
 #endif
 
 //==================================v16u8=======================================
@@ -170,12 +164,11 @@ merlin_v16u8_shift_right(const merlin_v16u8_t a, const uint8_t n) {
 
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask16_t
-merlin_v16u8_mask(const merlin_v16u8_t a) {
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v16u8_mask(const merlin_v16u8_t a) {
 #ifdef __SSE2__
   return __builtin_ia32_pmovmskb128(a);
 #else
-  merlin_mask16_t result = 0;
+  merlin_mask_t result = 0;
   const merlin_v16u8_t tmp = merlin_v16u8_shift_right(a, 7);
   result |= (uint16_t)tmp[0] << 0;
   result |= (uint16_t)tmp[1] << 1;
@@ -336,45 +329,15 @@ merlin_v16i8_cmpgeq(const merlin_v16i8_t a, const merlin_v16i8_t b) {
   return a >= b;
 }
 
-//----------------------------------bitwise-------------------------------------
-MERLIN_FN_ATTRS static merlin_v16i8_t merlin_v16i8_and(const merlin_v16i8_t a,
-                                                       const merlin_v16i8_t b) {
-  return a & b;
-}
-
-MERLIN_FN_ATTRS static merlin_v16i8_t merlin_v16i8_or(const merlin_v16i8_t a,
-                                                      const merlin_v16i8_t b) {
-  return a | b;
-}
-
-MERLIN_FN_ATTRS static merlin_v16i8_t merlin_v16i8_xor(const merlin_v16i8_t a,
-                                                       const merlin_v16i8_t b) {
-  return a ^ b;
-}
-
-MERLIN_FN_ATTRS static merlin_v16i8_t merlin_v16i8_not(const merlin_v16i8_t a) {
-  return ~a;
-}
-
-MERLIN_FN_ATTRS static merlin_v16i8_t
-merlin_v16i8_shift_left(const merlin_v16i8_t a, const uint8_t n) {
-  return a << n;
-}
-
-MERLIN_FN_ATTRS static merlin_v16i8_t
-merlin_v16i8_shift_right(const merlin_v16i8_t a, const uint8_t n) {
-  return a >> n;
-}
-
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask16_t
-merlin_v16i8_mask(const merlin_v16i8_t a) {
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v16i8_mask(const merlin_v16i8_t a) {
 #ifdef __SSE2__
   return __builtin_ia32_pmovmskb128(a);
 #else
-  merlin_mask16_t result = 0;
-  const merlin_v16i8_t tmp = merlin_v16i8_shift_right(a, 7);
+  merlin_mask_t result = 0;
+  const merlin_v16u8_t tmp =
+      merlin_v16u8_shift_right((const merlin_v16u8_t)a, 7);
   result |= (uint16_t)tmp[0] << 0;
   result |= (uint16_t)tmp[1] << 1;
   result |= (uint16_t)tmp[2] << 2;
@@ -422,14 +385,6 @@ typedef merlin_v16i8_unaligned_t v16i8_unaligned_t;
 #define v16i8_cmpgt(a, b) merlin_v16i8_cmpgt(a, b)
 #define v16i8_cmpleq(a, b) merlin_v16i8_cmpleq(a, b)
 #define v16i8_cmpgeq(a, b) merlin_v16i8_cmpgeq(a, b)
-
-#define v16i8_and(a, b) merlin_v16i8_and(a, b)
-#define v16i8_or(a, b) merlin_v16i8_or(a, b)
-#define v16i8_xor(a, b) merlin_v16i8_xor(a, b)
-#define v16i8_not(a) merlin_v16i8_not(a)
-
-#define v16i8_shift_left(a, n) merlin_v16i8_shift_left(a, n)
-#define v16i8_shift_right(a, n) merlin_v16i8_shift_right(a, n)
 
 #define v16i8_mask(a) merlin_v16i8_mask(a)
 #endif // MERLIN_DROP_PREFIX
@@ -563,9 +518,8 @@ merlin_v8u16_shift_right(const merlin_v8u16_t a, const uint16_t n) {
 
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask8_t
-merlin_v8u16_mask(const merlin_v8u16_t a) {
-  merlin_mask8_t result = 0;
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v8u16_mask(const merlin_v8u16_t a) {
+  merlin_mask_t result = 0;
   const merlin_v8u16_t tmp = merlin_v8u16_shift_right(a, 15);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -712,42 +666,12 @@ merlin_v8i16_cmpgeq(const merlin_v8i16_t a, const merlin_v8i16_t b) {
   return a >= b;
 }
 
-//----------------------------------bitwise-------------------------------------
-MERLIN_FN_ATTRS static merlin_v8i16_t merlin_v8i16_and(const merlin_v8i16_t a,
-                                                       const merlin_v8i16_t b) {
-  return a & b;
-}
-
-MERLIN_FN_ATTRS static merlin_v8i16_t merlin_v8i16_or(const merlin_v8i16_t a,
-                                                      const merlin_v8i16_t b) {
-  return a | b;
-}
-
-MERLIN_FN_ATTRS static merlin_v8i16_t merlin_v8i16_xor(const merlin_v8i16_t a,
-                                                       const merlin_v8i16_t b) {
-  return a ^ b;
-}
-
-MERLIN_FN_ATTRS static merlin_v8i16_t merlin_v8i16_not(const merlin_v8i16_t a) {
-  return ~a;
-}
-
-MERLIN_FN_ATTRS static merlin_v8i16_t
-merlin_v8i16_shift_left(const merlin_v8i16_t a, const uint16_t n) {
-  return a << n;
-}
-
-MERLIN_FN_ATTRS static merlin_v8i16_t
-merlin_v8i16_shift_right(const merlin_v8i16_t a, const uint16_t n) {
-  return a >> n;
-}
-
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask8_t
-merlin_v8i16_mask(const merlin_v8i16_t a) {
-  merlin_mask8_t result = 0;
-  const merlin_v8i16_t tmp = merlin_v8i16_shift_right(a, 15);
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v8i16_mask(const merlin_v8i16_t a) {
+  merlin_mask_t result = 0;
+  const merlin_v8u16_t tmp =
+      merlin_v8u16_shift_right((const merlin_v8u16_t)a, 15);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -784,14 +708,6 @@ typedef merlin_v8i16_unaligned_t v8i16_unaligned_t;
 #define v8i16_cmpgt(a, b) merlin_v8i16_cmpgt(a, b)
 #define v8i16_cmpleq(a, b) merlin_v8i16_cmpleq(a, b)
 #define v8i16_cmpgeq(a, b) merlin_v8i16_cmpgeq(a, b)
-
-#define v8i16_and(a, b) merlin_v8i16_and(a, b)
-#define v8i16_or(a, b) merlin_v8i16_or(a, b)
-#define v8i16_xor(a, b) merlin_v8i16_xor(a, b)
-#define v8i16_not(a) merlin_v8i16_not(a)
-
-#define v8i16_shift_left(a, n) merlin_v8i16_shift_left(a, n)
-#define v8i16_shift_right(a, n) merlin_v8i16_shift_right(a, n)
 
 #define v8i16_mask(a) merlin_v8i16_mask(a)
 #endif // MERLIN_DROP_PREFIX
@@ -925,12 +841,11 @@ merlin_v4u32_shift_right(const merlin_v4u32_t a, const uint32_t n) {
 
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask4_t
-merlin_v4u32_mask(const merlin_v4u32_t a) {
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v4u32_mask(const merlin_v4u32_t a) {
 #ifdef __SSE2__
   return __builtin_ia32_movmskps(a);
 #else
-  merlin_mask4_t result = 0;
+  merlin_mask_t result = 0;
   const merlin_v4u32_t tmp = merlin_v4u32_shift_right(a, 31);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1074,44 +989,13 @@ merlin_v4i32_cmpgeq(const merlin_v4i32_t a, const merlin_v4i32_t b) {
   return a >= b;
 }
 
-//----------------------------------bitwise-------------------------------------
-MERLIN_FN_ATTRS static merlin_v4i32_t merlin_v4i32_and(const merlin_v4i32_t a,
-                                                       const merlin_v4i32_t b) {
-  return a & b;
-}
-
-MERLIN_FN_ATTRS static merlin_v4i32_t merlin_v4i32_or(const merlin_v4i32_t a,
-                                                      const merlin_v4i32_t b) {
-  return a | b;
-}
-
-MERLIN_FN_ATTRS static merlin_v4i32_t merlin_v4i32_xor(const merlin_v4i32_t a,
-                                                       const merlin_v4i32_t b) {
-  return a ^ b;
-}
-
-MERLIN_FN_ATTRS static merlin_v4i32_t merlin_v4i32_not(const merlin_v4i32_t a) {
-  return ~a;
-}
-
-MERLIN_FN_ATTRS static merlin_v4i32_t
-merlin_v4i32_shift_left(const merlin_v4i32_t a, const uint32_t n) {
-  return a << n;
-}
-
-MERLIN_FN_ATTRS static merlin_v4i32_t
-merlin_v4i32_shift_right(const merlin_v4i32_t a, const uint32_t n) {
-  return a >> n;
-}
-
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask4_t
-merlin_v4i32_mask(const merlin_v4i32_t a) {
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v4i32_mask(const merlin_v4i32_t a) {
 #ifdef __SSE2__
   return __builtin_ia32_movmskps(a);
 #else
-  merlin_mask4_t result = 0;
+  merlin_mask_t result = 0;
   const merlin_v4i32_t tmp = merlin_v4i32_shift_right(a, 31);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1146,14 +1030,6 @@ typedef merlin_v4i32_unaligned_t v4i32_unaligned_t;
 #define v4i32_cmpgt(a, b) merlin_v4i32_cmpgt(a, b)
 #define v4i32_cmpleq(a, b) merlin_v4i32_cmpleq(a, b)
 #define v4i32_cmpgeq(a, b) merlin_v4i32_cmpgeq(a, b)
-
-#define v4i32_and(a, b) merlin_v4i32_and(a, b)
-#define v4i32_or(a, b) merlin_v4i32_or(a, b)
-#define v4i32_xor(a, b) merlin_v4i32_xor(a, b)
-#define v4i32_not(a) merlin_v4i32_not(a)
-
-#define v4i32_shift_left(a, n) merlin_v4i32_shift_left(a, n)
-#define v4i32_shift_right(a, n) merlin_v4i32_shift_right(a, n)
 
 #define v4i32_mask(a) merlin_v4i32_mask(a)
 #endif // MERLIN_DROP_PREFIX
@@ -1285,12 +1161,11 @@ merlin_v2u64_shift_right(const merlin_v2u64_t a, const uint64_t n) {
 
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask2_t
-merlin_v2u64_mask(const merlin_v2u64_t a) {
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v2u64_mask(const merlin_v2u64_t a) {
 #ifdef __SSE2__
   return __builtin_ia32_movmskpd(a);
 #else
-  merlin_mask2_t result = 0;
+  merlin_mask_t result = 0;
   const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, 63);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1427,47 +1302,13 @@ merlin_v2i64_cmpgeq(const merlin_v2i64_t a, const merlin_v2i64_t b) {
   return a >= b;
 }
 
-//----------------------------------bitwise-------------------------------------
-MERLIN_FN_ATTRS static merlin_v2i64_t merlin_v2i64_and(const merlin_v2i64_t a,
-                                                       const merlin_v2i64_t b) {
-  return a & b;
-}
-
-MERLIN_FN_ATTRS static merlin_v2i64_t merlin_v2i64_or(const merlin_v2i64_t a,
-                                                      const merlin_v2i64_t b) {
-  return a | b;
-}
-
-MERLIN_FN_ATTRS static merlin_v2i64_t merlin_v2i64_xor(const merlin_v2i64_t a,
-                                                       const merlin_v2i64_t b) {
-  return a ^ b;
-}
-
-MERLIN_FN_ATTRS static merlin_v2i64_t merlin_v2i64_not(const merlin_v2i64_t a) {
-  return ~a;
-}
-
-MERLIN_FN_ATTRS static merlin_v2i64_t
-merlin_v2i64_shift_left(const merlin_v2i64_t a, const uint64_t n) {
-  return a << n;
-}
-
-MERLIN_FN_ATTRS static merlin_v2i64_t
-merlin_v2i64_shift_right(const merlin_v2i64_t a, const uint64_t n) {
-  return a >> n;
-}
-
-#define v2i64_shift_left(a, n) merlin_v2i64_shift_left(a, n)
-#define v2i64_shift_right(a, n) merlin_v2i64_shift_right(a, n)
-
 //----------------------------------mask----------------------------------------
 
-MERLIN_FN_ATTRS static merlin_mask2_t
-merlin_v2i64_mask(const merlin_v2i64_t a) {
+MERLIN_FN_ATTRS static merlin_mask_t merlin_v2i64_mask(const merlin_v2i64_t a) {
 #ifdef __SSE2__
   return __builtin_ia32_movmskpd(a);
 #else
-  merlin_mask2_t result = 0;
+  merlin_mask_t result = 0;
   const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, 63);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1498,14 +1339,6 @@ typedef merlin_v2i64_unaligned_t v2i64_unaligned_t;
 #define v2i64_cmpgt(a, b) merlin_v2i64_cmpgt(a, b)
 #define v2i64_cmpleq(a, b) merlin_v2i64_cmpleq(a, b)
 #define v2i64_cmpgeq(a, b) merlin_v2i64_cmpgeq(a, b)
-
-#define v2i64_and(a, b) merlin_v2i64_and(a, b)
-#define v2i64_or(a, b) merlin_v2i64_or(a, b)
-#define v2i64_xor(a, b) merlin_v2i64_xor(a, b)
-#define v2i64_not(a) merlin_v2i64_not(a)
-
-#define v2i64_shift_left(a, n) merlin_v2i64_shift_left(a, n)
-#define v2i64_shift_right(a, n) merlin_v2i64_shift_right(a, n)
 
 #define v2i64_mask(a) merlin_v2i64_mask(a)
 #endif // MERLIN_DROP_PREFIX

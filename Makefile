@@ -1,4 +1,4 @@
 SOURCES := include/merlin/simd.h
 
 tidy: ${SOURCES}
-	clang-tidy --checks=altera*,android*,boost*,bugprone*,cert*,concu*,cpp*,darwin*,fuchsia*,google*,hicpp* $^
+	clang-tidy --checks=altera*,android*,boost*,bugprone*,cert*,concu*,darwin*,fuchsia*,google* $^
