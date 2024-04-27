@@ -1,4 +1,7 @@
+#custom
 .ccls*
+compile_commands.json
+
 # Prerequisites
 *.d
 

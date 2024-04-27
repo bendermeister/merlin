@@ -20,11 +20,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MERLIN_VOIDFN_ATTRS __attribute__((always_inline, nodebug, unused))
-#define MERLIN_NODISCARD __attribute__((warn_unused_result))
+#define MERLIN_VOIDFN_ATTRS                                                    \
+  __attribute__((__always_inline__, nodebug, __unused__))
+#define MERLIN_NODISCARD __attribute__((__warn_unused_result__))
 #define MERLIN_FN_ATTRS                                                        \
-  MERLIN_VOIDFN_ATTRS MERLIN_NODISCARD __attribute__((const))
-#define MERLIN_NONNULL(PARAM) __attribute__((nonnull(PARAM)))
+  MERLIN_VOIDFN_ATTRS MERLIN_NODISCARD __attribute__((__const__))
+#define MERLIN_NONNULL(PARAM) __attribute__((__nonnull__(PARAM)))
 
 #define MERLIN_ASSUME(X)                                                       \
   if (!(X))                                                                    \
@@ -67,13 +68,13 @@ merlin_v16u8_set(const uint8_t v00, const uint8_t v01, const uint8_t v02,
 
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v16u8_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16u8_t
     merlin_v16u8_load_aligned(const merlin_v16u8_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v16u8_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16u8_t
     merlin_v16u8_load_unaligned(const merlin_v16u8_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -264,13 +265,13 @@ MERLIN_FN_ATTRS static merlin_v16i8_t merlin_v16i8_set(
 
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v16i8_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16i8_t
     merlin_v16i8_load_aligned(const merlin_v16i8_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v16i8_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16i8_t
     merlin_v16i8_load_unaligned(const merlin_v16i8_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -421,13 +422,13 @@ merlin_v8u16_set(const uint16_t v00, const uint16_t v01, const uint16_t v02,
 
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v8u16_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8u16_t
     merlin_v8u16_load_aligned(const merlin_v8u16_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v8u16_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8u16_t
     merlin_v8u16_load_unaligned(const merlin_v8u16_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -601,13 +602,13 @@ merlin_v8i16_set(const int16_t v00, const int16_t v01, const int16_t v02,
 
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v8i16_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8i16_t
     merlin_v8i16_load_aligned(const merlin_v8i16_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v8i16_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8i16_t
     merlin_v8i16_load_unaligned(const merlin_v8i16_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -744,13 +745,13 @@ MERLIN_FN_ATTRS static merlin_v4u32_t merlin_v4u32_set(const uint32_t v00,
 
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v4u32_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4u32_t
     merlin_v4u32_load_aligned(const merlin_v4u32_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v4u32_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4u32_t
     merlin_v4u32_load_unaligned(const merlin_v4u32_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -924,13 +925,13 @@ MERLIN_FN_ATTRS static merlin_v4i32_t merlin_v4i32_set(const int32_t v00,
 
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v4i32_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4i32_t
     merlin_v4i32_load_aligned(const merlin_v4i32_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v4i32_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4i32_t
     merlin_v4i32_load_unaligned(const merlin_v4i32_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -1064,13 +1065,13 @@ MERLIN_FN_ATTRS static merlin_v2u64_t merlin_v2u64_set(const uint64_t v00,
 
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v2u64_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v2u64_t
     merlin_v2u64_load_aligned(const merlin_v2u64_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v2u64_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v2u64_t
     merlin_v2u64_load_unaligned(const merlin_v2u64_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -1237,13 +1238,13 @@ MERLIN_FN_ATTRS static merlin_v2i64_t merlin_v2i64_set(const int64_t v00,
 }
 //----------------------------------load/store----------------------------------
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v2i64_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v2i64_t
     merlin_v2i64_load_aligned(const merlin_v2i64_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
 }
 
-MERLIN_NODISCARD MERLIN_NONNULL(1) static merlin_v2i64_t
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v2i64_t
     merlin_v2i64_load_unaligned(const merlin_v2i64_unaligned_t addr[static 1]) {
   MERLIN_ASSUME(addr != NULL);
   return *addr;
@@ -1318,7 +1319,8 @@ merlin_v2i64_cmpgeq(const merlin_v2i64_t a, const merlin_v2i64_t b) {
 
 MERLIN_FN_ATTRS static merlin_mask_t merlin_v2i64_mask(const merlin_v2i64_t a) {
 #ifdef __SSE2__
-  return __builtin_ia32_movmskpd(a);
+  typedef double cast_type __attribute__((vector_size(16)));
+  return __builtin_ia32_movmskpd((cast_type)a);
 #else
   merlin_mask_t result = 0;
   const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, merlin_v2u64_set1(63));
