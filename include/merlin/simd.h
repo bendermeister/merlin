@@ -1,6 +1,18 @@
 #ifndef MERLIN_SIMD_H
 #define MERLIN_SIMD_H
 
+// TODO(ben): blend functions
+// TODO(ben): mul low / high ?
+// TODO(ben): align function moves the elements inside the vector to different
+// positions
+// TODO(ben): abs functions for the signed vectors
+// TODO(ben): floating point vector
+// TODO(ben): 256bit vectors
+// TODO(ben): max min
+// TODO(ben): shuffle
+// TODO(ben): testing
+// TODO(ben): documentation
+
 #ifndef __clang__
 #error "currently only clang is supported"
 #endif
@@ -153,12 +165,12 @@ MERLIN_FN_ATTRS static merlin_v16u8_t merlin_v16u8_not(const merlin_v16u8_t a) {
 }
 
 MERLIN_FN_ATTRS static merlin_v16u8_t
-merlin_v16u8_shift_left(const merlin_v16u8_t a, const uint8_t n) {
+merlin_v16u8_shift_left(const merlin_v16u8_t a, merlin_v16u8_t n) {
   return a << n;
 }
 
 MERLIN_FN_ATTRS static merlin_v16u8_t
-merlin_v16u8_shift_right(const merlin_v16u8_t a, const uint8_t n) {
+merlin_v16u8_shift_right(const merlin_v16u8_t a, const merlin_v16u8_t n) {
   return a >> n;
 }
 
@@ -169,7 +181,7 @@ MERLIN_FN_ATTRS static merlin_mask_t merlin_v16u8_mask(const merlin_v16u8_t a) {
   return __builtin_ia32_pmovmskb128(a);
 #else
   merlin_mask_t result = 0;
-  const merlin_v16u8_t tmp = merlin_v16u8_shift_right(a, 7);
+  const merlin_v16u8_t tmp = merlin_v16u8_shift_right(a, merlin_v16u8_set1(7));
   result |= (uint16_t)tmp[0] << 0;
   result |= (uint16_t)tmp[1] << 1;
   result |= (uint16_t)tmp[2] << 2;
@@ -337,7 +349,7 @@ MERLIN_FN_ATTRS static merlin_mask_t merlin_v16i8_mask(const merlin_v16i8_t a) {
 #else
   merlin_mask_t result = 0;
   const merlin_v16u8_t tmp =
-      merlin_v16u8_shift_right((const merlin_v16u8_t)a, 7);
+      merlin_v16u8_shift_right((const merlin_v16u8_t)a, merlin_v16u8_set1(7));
   result |= (uint16_t)tmp[0] << 0;
   result |= (uint16_t)tmp[1] << 1;
   result |= (uint16_t)tmp[2] << 2;
@@ -507,12 +519,12 @@ MERLIN_FN_ATTRS static merlin_v8u16_t merlin_v8u16_not(const merlin_v8u16_t a) {
 }
 
 MERLIN_FN_ATTRS static merlin_v8u16_t
-merlin_v8u16_shift_left(const merlin_v8u16_t a, const uint16_t n) {
+merlin_v8u16_shift_left(const merlin_v8u16_t a, const merlin_v8u16_t n) {
   return a << n;
 }
 
 MERLIN_FN_ATTRS static merlin_v8u16_t
-merlin_v8u16_shift_right(const merlin_v8u16_t a, const uint16_t n) {
+merlin_v8u16_shift_right(const merlin_v8u16_t a, const merlin_v8u16_t n) {
   return a >> n;
 }
 
@@ -520,7 +532,7 @@ merlin_v8u16_shift_right(const merlin_v8u16_t a, const uint16_t n) {
 
 MERLIN_FN_ATTRS static merlin_mask_t merlin_v8u16_mask(const merlin_v8u16_t a) {
   merlin_mask_t result = 0;
-  const merlin_v8u16_t tmp = merlin_v8u16_shift_right(a, 15);
+  const merlin_v8u16_t tmp = merlin_v8u16_shift_right(a, merlin_v8u16_set1(15));
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -671,7 +683,7 @@ merlin_v8i16_cmpgeq(const merlin_v8i16_t a, const merlin_v8i16_t b) {
 MERLIN_FN_ATTRS static merlin_mask_t merlin_v8i16_mask(const merlin_v8i16_t a) {
   merlin_mask_t result = 0;
   const merlin_v8u16_t tmp =
-      merlin_v8u16_shift_right((const merlin_v8u16_t)a, 15);
+      merlin_v8u16_shift_right((const merlin_v8u16_t)a, merlin_v8u16_set1(15));
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -830,12 +842,12 @@ MERLIN_FN_ATTRS static merlin_v4u32_t merlin_v4u32_not(const merlin_v4u32_t a) {
 }
 
 MERLIN_FN_ATTRS static merlin_v4u32_t
-merlin_v4u32_shift_left(const merlin_v4u32_t a, const uint32_t n) {
+merlin_v4u32_shift_left(const merlin_v4u32_t a, const merlin_v4u32_t n) {
   return a << n;
 }
 
 MERLIN_FN_ATTRS static merlin_v4u32_t
-merlin_v4u32_shift_right(const merlin_v4u32_t a, const uint32_t n) {
+merlin_v4u32_shift_right(const merlin_v4u32_t a, const merlin_v4u32_t n) {
   return a >> n;
 }
 
@@ -846,7 +858,7 @@ MERLIN_FN_ATTRS static merlin_mask_t merlin_v4u32_mask(const merlin_v4u32_t a) {
   return __builtin_ia32_movmskps(a);
 #else
   merlin_mask_t result = 0;
-  const merlin_v4u32_t tmp = merlin_v4u32_shift_right(a, 31);
+  const merlin_v4u32_t tmp = merlin_v4u32_shift_right(a, merlin_v4u32_set1(31));
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -996,7 +1008,7 @@ MERLIN_FN_ATTRS static merlin_mask_t merlin_v4i32_mask(const merlin_v4i32_t a) {
   return __builtin_ia32_movmskps(a);
 #else
   merlin_mask_t result = 0;
-  const merlin_v4i32_t tmp = merlin_v4i32_shift_right(a, 31);
+  const merlin_v4i32_t tmp = merlin_v4i32_shift_right(a, merlin_v4u32_set1(31));
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -1150,12 +1162,12 @@ MERLIN_FN_ATTRS static merlin_v2u64_t merlin_v2u64_not(const merlin_v2u64_t a) {
 }
 
 MERLIN_FN_ATTRS static merlin_v2u64_t
-merlin_v2u64_shift_left(const merlin_v2u64_t a, const uint64_t n) {
+merlin_v2u64_shift_left(const merlin_v2u64_t a, const merlin_v2u64_t n) {
   return a << n;
 }
 
 MERLIN_FN_ATTRS static merlin_v2u64_t
-merlin_v2u64_shift_right(const merlin_v2u64_t a, const uint64_t n) {
+merlin_v2u64_shift_right(const merlin_v2u64_t a, const merlin_v2u64_t n) {
   return a >> n;
 }
 
@@ -1166,7 +1178,7 @@ MERLIN_FN_ATTRS static merlin_mask_t merlin_v2u64_mask(const merlin_v2u64_t a) {
   return __builtin_ia32_movmskpd(a);
 #else
   merlin_mask_t result = 0;
-  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, 63);
+  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, merlin_v2u64_set1(63));
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
 #endif
@@ -1309,7 +1321,7 @@ MERLIN_FN_ATTRS static merlin_mask_t merlin_v2i64_mask(const merlin_v2i64_t a) {
   return __builtin_ia32_movmskpd(a);
 #else
   merlin_mask_t result = 0;
-  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, 63);
+  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, merlin_v2u64_set1(63));
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
 #endif
