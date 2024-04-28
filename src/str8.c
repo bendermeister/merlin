@@ -69,7 +69,7 @@ void merlin_str8_destroy(merlin_str8_t s[static 1],
 merlin_str8_view_t merlin_str8_get_view(const merlin_str8_t s[static 1],
                                         const size_t index,
                                         const size_t length) {
-  return (merlin_str8_view_t){.index = index, .length = length};
+  return (merlin_str8_view_t){.str = s, .index = index, .length = length};
 }
 
 size_t merlin_str8_find(const merlin_str8_view_t haystack[static 1],

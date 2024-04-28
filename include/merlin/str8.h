@@ -13,7 +13,7 @@ struct merlin_str8_t {
 
 typedef struct merlin_str8_view_t merlin_str8_view_t;
 struct merlin_str8_view_t {
-  merlin_str8_t *str;
+  const merlin_str8_t *str;
   size_t index;
   size_t length;
 };
