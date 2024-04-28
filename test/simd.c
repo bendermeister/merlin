@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <threads.h>
+#include <time.h>
 
 //=================================v16u8========================================
 
@@ -67,9 +68,52 @@ static test_t TEST_v16u8_set(void) {
   return test;
 }
 
+static test_t TEST_v16u8_arithmetic(void) {
+
+  time_t t = time(NULL);
+  test_t test = TEST_MAKE(TEST_MAKE_STR("%s(%ld)", (char *)__func__, t));
+  srand(t);
+
+  merlin_v16u8_t a = merlin_v16u8_set(
+      rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(),
+      rand(), rand(), rand(), rand(), rand(), rand(), rand());
+  merlin_v16u8_t b = merlin_v16u8_set(
+      rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(),
+      rand(), rand(), rand(), rand(), rand(), rand(), rand());
+  merlin_v16u8_t c;
+
+  c = merlin_v16u8_add(a, b);
+  for (uint32_t i = 0; i < 16; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] + b[i]), TEST_MAKE_STR("i: %u", i));
+  }
+
+  c = merlin_v16u8_sub(a, b);
+  for (uint32_t i = 0; i < 16; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] - b[i]), TEST_MAKE_STR("i: %u", i));
+  }
+
+  c = merlin_v16u8_mul(a, b);
+  for (uint32_t i = 0; i < 16; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] * b[i]), TEST_MAKE_STR("i: %u", i));
+  }
+
+  c = merlin_v16u8_div(a, b);
+  for (uint32_t i = 0; i < 16; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] / b[i]), TEST_MAKE_STR("i: %u", i));
+  }
+
+  c = merlin_v16u8_mod(a, b);
+  for (uint32_t i = 0; i < 16; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] % b[i]), TEST_MAKE_STR("i: %u", i));
+  }
+
+  return test;
+}
+
 int main(void) {
   TEST_RUN(TEST_v16u8_load_store());
   TEST_RUN(TEST_v16u8_set());
+  TEST_RUN(TEST_v16u8_arithmetic());
   TEST_CLEANUP();
   return 0;
 }

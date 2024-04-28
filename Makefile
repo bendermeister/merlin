@@ -13,3 +13,6 @@ test: ${TEST}
 
 test/%.out: test/%.c
 	${CC} ${DEBUG_FLAGS} $< -o $@
+
+clean:
+	rm -f ${TEST}
