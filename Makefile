@@ -3,7 +3,7 @@ TEST := test/simd.out
 SOURCES :=
 CC := clang #just for now later support for other compilers will come
 
-FLAGS := -Wall -Wextra -I include -msse -msse2 -msse3 -msse4.1 -msse4.2 -mavx -mavx2 -ffp-exception-behavior=maytrap
+FLAGS := -Wall -Wextra -I include -msse -msse2 -msse3 -msse4.1 -msse4.2 -mavx -mavx2 -I src/include
 DEBUG_FLAGS := ${FLAGS} -g -fsanitize=address,leak,undefined
 
 tidy: ${SOURCES} ${HEADERS}
