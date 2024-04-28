@@ -153,45 +153,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v16u8_mask(const merlin_v16u8_t a) {
 #endif
 }
 
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v16u8_t v16u8_t;
-typedef merlin_v16u8_unaligned_t v16u8_unaligned_t;
-
-#define v16u8_set1(v) merlin_v16u8_set1(v)
-#define v16u8_set(v00, v01, v02, v02, v03, v04, v05, v06, v07, v08, v09, v10,  \
-                  v11, v12, v12, v13, v14, v15)                                \
-  merlin_v16u8_set(v00, v01, v02, v02, v03, v04, v05, v06, v07, v08, v09, v10, \
-                   v11, v12, v12, v13, v14, v15)
-
-#define v16u8_load_aligned(addr) merlin_v16u8_load_aligned(addr)
-#define v16u8_load_unaligned(addr) merlin_v16u8_load_unaligned(addr)
-#define v16u8_store_aligned(addr, data) merlin_v16u8_store_aligned(addr, data)
-#define v16u8_store_unaligned(addr, data)                                      \
-  merlin_v16u8_store_unaligned(addr, data)
-
-#define v16u8_add(a, b) merlin_v16u8_add(a, b)
-#define v16u8_sub(a, b) merlin_v16u8_sub(a, b)
-#define v16u8_mul(a, b) merlin_v16u8_mul(a, b)
-#define v16u8_div(a, b) merlin_v16u8_div(a, b)
-#define v16u8_mod(a, b) merlin_v16u8_mod(a, b)
-
-#define v16u8_cmpeq(a, b) merlin_v16u8_cmpeq(a, b)
-#define v16u8_cmplt(a, b) merlin_v16u8_cmplt(a, b)
-#define v16u8_cmpgt(a, b) merlin_v16u8_cmpgt(a, b)
-#define v16u8_cmpleq(a, b) merlin_v16u8_cmpleq(a, b)
-#define v16u8_cmpgeq(a, b) merlin_v16u8_cmpgeq(a, b)
-
-#define v16u8_and(a, b) merlin_v16u8_and(a, b)
-#define v16u8_or(a, b) merlin_v16u8_or(a, b)
-#define v16u8_xor(a, b) merlin_v16u8_xor(a, b)
-#define v16u8_not(a) merlin_v16u8_not(a)
-
-#define v16u8_shift_left(a, n) merlin_v16u8_shift_left(a, n)
-#define v16u8_shift_right(a, n) merlin_v16u8_shift_right(a, n)
-
-#define v16u8_mask(a) merlin_v16u8_mask(a)
-#endif // MERLIN_DROP_PREFIX
-
 //==================================v16i8=======================================
 
 typedef int8_t merlin_v16i8_t __attribute__((vector_size(16), aligned(16)));
@@ -281,37 +242,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v16i8_mask(const merlin_v16i8_t a) {
 #endif
 }
 
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v16i8_t v16i8_t;
-typedef merlin_v16i8_unaligned_t v16i8_unaligned_t;
-
-#define v16i8_set1(v) merlin_v16i8_set1(v)
-#define v16i8_set(v00, v01, v02, v02, v03, v04, v05, v06, v07, v08, v09, v10,  \
-                  v11, v12, v12, v13, v14, v15)                                \
-  merlin_v16i8_set(v00, v01, v02, v02, v03, v04, v05, v06, v07, v08, v09, v10, \
-                   v11, v12, v12, v13, v14, v15)
-
-#define v16i8_load_aligned(addr) merlin_v16i8_load_aligned(addr)
-#define v16i8_load_unaligned(addr) merlin_v16i8_load_unaligned(addr)
-#define v16i8_store_aligned(addr, data) merlin_v16i8_store_aligned(addr, data)
-#define v16i8_store_unaligned(addr, data)                                      \
-  merlin_v16i8_store_unaligned(addr, data)
-
-#define v16i8_add(a, b) merlin_v16i8_add(a, b)
-#define v16i8_sub(a, b) merlin_v16i8_sub(a, b)
-#define v16i8_mul(a, b) merlin_v16i8_mul(a, b)
-#define v16i8_div(a, b) merlin_v16i8_div(a, b)
-#define v16i8_mod(a, b) merlin_v16i8_mod(a, b)
-
-#define v16i8_cmpeq(a, b) merlin_v16i8_cmpeq(a, b)
-#define v16i8_cmplt(a, b) merlin_v16i8_cmplt(a, b)
-#define v16i8_cmpgt(a, b) merlin_v16i8_cmpgt(a, b)
-#define v16i8_cmpleq(a, b) merlin_v16i8_cmpleq(a, b)
-#define v16i8_cmpgeq(a, b) merlin_v16i8_cmpgeq(a, b)
-
-#define v16i8_mask(a) merlin_v16i8_mask(a)
-#endif // MERLIN_DROP_PREFIX
-
 //==================================v8u16=======================================
 
 typedef uint16_t merlin_v8u16_t __attribute__((vector_size(16), aligned(16)));
@@ -394,43 +324,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v8u16_mask(const merlin_v8u16_t a) {
   return result;
 }
 
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v8u16_t v8u16_t;
-typedef merlin_v8u16_unaligned_t v8u16_unaligned_t;
-
-#define v8u16_set1(v) merlin_v8u16_set1(v)
-#define v8u16_set(v00, v01, v02, v02, v03, v04, v05, v06, v07)                 \
-  merlin_v8u16_set(v00, v01, v02, v02, v03, v04, v05, v06, v07)
-
-#define v8u16_load_aligned(addr) merlin_v8u16_load_aligned(addr)
-#define v8u16_load_unaligned(addr) merlin_v8u16_load_unaligned(addr)
-#define v8u16_store_aligned(addr, data) merlin_v8u16_store_aligned(addr, data)
-#define v8u16_store_unaligned(addr, data)                                      \
-  merlin_v8u16_store_unaligned(addr, data)
-
-#define v8u16_add(a, b) merlin_v8u16_add(a, b)
-#define v8u16_sub(a, b) merlin_v8u16_sub(a, b)
-#define v8u16_mul(a, b) merlin_v8u16_mul(a, b)
-#define v8u16_div(a, b) merlin_v8u16_div(a, b)
-#define v8u16_mod(a, b) merlin_v8u16_mod(a, b)
-
-#define v8u16_cmpeq(a, b) merlin_v8u16_cmpeq(a, b)
-#define v8u16_cmplt(a, b) merlin_v8u16_cmplt(a, b)
-#define v8u16_cmpgt(a, b) merlin_v8u16_cmpgt(a, b)
-#define v8u16_cmpleq(a, b) merlin_v8u16_cmpleq(a, b)
-#define v8u16_cmpgeq(a, b) merlin_v8u16_cmpgeq(a, b)
-
-#define v8u16_and(a, b) merlin_v8u16_and(a, b)
-#define v8u16_or(a, b) merlin_v8u16_or(a, b)
-#define v8u16_xor(a, b) merlin_v8u16_xor(a, b)
-#define v8u16_not(a) merlin_v8u16_not(a)
-
-#define v8u16_shift_left(a, n) merlin_v8u16_shift_left(a, n)
-#define v8u16_shift_right(a, n) merlin_v8u16_shift_right(a, n)
-
-#define v8u16_mask(a) merlin_v8u16_mask(a)
-#endif // MERLIN_DROP_PREFIX
-
 //==================================v8i16=======================================
 
 typedef int16_t merlin_v8i16_t __attribute__((vector_size(16), aligned(16)));
@@ -505,35 +398,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v8i16_mask(const merlin_v8i16_t a) {
   result |= tmp[7] << 7;
   return result;
 }
-
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v8i16_t v8i16_t;
-typedef merlin_v8i16_unaligned_t v8i16_unaligned_t;
-
-#define v8i16_set1(v) merlin_v8i16_set1(v)
-#define v8i16_set(v00, v01, v02, v02, v03, v04, v05, v06, v07)                 \
-  merlin_v8i16_set(v00, v01, v02, v02, v03, v04, v05, v06, v07)
-
-#define v8i16_load_aligned(addr) merlin_v8i16_load_aligned(addr)
-#define v8i16_load_unaligned(addr) merlin_v8i16_load_unaligned(addr)
-#define v8i16_store_aligned(addr, data) merlin_v8i16_store_aligned(addr, data)
-#define v8i16_store_unaligned(addr, data)                                      \
-  merlin_v8i16_store_unaligned(addr, data)
-
-#define v8i16_add(a, b) merlin_v8i16_add(a, b)
-#define v8i16_sub(a, b) merlin_v8i16_sub(a, b)
-#define v8i16_mul(a, b) merlin_v8i16_mul(a, b)
-#define v8i16_div(a, b) merlin_v8i16_div(a, b)
-#define v8i16_mod(a, b) merlin_v8i16_mod(a, b)
-
-#define v8i16_cmpeq(a, b) merlin_v8i16_cmpeq(a, b)
-#define v8i16_cmplt(a, b) merlin_v8i16_cmplt(a, b)
-#define v8i16_cmpgt(a, b) merlin_v8i16_cmpgt(a, b)
-#define v8i16_cmpleq(a, b) merlin_v8i16_cmpleq(a, b)
-#define v8i16_cmpgeq(a, b) merlin_v8i16_cmpgeq(a, b)
-
-#define v8i16_mask(a) merlin_v8i16_mask(a)
-#endif // MERLIN_DROP_PREFIX
 
 //==================================v4u32=======================================
 
@@ -617,43 +481,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v4u32_mask(const merlin_v4u32_t a) {
 #endif
 }
 
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v4u32_t v4u32_t;
-typedef merlin_v4u32_unaligned_t v4u32_unaligned_t;
-
-#define v4u32_set1(v) merlin_v4u32_set1(v)
-#define v4u32_set(v00, v01, v02, v02, v03)                                     \
-  merlin_v4u32_set(v00, v01, v02, v02, v03)
-
-#define v4u32_load_aligned(addr) merlin_v4u32_load_aligned(addr)
-#define v4u32_load_unaligned(addr) merlin_v4u32_load_unaligned(addr)
-#define v4u32_store_aligned(addr, data) merlin_v4u32_store_aligned(addr, data)
-#define v4u32_store_unaligned(addr, data)                                      \
-  merlin_v4u32_store_unaligned(addr, data)
-
-#define v4u32_add(a, b) merlin_v4u32_add(a, b)
-#define v4u32_sub(a, b) merlin_v4u32_sub(a, b)
-#define v4u32_mul(a, b) merlin_v4u32_mul(a, b)
-#define v4u32_div(a, b) merlin_v4u32_div(a, b)
-#define v4u32_mod(a, b) merlin_v4u32_mod(a, b)
-
-#define v4u32_cmpeq(a, b) merlin_v4u32_cmpeq(a, b)
-#define v4u32_cmplt(a, b) merlin_v4u32_cmplt(a, b)
-#define v4u32_cmpgt(a, b) merlin_v4u32_cmpgt(a, b)
-#define v4u32_cmpleq(a, b) merlin_v4u32_cmpleq(a, b)
-#define v4u32_cmpgeq(a, b) merlin_v4u32_cmpgeq(a, b)
-
-#define v4u32_and(a, b) merlin_v4u32_and(a, b)
-#define v4u32_or(a, b) merlin_v4u32_or(a, b)
-#define v4u32_xor(a, b) merlin_v4u32_xor(a, b)
-#define v4u32_not(a) merlin_v4u32_not(a)
-
-#define v4u32_shift_left(a, n) merlin_v4u32_shift_left(a, n)
-#define v4u32_shift_right(a, n) merlin_v4u32_shift_right(a, n)
-
-#define v4u32_mask(a) merlin_v4u32_mask(a)
-#endif // MERLIN_DROP_PREFIX
-
 //==================================v4i32=======================================
 
 typedef int32_t merlin_v4i32_t __attribute__((vector_size(16), aligned(16)));
@@ -727,35 +554,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v4i32_mask(const merlin_v4i32_t a) {
   return result;
 #endif
 }
-
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v4i32_t v4i32_t;
-typedef merlin_v4i32_unaligned_t v4i32_unaligned_t;
-
-#define v4i32_set1(v) merlin_v4i32_set1(v)
-#define v4i32_set(v00, v01, v02, v02, v03)                                     \
-  merlin_v4i32_set(v00, v01, v02, v02, v03)
-
-#define v4i32_load_aligned(addr) merlin_v4i32_load_aligned(addr)
-#define v4i32_load_unaligned(addr) merlin_v4i32_load_unaligned(addr)
-#define v4i32_store_aligned(addr, data) merlin_v4i32_store_aligned(addr, data)
-#define v4i32_store_unaligned(addr, data)                                      \
-  merlin_v4i32_store_unaligned(addr, data)
-
-#define v4i32_add(a, b) merlin_v4i32_add(a, b)
-#define v4i32_sub(a, b) merlin_v4i32_sub(a, b)
-#define v4i32_mul(a, b) merlin_v4i32_mul(a, b)
-#define v4i32_div(a, b) merlin_v4i32_div(a, b)
-#define v4i32_mod(a, b) merlin_v4i32_mod(a, b)
-
-#define v4i32_cmpeq(a, b) merlin_v4i32_cmpeq(a, b)
-#define v4i32_cmplt(a, b) merlin_v4i32_cmplt(a, b)
-#define v4i32_cmpgt(a, b) merlin_v4i32_cmpgt(a, b)
-#define v4i32_cmpleq(a, b) merlin_v4i32_cmpleq(a, b)
-#define v4i32_cmpgeq(a, b) merlin_v4i32_cmpgeq(a, b)
-
-#define v4i32_mask(a) merlin_v4i32_mask(a)
-#endif // MERLIN_DROP_PREFIX
 
 //==================================v2u64=======================================
 
@@ -834,42 +632,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v2u64_mask(const merlin_v2u64_t a) {
 #endif
 }
 
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v2u64_t v2u64_t;
-typedef merlin_v2u64_unaligned_t v2u64_unaligned_t;
-
-#define v2u64_set1(v) merlin_v2u64_set1(v)
-#define v2u64_set(v00, v01) merlin_v2u64_set(v00, v01)
-
-#define v2u64_load_aligned(addr) merlin_v2u64_load_aligned(addr)
-#define v2u64_load_unaligned(addr) merlin_v2u64_load_unaligned(addr)
-#define v2u64_store_aligned(addr, data) merlin_v2u64_store_aligned(addr, data)
-#define v2u64_store_unaligned(addr, data)                                      \
-  merlin_v2u64_store_unaligned(addr, data)
-
-#define v2u64_add(a, b) merlin_v2u64_add(a, b)
-#define v2u64_sub(a, b) merlin_v2u64_sub(a, b)
-#define v2u64_mul(a, b) merlin_v2u64_mul(a, b)
-#define v2u64_div(a, b) merlin_v2u64_div(a, b)
-#define v2u64_mod(a, b) merlin_v2u64_mod(a, b)
-
-#define v2u64_cmpeq(a, b) merlin_v2u64_cmpeq(a, b)
-#define v2u64_cmplt(a, b) merlin_v2u64_cmplt(a, b)
-#define v2u64_cmpgt(a, b) merlin_v2u64_cmpgt(a, b)
-#define v2u64_cmpleq(a, b) merlin_v2u64_cmpleq(a, b)
-#define v2u64_cmpgeq(a, b) merlin_v2u64_cmpgeq(a, b)
-
-#define v2u64_and(a, b) merlin_v2u64_and(a, b)
-#define v2u64_or(a, b) merlin_v2u64_or(a, b)
-#define v2u64_xor(a, b) merlin_v2u64_xor(a, b)
-#define v2u64_not(a) merlin_v2u64_not(a)
-
-#define v2u64_shift_left(a, n) merlin_v2u64_shift_left(a, n)
-#define v2u64_shift_right(a, n) merlin_v2u64_shift_right(a, n)
-
-#define v2u64_mask(a) merlin_v2u64_mask(a)
-#endif // MERLIN_DROP_PREFIX
-
 //==================================v2i64=======================================
 
 typedef int64_t merlin_v2i64_t __attribute__((vector_size(16), aligned(16)));
@@ -939,33 +701,743 @@ MERLIN_FN_ATTRS static uint32_t merlin_v2i64_mask(const merlin_v2i64_t a) {
 #endif
 }
 
-#ifdef MERLIN_DROP_PREFIX
-typedef merlin_v2i64_t v2i64_t;
-typedef merlin_v2i64_unaligned_t v2i64_unaligned_t;
+//==================================v32u8=======================================
 
-#define v2i64_set1(v) merlin_v2i64_set1(v)
-#define v2i64_set(v00, v01) merlin_v2i64_set(v00, v01)
+typedef uint8_t merlin_v32u8_t __attribute__((vector_size(32), aligned(32)));
+typedef uint8_t merlin_v32u8_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
 
-#define v2i64_load_aligned(addr) merlin_v2i64_load_aligned(addr)
-#define v2i64_load_unaligned(addr) merlin_v2i64_load_unaligned(addr)
-#define v2i64_store_aligned(addr, data) merlin_v2i64_store_aligned(addr, data)
-#define v2i64_store_unaligned(addr, data)                                      \
-  merlin_v2i64_store_unaligned(addr, data)
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v32u8_t merlin_v32u8_set1(const uint8_t v) {
+  return (merlin_v32u8_t){v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v,
+                          v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v};
+}
 
-#define v2i64_add(a, b) merlin_v2i64_add(a, b)
-#define v2i64_sub(a, b) merlin_v2i64_sub(a, b)
-#define v2i64_mul(a, b) merlin_v2i64_mul(a, b)
-#define v2i64_div(a, b) merlin_v2i64_div(a, b)
-#define v2i64_mod(a, b) merlin_v2i64_mod(a, b)
+MERLIN_FN_ATTRS static merlin_v32u8_t merlin_v32u8_set(
+    const uint8_t v00, const uint8_t v01, const uint8_t v02, const uint8_t v03,
+    const uint8_t v04, const uint8_t v05, const uint8_t v06, const uint8_t v07,
+    const uint8_t v08, const uint8_t v09, const uint8_t v10, const uint8_t v11,
+    const uint8_t v12, const uint8_t v13, const uint8_t v14, const uint8_t v15,
+    const uint8_t v16, const uint8_t v17, const uint8_t v18, const uint8_t v19,
+    const uint8_t v20, const uint8_t v21, const uint8_t v22, const uint8_t v23,
+    const uint8_t v24, const uint8_t v25, const uint8_t v26, const uint8_t v27,
+    const uint8_t v28, const uint8_t v29, const uint8_t v30,
+    const uint8_t v31) {
+  return (merlin_v32u8_t){v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10,
+                          v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21,
+                          v22, v23, v24, v25, v26, v27, v28, v29, v30, v31};
+}
 
-#define v2i64_cmpeq(a, b) merlin_v2i64_cmpeq(a, b)
-#define v2i64_cmplt(a, b) merlin_v2i64_cmplt(a, b)
-#define v2i64_cmpgt(a, b) merlin_v2i64_cmpgt(a, b)
-#define v2i64_cmpleq(a, b) merlin_v2i64_cmpleq(a, b)
-#define v2i64_cmpgeq(a, b) merlin_v2i64_cmpgeq(a, b)
+//----------------------------------load/store----------------------------------
 
-#define v2i64_mask(a) merlin_v2i64_mask(a)
-#endif // MERLIN_DROP_PREFIX
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v32u8_t
+    merlin_v32u8_load_aligned(const merlin_v32u8_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v32u8_t
+    merlin_v32u8_load_unaligned(const merlin_v32u8_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v32u8_store_aligned(
+    merlin_v32u8_t addr[static 1], const merlin_v32u8_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v32u8_store_unaligned(
+    merlin_v32u8_unaligned_t addr[static 1], const merlin_v32u8_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v32u8_add, merlin_v32u8_t, +)
+MERLIN_BOP(merlin_v32u8_sub, merlin_v32u8_t, -)
+MERLIN_BOP(merlin_v32u8_mul, merlin_v32u8_t, *)
+MERLIN_BOP(merlin_v32u8_div, merlin_v32u8_t, /)
+MERLIN_BOP(merlin_v32u8_mod, merlin_v32u8_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v32u8_cmpeq, merlin_v32u8_t, ==)
+MERLIN_BOP(merlin_v32u8_cmplt, merlin_v32u8_t, <)
+MERLIN_BOP(merlin_v32u8_cmpgt, merlin_v32u8_t, >)
+MERLIN_BOP(merlin_v32u8_cmpleq, merlin_v32u8_t, <=)
+MERLIN_BOP(merlin_v32u8_cmpgeq, merlin_v32u8_t, >=)
+
+//----------------------------------bitwise-------------------------------------
+MERLIN_BOP(merlin_v32u8_and, merlin_v32u8_t, &)
+MERLIN_BOP(merlin_v32u8_or, merlin_v32u8_t, |)
+MERLIN_BOP(merlin_v32u8_xor, merlin_v32u8_t, ^)
+MERLIN_UOP(merlin_v32u8_not, merlin_v32u8_t, ~)
+MERLIN_BOP(merlin_v32u8_shift_left, merlin_v32u8_t, <<)
+MERLIN_BOP(merlin_v32u8_shift_right, merlin_v32u8_t, >>)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v32u8_mask(const merlin_v32u8_t a) {
+#ifdef __AVX2__
+  return __builtin_ia32_pmovmskb256(a);
+#else
+  uint32_t result = 0;
+  const merlin_v32u8_t tmp = merlin_v32u8_shift_right(a, merlin_v32u8_set1(7));
+  result |= (uint32_t)tmp[1] << 1;
+  result |= (uint32_t)tmp[2] << 2;
+  result |= (uint32_t)tmp[3] << 3;
+  result |= (uint32_t)tmp[4] << 4;
+  result |= (uint32_t)tmp[5] << 5;
+  result |= (uint32_t)tmp[6] << 6;
+  result |= (uint32_t)tmp[7] << 7;
+  result |= (uint32_t)tmp[8] << 8;
+  result |= (uint32_t)tmp[9] << 9;
+  result |= (uint32_t)tmp[10] << 10;
+  result |= (uint32_t)tmp[11] << 11;
+  result |= (uint32_t)tmp[12] << 12;
+  result |= (uint32_t)tmp[13] << 13;
+  result |= (uint32_t)tmp[14] << 14;
+  result |= (uint32_t)tmp[15] << 15;
+  result |= (uint32_t)tmp[16] << 16;
+  result |= (uint32_t)tmp[17] << 17;
+  result |= (uint32_t)tmp[18] << 18;
+  result |= (uint32_t)tmp[19] << 19;
+  result |= (uint32_t)tmp[20] << 20;
+  result |= (uint32_t)tmp[21] << 21;
+  result |= (uint32_t)tmp[22] << 22;
+  result |= (uint32_t)tmp[23] << 23;
+  result |= (uint32_t)tmp[24] << 24;
+  result |= (uint32_t)tmp[25] << 25;
+  result |= (uint32_t)tmp[26] << 26;
+  result |= (uint32_t)tmp[27] << 27;
+  result |= (uint32_t)tmp[28] << 28;
+  result |= (uint32_t)tmp[29] << 29;
+  result |= (uint32_t)tmp[30] << 30;
+  result |= (uint32_t)tmp[31] << 31;
+  return result;
+#endif
+}
+
+//==================================v32i8=======================================
+
+typedef int8_t merlin_v32i8_t __attribute__((vector_size(32), aligned(32)));
+typedef int8_t merlin_v32i8_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
+
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v32i8_t merlin_v32i8_set1(const int8_t v) {
+  return (merlin_v32i8_t){v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v,
+                          v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v};
+}
+
+MERLIN_FN_ATTRS static merlin_v32i8_t merlin_v32i8_set(
+    const int8_t v00, const int8_t v01, const int8_t v02, const int8_t v03,
+    const int8_t v04, const int8_t v05, const int8_t v06, const int8_t v07,
+    const int8_t v08, const int8_t v09, const int8_t v10, const int8_t v11,
+    const int8_t v12, const int8_t v13, const int8_t v14, const int8_t v15,
+    const int8_t v16, const int8_t v17, const int8_t v18, const int8_t v19,
+    const int8_t v20, const int8_t v21, const int8_t v22, const int8_t v23,
+    const int8_t v24, const int8_t v25, const int8_t v26, const int8_t v27,
+    const int8_t v28, const int8_t v29, const int8_t v30, const int8_t v31) {
+  return (merlin_v32i8_t){v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10,
+                          v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21,
+                          v22, v23, v24, v25, v26, v27, v28, v29, v30, v31};
+}
+
+//----------------------------------load/store----------------------------------
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v32i8_t
+    merlin_v32i8_load_aligned(const merlin_v32i8_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v32i8_t
+    merlin_v32i8_load_unaligned(const merlin_v32i8_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v32i8_store_aligned(
+    merlin_v32i8_t addr[static 1], const merlin_v32i8_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v32i8_store_unaligned(
+    merlin_v32i8_unaligned_t addr[static 1], const merlin_v32i8_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v32i8_add, merlin_v32i8_t, +)
+MERLIN_BOP(merlin_v32i8_sub, merlin_v32i8_t, -)
+MERLIN_BOP(merlin_v32i8_mul, merlin_v32i8_t, *)
+MERLIN_BOP(merlin_v32i8_div, merlin_v32i8_t, /)
+MERLIN_BOP(merlin_v32i8_mod, merlin_v32i8_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v32i8_cmpeq, merlin_v32i8_t, ==)
+MERLIN_BOP(merlin_v32i8_cmplt, merlin_v32i8_t, <)
+MERLIN_BOP(merlin_v32i8_cmpgt, merlin_v32i8_t, >)
+MERLIN_BOP(merlin_v32i8_cmpleq, merlin_v32i8_t, <=)
+MERLIN_BOP(merlin_v32i8_cmpgeq, merlin_v32i8_t, >=)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v32i8_mask(const merlin_v32i8_t a) {
+#ifdef __AVX2__
+  return __builtin_ia32_pmovmskb256(a);
+#else
+  uint32_t result = 0;
+  const merlin_v32i8_t tmp =
+      merlin_v32u8_shift_right((merlin_v32u8_t)a, merlin_v32u8_set1(7));
+  result |= (uint32_t)tmp[1] << 1;
+  result |= (uint32_t)tmp[2] << 2;
+  result |= (uint32_t)tmp[3] << 3;
+  result |= (uint32_t)tmp[4] << 4;
+  result |= (uint32_t)tmp[5] << 5;
+  result |= (uint32_t)tmp[6] << 6;
+  result |= (uint32_t)tmp[7] << 7;
+  result |= (uint32_t)tmp[8] << 8;
+  result |= (uint32_t)tmp[9] << 9;
+  result |= (uint32_t)tmp[10] << 10;
+  result |= (uint32_t)tmp[11] << 11;
+  result |= (uint32_t)tmp[12] << 12;
+  result |= (uint32_t)tmp[13] << 13;
+  result |= (uint32_t)tmp[14] << 14;
+  result |= (uint32_t)tmp[15] << 15;
+  result |= (uint32_t)tmp[16] << 16;
+  result |= (uint32_t)tmp[17] << 17;
+  result |= (uint32_t)tmp[18] << 18;
+  result |= (uint32_t)tmp[19] << 19;
+  result |= (uint32_t)tmp[20] << 20;
+  result |= (uint32_t)tmp[21] << 21;
+  result |= (uint32_t)tmp[22] << 22;
+  result |= (uint32_t)tmp[23] << 23;
+  result |= (uint32_t)tmp[24] << 24;
+  result |= (uint32_t)tmp[25] << 25;
+  result |= (uint32_t)tmp[26] << 26;
+  result |= (uint32_t)tmp[27] << 27;
+  result |= (uint32_t)tmp[28] << 28;
+  result |= (uint32_t)tmp[29] << 29;
+  result |= (uint32_t)tmp[30] << 30;
+  result |= (uint32_t)tmp[31] << 31;
+  return result;
+#endif
+}
+
+//==================================v16u16=======================================
+
+typedef uint16_t merlin_v16u16_t __attribute__((vector_size(32), aligned(32)));
+typedef uint16_t merlin_v16u16_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
+
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v16u16_t merlin_v16u16_set1(const uint16_t v) {
+  return (merlin_v16u16_t){
+      v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v,
+  };
+}
+
+MERLIN_FN_ATTRS static merlin_v16u16_t
+merlin_v16u16_set(const uint16_t v00, const uint16_t v01, const uint16_t v02,
+                  const uint16_t v03, const uint16_t v04, const uint16_t v05,
+                  const uint16_t v06, const uint16_t v07, const uint16_t v08,
+                  const uint16_t v09, const uint16_t v10, const uint16_t v11,
+                  const uint16_t v12, const uint16_t v13, const uint16_t v14,
+                  const uint16_t v15) {
+  return (merlin_v16u16_t){v00, v01, v02, v03, v04, v05, v06, v07,
+                           v08, v09, v10, v11, v12, v13, v14, v15};
+}
+
+//----------------------------------load/store----------------------------------
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16u16_t
+    merlin_v16u16_load_aligned(const merlin_v16u16_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16u16_t
+    merlin_v16u16_load_unaligned(
+        const merlin_v16u16_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v16u16_store_aligned(
+    merlin_v16u16_t addr[static 1], const merlin_v16u16_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v16u16_store_unaligned(
+    merlin_v16u16_unaligned_t addr[static 1], const merlin_v16u16_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v16u16_add, merlin_v16u16_t, +)
+MERLIN_BOP(merlin_v16u16_sub, merlin_v16u16_t, -)
+MERLIN_BOP(merlin_v16u16_mul, merlin_v16u16_t, *)
+MERLIN_BOP(merlin_v16u16_div, merlin_v16u16_t, /)
+MERLIN_BOP(merlin_v16u16_mod, merlin_v16u16_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v16u16_cmpeq, merlin_v16u16_t, ==)
+MERLIN_BOP(merlin_v16u16_cmplt, merlin_v16u16_t, <)
+MERLIN_BOP(merlin_v16u16_cmpgt, merlin_v16u16_t, >)
+MERLIN_BOP(merlin_v16u16_cmpleq, merlin_v16u16_t, <=)
+MERLIN_BOP(merlin_v16u16_cmpgeq, merlin_v16u16_t, >=)
+
+//----------------------------------bitwise-------------------------------------
+MERLIN_BOP(merlin_v16u16_and, merlin_v16u16_t, &)
+MERLIN_BOP(merlin_v16u16_or, merlin_v16u16_t, |)
+MERLIN_BOP(merlin_v16u16_xor, merlin_v16u16_t, ^)
+MERLIN_UOP(merlin_v16u16_not, merlin_v16u16_t, ~)
+MERLIN_BOP(merlin_v16u16_shift_left, merlin_v16u16_t, <<)
+MERLIN_BOP(merlin_v16u16_shift_right, merlin_v16u16_t, >>)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v16u16_mask(const merlin_v16u16_t a) {
+  const merlin_v16u16_t tmp =
+      merlin_v16u16_shift_right(a, merlin_v16u16_set1(15));
+  uint32_t result = 0;
+  result |= tmp[0] << 0;
+  result |= tmp[1] << 1;
+  result |= tmp[2] << 2;
+  result |= tmp[3] << 3;
+  result |= tmp[4] << 4;
+  result |= tmp[5] << 5;
+  result |= tmp[6] << 6;
+  result |= tmp[7] << 7;
+  result |= tmp[8] << 8;
+  result |= tmp[9] << 9;
+  result |= tmp[10] << 10;
+  result |= tmp[11] << 11;
+  result |= tmp[12] << 12;
+  result |= tmp[13] << 13;
+  result |= tmp[14] << 14;
+  result |= tmp[15] << 15;
+  return result;
+}
+
+//==================================v16i16=======================================
+
+typedef int16_t merlin_v16i16_t __attribute__((vector_size(32), aligned(32)));
+typedef int16_t merlin_v16i16_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
+
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v16i16_t merlin_v16i16_set1(const int16_t v) {
+  return (merlin_v16i16_t){
+      v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v,
+  };
+}
+
+MERLIN_FN_ATTRS static merlin_v16i16_t
+merlin_v16i16_set(const int16_t v00, const int16_t v01, const int16_t v02,
+                  const int16_t v03, const int16_t v04, const int16_t v05,
+                  const int16_t v06, const int16_t v07, const int16_t v08,
+                  const int16_t v09, const int16_t v10, const int16_t v11,
+                  const int16_t v12, const int16_t v13, const int16_t v14,
+                  const int16_t v15) {
+  return (merlin_v16i16_t){v00, v01, v02, v03, v04, v05, v06, v07,
+                           v08, v09, v10, v11, v12, v13, v14, v15};
+}
+
+//----------------------------------load/store----------------------------------
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16i16_t
+    merlin_v16i16_load_aligned(const merlin_v16i16_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v16i16_t
+    merlin_v16i16_load_unaligned(
+        const merlin_v16i16_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v16i16_store_aligned(
+    merlin_v16i16_t addr[static 1], const merlin_v16i16_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v16i16_store_unaligned(
+    merlin_v16i16_unaligned_t addr[static 1], const merlin_v16i16_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v16i16_add, merlin_v16i16_t, +)
+MERLIN_BOP(merlin_v16i16_sub, merlin_v16i16_t, -)
+MERLIN_BOP(merlin_v16i16_mul, merlin_v16i16_t, *)
+MERLIN_BOP(merlin_v16i16_div, merlin_v16i16_t, /)
+MERLIN_BOP(merlin_v16i16_mod, merlin_v16i16_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v16i16_cmpeq, merlin_v16i16_t, ==)
+MERLIN_BOP(merlin_v16i16_cmplt, merlin_v16i16_t, <)
+MERLIN_BOP(merlin_v16i16_cmpgt, merlin_v16i16_t, >)
+MERLIN_BOP(merlin_v16i16_cmpleq, merlin_v16i16_t, <=)
+MERLIN_BOP(merlin_v16i16_cmpgeq, merlin_v16i16_t, >=)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v16i16_mask(const merlin_v16i16_t a) {
+  const merlin_v16i16_t tmp =
+      merlin_v16u16_shift_right(a, merlin_v16u16_set1(15));
+  uint32_t result = 0;
+  result |= tmp[0] << 0;
+  result |= tmp[1] << 1;
+  result |= tmp[2] << 2;
+  result |= tmp[3] << 3;
+  result |= tmp[4] << 4;
+  result |= tmp[5] << 5;
+  result |= tmp[6] << 6;
+  result |= tmp[7] << 7;
+  result |= tmp[8] << 8;
+  result |= tmp[9] << 9;
+  result |= tmp[10] << 10;
+  result |= tmp[11] << 11;
+  result |= tmp[12] << 12;
+  result |= tmp[13] << 13;
+  result |= tmp[14] << 14;
+  result |= tmp[15] << 15;
+  return result;
+}
+
+//==================================v8u32=======================================
+
+typedef uint32_t merlin_v8u32_t __attribute__((vector_size(32), aligned(32)));
+typedef uint32_t merlin_v8u32_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
+
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v8u32_t merlin_v8u32_set1(const uint32_t v) {
+  return (merlin_v8u32_t){v, v, v, v, v, v, v, v};
+}
+
+MERLIN_FN_ATTRS static merlin_v8u32_t
+merlin_v8u32_set(const uint32_t v00, const uint32_t v01, const uint32_t v02,
+                 const uint32_t v03, const uint32_t v04, const uint32_t v05,
+                 const uint32_t v06, const uint32_t v07) {
+  return (merlin_v8u32_t){v00, v01, v02, v03, v04, v05, v06, v07};
+}
+
+//----------------------------------load/store----------------------------------
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8u32_t
+    merlin_v8u32_load_aligned(const merlin_v8u32_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8u32_t
+    merlin_v8u32_load_unaligned(const merlin_v8u32_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v8u32_store_aligned(
+    merlin_v8u32_t addr[static 1], const merlin_v8u32_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v8u32_store_unaligned(
+    merlin_v8u32_unaligned_t addr[static 1], const merlin_v8u32_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v8u32_add, merlin_v8u32_t, +)
+MERLIN_BOP(merlin_v8u32_sub, merlin_v8u32_t, -)
+MERLIN_BOP(merlin_v8u32_mul, merlin_v8u32_t, *)
+MERLIN_BOP(merlin_v8u32_div, merlin_v8u32_t, /)
+MERLIN_BOP(merlin_v8u32_mod, merlin_v8u32_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v8u32_cmpeq, merlin_v8u32_t, ==)
+MERLIN_BOP(merlin_v8u32_cmplt, merlin_v8u32_t, <)
+MERLIN_BOP(merlin_v8u32_cmpgt, merlin_v8u32_t, >)
+MERLIN_BOP(merlin_v8u32_cmpleq, merlin_v8u32_t, <=)
+MERLIN_BOP(merlin_v8u32_cmpgeq, merlin_v8u32_t, >=)
+
+//----------------------------------bitwise-------------------------------------
+MERLIN_BOP(merlin_v8u32_and, merlin_v8u32_t, &)
+MERLIN_BOP(merlin_v8u32_or, merlin_v8u32_t, |)
+MERLIN_BOP(merlin_v8u32_xor, merlin_v8u32_t, ^)
+MERLIN_UOP(merlin_v8u32_not, merlin_v8u32_t, ~)
+MERLIN_BOP(merlin_v8u32_shift_left, merlin_v8u32_t, <<)
+MERLIN_BOP(merlin_v8u32_shift_right, merlin_v8u32_t, >>)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v8u32_mask(const merlin_v8u32_t a) {
+#ifdef __AVX__
+  return __builtin_ia32_movmskps256(a);
+#else
+  const merlin_v8u32_t tmp = merlin_v8u32_shift_right(a, merlin_v8u32_set1(31));
+  uint32_t result = 0;
+  result |= tmp[0] << 0;
+  result |= tmp[1] << 1;
+  result |= tmp[2] << 2;
+  result |= tmp[3] << 3;
+  result |= tmp[4] << 4;
+  result |= tmp[5] << 5;
+  result |= tmp[6] << 6;
+  result |= tmp[7] << 7;
+  return result;
+#endif // __AVX__
+}
+
+//==================================v8i32=======================================
+
+typedef int32_t merlin_v8i32_t __attribute__((vector_size(32), aligned(32)));
+typedef int32_t merlin_v8i32_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
+
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v8i32_t merlin_v8i32_set1(const int32_t v) {
+  return (merlin_v8i32_t){v, v, v, v, v, v, v, v};
+}
+
+MERLIN_FN_ATTRS static merlin_v8i32_t
+merlin_v8i32_set(const int32_t v00, const int32_t v01, const int32_t v02,
+                 const int32_t v03, const int32_t v04, const int32_t v05,
+                 const int32_t v06, const int32_t v07) {
+  return (merlin_v8i32_t){v00, v01, v02, v03, v04, v05, v06, v07};
+}
+
+//----------------------------------load/store----------------------------------
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8i32_t
+    merlin_v8i32_load_aligned(const merlin_v8i32_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v8i32_t
+    merlin_v8i32_load_unaligned(const merlin_v8i32_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v8i32_store_aligned(
+    merlin_v8i32_t addr[static 1], const merlin_v8i32_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v8i32_store_unaligned(
+    merlin_v8i32_unaligned_t addr[static 1], const merlin_v8i32_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v8i32_add, merlin_v8i32_t, +)
+MERLIN_BOP(merlin_v8i32_sub, merlin_v8i32_t, -)
+MERLIN_BOP(merlin_v8i32_mul, merlin_v8i32_t, *)
+MERLIN_BOP(merlin_v8i32_div, merlin_v8i32_t, /)
+MERLIN_BOP(merlin_v8i32_mod, merlin_v8i32_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v8i32_cmpeq, merlin_v8i32_t, ==)
+MERLIN_BOP(merlin_v8i32_cmplt, merlin_v8i32_t, <)
+MERLIN_BOP(merlin_v8i32_cmpgt, merlin_v8i32_t, >)
+MERLIN_BOP(merlin_v8i32_cmpleq, merlin_v8i32_t, <=)
+MERLIN_BOP(merlin_v8i32_cmpgeq, merlin_v8i32_t, >=)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v8i32_mask(const merlin_v8i32_t a) {
+#ifdef __AVX__
+  return __builtin_ia32_movmskps256(a);
+#else
+  const merlin_v8u32_t tmp =
+      merlin_v8u32_shift_right((merlin_v8u32_t)a, merlin_v8u32_set1(31));
+  uint32_t result = 0;
+  result |= tmp[0] << 0;
+  result |= tmp[1] << 1;
+  result |= tmp[2] << 2;
+  result |= tmp[3] << 3;
+  result |= tmp[4] << 4;
+  result |= tmp[5] << 5;
+  result |= tmp[6] << 6;
+  result |= tmp[7] << 7;
+  return result;
+#endif // __AVX__
+}
+
+//==================================v4u64=======================================
+
+typedef uint64_t merlin_v4u64_t __attribute__((vector_size(32), aligned(32)));
+typedef uint64_t merlin_v4u64_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
+
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v4u64_t merlin_v4u64_set1(const uint64_t v) {
+  return (merlin_v4u64_t){v, v, v, v};
+}
+
+MERLIN_FN_ATTRS static merlin_v4u64_t merlin_v4u64_set(const uint64_t v00,
+                                                       const uint64_t v01,
+                                                       const uint64_t v02,
+                                                       const uint64_t v03) {
+  return (merlin_v4u64_t){v00, v01, v02, v03};
+}
+
+//----------------------------------load/store----------------------------------
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4u64_t
+    merlin_v4u64_load_aligned(const merlin_v4u64_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4u64_t
+    merlin_v4u64_load_unaligned(const merlin_v4u64_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v4u64_store_aligned(
+    merlin_v4u64_t addr[static 1], const merlin_v4u64_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v4u64_store_unaligned(
+    merlin_v4u64_unaligned_t addr[static 1], const merlin_v4u64_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v4u64_add, merlin_v4u64_t, +)
+MERLIN_BOP(merlin_v4u64_sub, merlin_v4u64_t, -)
+MERLIN_BOP(merlin_v4u64_mul, merlin_v4u64_t, *)
+MERLIN_BOP(merlin_v4u64_div, merlin_v4u64_t, /)
+MERLIN_BOP(merlin_v4u64_mod, merlin_v4u64_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v4u64_cmpeq, merlin_v4u64_t, ==)
+MERLIN_BOP(merlin_v4u64_cmplt, merlin_v4u64_t, <)
+MERLIN_BOP(merlin_v4u64_cmpgt, merlin_v4u64_t, >)
+MERLIN_BOP(merlin_v4u64_cmpleq, merlin_v4u64_t, <=)
+MERLIN_BOP(merlin_v4u64_cmpgeq, merlin_v4u64_t, >=)
+
+//----------------------------------bitwise-------------------------------------
+MERLIN_BOP(merlin_v4u64_and, merlin_v4u64_t, &)
+MERLIN_BOP(merlin_v4u64_or, merlin_v4u64_t, |)
+MERLIN_BOP(merlin_v4u64_xor, merlin_v4u64_t, ^)
+MERLIN_UOP(merlin_v4u64_not, merlin_v4u64_t, ~)
+MERLIN_BOP(merlin_v4u64_shift_left, merlin_v4u64_t, <<)
+MERLIN_BOP(merlin_v4u64_shift_right, merlin_v4u64_t, >>)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v4u64_mask(const merlin_v4u64_t a) {
+  return __builtin_ia32_movmskpd256(a);
+#ifdef __AVX__
+#else
+  const merlin_v4u64_t tmp = merlin_v4u64_shift_right(a, merlin_v4u64_set1(63));
+  uint32_t result = 0;
+  result |= tmp[0] << 0;
+  result |= tmp[1] << 1;
+  result |= tmp[2] << 2;
+  result |= tmp[3] << 3;
+  return result;
+#endif // __AVX__
+}
+
+//==================================v4i64=======================================
+
+typedef int64_t merlin_v4i64_t __attribute__((vector_size(32), aligned(32)));
+typedef int64_t merlin_v4i64_unaligned_t
+    __attribute__((vector_size(32), aligned(1)));
+
+//----------------------------------set-----------------------------------------
+MERLIN_FN_ATTRS static merlin_v4i64_t merlin_v4i64_set1(const int64_t v) {
+  return (merlin_v4i64_t){v, v, v, v};
+}
+
+MERLIN_FN_ATTRS static merlin_v4i64_t merlin_v4i64_set(const int64_t v00,
+                                                       const int64_t v01,
+                                                       const int64_t v02,
+                                                       const int64_t v03) {
+  return (merlin_v4i64_t){v00, v01, v02, v03};
+}
+
+//----------------------------------load/store----------------------------------
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4i64_t
+    merlin_v4i64_load_aligned(const merlin_v4i64_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_FN_ATTRS MERLIN_NONNULL(1) static merlin_v4i64_t
+    merlin_v4i64_load_unaligned(const merlin_v4i64_unaligned_t addr[static 1]) {
+  MERLIN_ASSUME(addr != NULL);
+  return *addr;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v4i64_store_aligned(
+    merlin_v4i64_t addr[static 1], const merlin_v4i64_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+MERLIN_VOIDFN_ATTRS MERLIN_NONNULL(1) static void merlin_v4i64_store_unaligned(
+    merlin_v4i64_unaligned_t addr[static 1], const merlin_v4i64_t data) {
+  MERLIN_ASSUME(addr != NULL);
+  *addr = data;
+}
+
+//----------------------------------arithmetic----------------------------------
+MERLIN_BOP(merlin_v4i64_add, merlin_v4i64_t, +)
+MERLIN_BOP(merlin_v4i64_sub, merlin_v4i64_t, -)
+MERLIN_BOP(merlin_v4i64_mul, merlin_v4i64_t, *)
+MERLIN_BOP(merlin_v4i64_div, merlin_v4i64_t, /)
+MERLIN_BOP(merlin_v4i64_mod, merlin_v4i64_t, %)
+
+//----------------------------------cmp-----------------------------------------
+MERLIN_BOP(merlin_v4i64_cmpeq, merlin_v4i64_t, ==)
+MERLIN_BOP(merlin_v4i64_cmplt, merlin_v4i64_t, <)
+MERLIN_BOP(merlin_v4i64_cmpgt, merlin_v4i64_t, >)
+MERLIN_BOP(merlin_v4i64_cmpleq, merlin_v4i64_t, <=)
+MERLIN_BOP(merlin_v4i64_cmpgeq, merlin_v4i64_t, >=)
+
+//----------------------------------mask----------------------------------------
+
+MERLIN_FN_ATTRS static uint32_t merlin_v4i64_mask(const merlin_v4i64_t a) {
+  return __builtin_ia32_movmskpd256(a);
+#ifdef __AVX__
+#else
+  const merlin_v4u64_t tmp =
+      merlin_v4u64_shift_right((merlin_v4u64_t)a, merlin_v4u64_set1(63));
+  uint32_t result = 0;
+  result |= tmp[0] << 0;
+  result |= tmp[1] << 1;
+  result |= tmp[2] << 2;
+  result |= tmp[3] << 3;
+  return result;
+#endif // __AVX__
+}
 
 #undef MERLIN_BOP
 #undef MERLIN_UOP
