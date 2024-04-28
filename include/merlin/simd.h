@@ -40,8 +40,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_mask_first_set(const uint32_t mask) {
 
 // generator macros
 #define MERLIN_OP_ATTRS                                                        \
-  __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
-                 __const__))
+  __attribute__((__noinline__, __unused__, __warn_unused_result__, __const__))
 
 #define MERLIN_BOP(NAME, TYPE, BOP)                                            \
   __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
@@ -125,11 +124,13 @@ MERLIN_BOP(merlin_v16u8_or, merlin_v16u8_t, |)
 MERLIN_BOP(merlin_v16u8_xor, merlin_v16u8_t, ^)
 MERLIN_UOP(merlin_v16u8_not, merlin_v16u8_t, ~)
 
-/* MERLIN_BOP(merlin_v16u8_shift_left, merlin_v16u8_t, <<) */
-/* MERLIN_BOP(merlin_v16u8_shift_right, merlin_v16u8_t, >>) */
-
-/// \brief Shifting each element of vector `a` left by immediate value `n`
-/// \returns vector of type `uint8_t[16]` containing shifted values
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type uint8_t[16]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint8_t[16] with the shifted values
+ */
 MERLIN_OP_ATTRS static merlin_v16u8_t
 merlin_v16u8_shift_left(const merlin_v16u8_t a, const uint32_t n) {
 #ifdef __SSE2__
@@ -144,8 +145,13 @@ merlin_v16u8_shift_left(const merlin_v16u8_t a, const uint32_t n) {
 #endif //__SSE2__
 }
 
-/// \brief Shifting each element of vector `a` right by immediate value `n`
-/// \returns vector of type `uint8_t[16]` containing shifted values
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint8_t[16]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint8_t[16] with the shifted values
+ */
 MERLIN_OP_ATTRS static merlin_v16u8_t
 merlin_v16u8_shift_right(const merlin_v16u8_t a, const uint32_t n) {
 #ifdef __SSE2__
@@ -167,7 +173,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v16u8_mask(const merlin_v16u8_t a) {
   return __builtin_ia32_pmovmskb128(a);
 #else
   uint32_t result = 0;
-  const merlin_v16u8_t tmp = merlin_v16u8_shift_right(a, merlin_v16u8_set1(7));
+  const merlin_v16u8_t tmp = merlin_v16u8_shift_right(a, 7);
   result |= (uint16_t)tmp[0] << 0;
   result |= (uint16_t)tmp[1] << 1;
   result |= (uint16_t)tmp[2] << 2;
@@ -185,7 +191,6 @@ MERLIN_FN_ATTRS static uint32_t merlin_v16u8_mask(const merlin_v16u8_t a) {
   result |= (uint16_t)tmp[14] << 14;
   result |= (uint16_t)tmp[15] << 15;
   return result;
-
 #endif
 }
 
@@ -341,14 +346,46 @@ MERLIN_BOP(merlin_v8u16_and, merlin_v8u16_t, &)
 MERLIN_BOP(merlin_v8u16_or, merlin_v8u16_t, |)
 MERLIN_BOP(merlin_v8u16_xor, merlin_v8u16_t, ^)
 MERLIN_UOP(merlin_v8u16_not, merlin_v8u16_t, ~)
-MERLIN_BOP(merlin_v8u16_shift_left, merlin_v8u16_t, <<)
-MERLIN_BOP(merlin_v8u16_shift_right, merlin_v8u16_t, >>)
+
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type uint16_t[8]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint16_t[8] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v8u16_t
+merlin_v8u16_shift_left(const merlin_v8u16_t a, const uint32_t n) {
+#ifdef __SSE2__
+  return __builtin_ia32_psllwi128(a, n);
+#else
+  return (merlin_v8u16_t){a[0] << n, a[1] << n, a[2] << n, a[3] << n,
+                          a[4] << n, a[5] << n, a[6] << n, a[7] << n};
+#endif //__SSE2__
+}
+
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint16_t[8]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint16_t[8] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v8u16_t
+merlin_v8u16_shift_right(const merlin_v8u16_t a, const uint32_t n) {
+#ifdef __SSE2__
+  return __builtin_ia32_psrlwi128(a, n);
+#else
+  return (merlin_v8u16_t){a[0] >> n, a[1] >> n, a[2] >> n, a[3] >> n,
+                          a[4] >> n, a[5] >> n, a[6] >> n, a[7] >> n};
+#endif //__SSE2__
+}
 
 //----------------------------------mask----------------------------------------
 
 MERLIN_FN_ATTRS static uint32_t merlin_v8u16_mask(const merlin_v8u16_t a) {
   uint32_t result = 0;
-  const merlin_v8u16_t tmp = merlin_v8u16_shift_right(a, merlin_v8u16_set1(15));
+  const merlin_v8u16_t tmp = merlin_v8u16_shift_right(a, 15);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -423,7 +460,7 @@ MERLIN_BOP(merlin_v8i16_cmpgeq, merlin_v8i16_t, >=)
 MERLIN_FN_ATTRS static uint32_t merlin_v8i16_mask(const merlin_v8i16_t a) {
   uint32_t result = 0;
   const merlin_v8u16_t tmp =
-      merlin_v8u16_shift_right((const merlin_v8u16_t)a, merlin_v8u16_set1(15));
+      merlin_v8u16_shift_right((const merlin_v8u16_t)a, 15);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -498,8 +535,38 @@ MERLIN_BOP(merlin_v4u32_and, merlin_v4u32_t, &)
 MERLIN_BOP(merlin_v4u32_or, merlin_v4u32_t, |)
 MERLIN_BOP(merlin_v4u32_xor, merlin_v4u32_t, ^)
 MERLIN_UOP(merlin_v4u32_not, merlin_v4u32_t, ~)
-MERLIN_BOP(merlin_v4u32_shift_left, merlin_v4u32_t, <<)
-MERLIN_BOP(merlin_v4u32_shift_right, merlin_v4u32_t, >>)
+
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type `uint32_t[4]`
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type `uint32_t[4]` with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v4u32_t
+merlin_v4u32_shift_left(const merlin_v4u32_t a, const uint32_t n) {
+#ifdef __SSE2__
+  return __builtin_ia32_pslldi128(a, n);
+#else
+  return (merlin_v4u32_t){a[0] << n, a[1] << n, a[2] << n, a[3] << n};
+#endif //__SSE2__
+}
+
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint32_t[4]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint32_t[4] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v4u32_t
+merlin_v4u32_shift_right(const merlin_v4u32_t a, const uint32_t n) {
+#ifdef __SSE2__
+  return __builtin_ia32_psrldi128(a, n);
+#else
+  return (merlin_v4u32_t){a[0] >> n, a[1] >> n, a[2] >> n, a[3] >> n};
+#endif //__SSE2__
+}
 
 //----------------------------------mask----------------------------------------
 
@@ -508,7 +575,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v4u32_mask(const merlin_v4u32_t a) {
   return __builtin_ia32_movmskps(a);
 #else
   uint32_t result = 0;
-  const merlin_v4u32_t tmp = merlin_v4u32_shift_right(a, merlin_v4u32_set1(31));
+  const merlin_v4u32_t tmp = merlin_v4u32_shift_right(a, 31);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -582,7 +649,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v4i32_mask(const merlin_v4i32_t a) {
   return __builtin_ia32_movmskps(a);
 #else
   uint32_t result = 0;
-  const merlin_v4i32_t tmp = merlin_v4i32_shift_right(a, merlin_v4u32_set1(31));
+  const merlin_v4i32_t tmp = merlin_v4u32_shift_right(a, 31);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -652,8 +719,38 @@ MERLIN_BOP(merlin_v2u64_and, merlin_v2u64_t, &)
 MERLIN_BOP(merlin_v2u64_or, merlin_v2u64_t, |)
 MERLIN_BOP(merlin_v2u64_xor, merlin_v2u64_t, ^)
 MERLIN_UOP(merlin_v2u64_not, merlin_v2u64_t, ~)
-MERLIN_BOP(merlin_v2u64_shift_left, merlin_v2u64_t, <<)
-MERLIN_BOP(merlin_v2u64_shift_right, merlin_v2u64_t, >>)
+
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type `uint64_t[2]`
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type `uint64_t[2]` with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v2u64_t
+merlin_v2u64_shift_left(const merlin_v2u64_t a, const uint32_t n) {
+#ifdef __SSE2__
+  return __builtin_ia32_psllqi128(a, n);
+#else
+  return (merlin_v2u64_t){a[0] << n, a[1] << n};
+#endif //__SSE2__
+}
+
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint64_t[2]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint64_t[2] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v2u64_t
+merlin_v2u64_shift_right(const merlin_v2u64_t a, const uint32_t n) {
+#ifdef __SSE2__
+  return __builtin_ia32_psrlqi128(a, n);
+#else
+  return (merlin_v2u64_t){a[0] >> n, a[1] >> n};
+#endif //__SSE2__
+}
 
 //----------------------------------mask----------------------------------------
 
@@ -662,7 +759,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v2u64_mask(const merlin_v2u64_t a) {
   return __builtin_ia32_movmskpd(a);
 #else
   uint32_t result = 0;
-  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, merlin_v2u64_set1(63));
+  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, 63);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
 #endif
@@ -731,7 +828,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v2i64_mask(const merlin_v2i64_t a) {
   return __builtin_ia32_movmskpd((cast_type)a);
 #else
   uint32_t result = 0;
-  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, merlin_v2u64_set1(63));
+  const merlin_v2u64_t tmp = merlin_v2u64_shift_right(a, 63);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
 #endif
@@ -809,8 +906,76 @@ MERLIN_BOP(merlin_v32u8_and, merlin_v32u8_t, &)
 MERLIN_BOP(merlin_v32u8_or, merlin_v32u8_t, |)
 MERLIN_BOP(merlin_v32u8_xor, merlin_v32u8_t, ^)
 MERLIN_UOP(merlin_v32u8_not, merlin_v32u8_t, ~)
-MERLIN_BOP(merlin_v32u8_shift_left, merlin_v32u8_t, <<)
-MERLIN_BOP(merlin_v32u8_shift_right, merlin_v32u8_t, >>)
+
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type uint8_t[32]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint8_t[32] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v32u8_t
+merlin_v32u8_shift_left(const merlin_v32u8_t a, const uint32_t n) {
+#ifdef __AVX2__
+  merlin_v32u8_t tmp = __builtin_ia32_psllwi256(a, n);
+  tmp = merlin_v32u8_and(tmp, merlin_v32u8_set1((uint8_t)-1 << n));
+  return tmp;
+#else
+  merlin_v16u8_t lower = {a[0], a[1], a[2],  a[3],  a[4],  a[5],  a[6],  a[7],
+                          a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
+  merlin_v16u8_t upper = {a[16], a[17], a[18], a[19], a[20], a[21],
+                          a[22], a[23], a[24], a[25], a[26], a[27],
+                          a[28], a[29], a[30], a[31]};
+
+  lower = merlin_v16u8_shift_left(lower, n);
+  upper = merlin_v16u8_shift_left(upper, n);
+
+  return (merlin_v32u8_t){
+      lower[0],  lower[1],  lower[2],  lower[3],  lower[4],  lower[5],
+      lower[6],  lower[7],  lower[8],  lower[9],  lower[10], lower[11],
+      lower[12], lower[13], lower[14], lower[15],
+
+      upper[0],  upper[1],  upper[2],  upper[3],  upper[4],  upper[5],
+      upper[6],  upper[7],  upper[8],  upper[9],  upper[10], upper[11],
+      upper[12], upper[13], upper[14], upper[15],
+  };
+#endif //__AVX2__
+}
+
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint8_t[32]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint8_t[32] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v32u8_t
+merlin_v32u8_shift_right(const merlin_v32u8_t a, const uint32_t n) {
+#ifdef __AVX2__
+  merlin_v32u8_t tmp = __builtin_ia32_psrlwi256(a, n);
+  tmp = merlin_v32u8_and(tmp, merlin_v32u8_set1((uint8_t)-1 >> n));
+  return tmp;
+#else
+  merlin_v16u8_t lower = {a[0], a[1], a[2],  a[3],  a[4],  a[5],  a[6],  a[7],
+                          a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
+  merlin_v16u8_t upper = {a[16], a[17], a[18], a[19], a[20], a[21],
+                          a[22], a[23], a[24], a[25], a[26], a[27],
+                          a[28], a[29], a[30], a[31]};
+
+  lower = merlin_v16u8_shift_right(lower, n);
+  upper = merlin_v16u8_shift_right(upper, n);
+
+  return (merlin_v32u8_t){
+      lower[0],  lower[1],  lower[2],  lower[3],  lower[4],  lower[5],
+      lower[6],  lower[7],  lower[8],  lower[9],  lower[10], lower[11],
+      lower[12], lower[13], lower[14], lower[15],
+
+      upper[0],  upper[1],  upper[2],  upper[3],  upper[4],  upper[5],
+      upper[6],  upper[7],  upper[8],  upper[9],  upper[10], upper[11],
+      upper[12], upper[13], upper[14], upper[15],
+  };
+#endif //__AVX2__
+}
 
 //----------------------------------mask----------------------------------------
 
@@ -819,7 +984,8 @@ MERLIN_FN_ATTRS static uint32_t merlin_v32u8_mask(const merlin_v32u8_t a) {
   return __builtin_ia32_pmovmskb256(a);
 #else
   uint32_t result = 0;
-  const merlin_v32u8_t tmp = merlin_v32u8_shift_right(a, merlin_v32u8_set1(7));
+  const merlin_v32u8_t tmp = merlin_v32u8_shift_right(a, 7);
+  result |= (uint32_t)tmp[0] << 0;
   result |= (uint32_t)tmp[1] << 1;
   result |= (uint32_t)tmp[2] << 2;
   result |= (uint32_t)tmp[3] << 3;
@@ -928,8 +1094,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v32i8_mask(const merlin_v32i8_t a) {
   return __builtin_ia32_pmovmskb256(a);
 #else
   uint32_t result = 0;
-  const merlin_v32i8_t tmp =
-      merlin_v32u8_shift_right((merlin_v32u8_t)a, merlin_v32u8_set1(7));
+  const merlin_v32i8_t tmp = merlin_v32u8_shift_right((merlin_v32u8_t)a, 7);
   result |= (uint32_t)tmp[1] << 1;
   result |= (uint32_t)tmp[2] << 2;
   result |= (uint32_t)tmp[3] << 3;
@@ -1035,14 +1200,67 @@ MERLIN_BOP(merlin_v16u16_and, merlin_v16u16_t, &)
 MERLIN_BOP(merlin_v16u16_or, merlin_v16u16_t, |)
 MERLIN_BOP(merlin_v16u16_xor, merlin_v16u16_t, ^)
 MERLIN_UOP(merlin_v16u16_not, merlin_v16u16_t, ~)
-MERLIN_BOP(merlin_v16u16_shift_left, merlin_v16u16_t, <<)
-MERLIN_BOP(merlin_v16u16_shift_right, merlin_v16u16_t, >>)
+
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type uint16_t[16]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint16_t[16] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v16u16_t
+merlin_v16u16_shift_left(const merlin_v16u16_t a, const uint32_t n) {
+#ifdef __AVX2__
+  return __builtin_ia32_psllwi256(a, n);
+#else
+  merlin_v8u16_t lower = {a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]};
+  merlin_v8u16_t upper = {a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
+
+  lower = merlin_v8u16_shift_left(lower, n);
+  upper = merlin_v8u16_shift_left(upper, n);
+
+  return (merlin_v16u16_t){
+      lower[0], lower[1], lower[2], lower[3],
+      lower[4], lower[5], lower[6], lower[7],
+
+      upper[0], upper[1], upper[2], upper[3],
+      upper[4], upper[5], upper[6], upper[7],
+  };
+#endif //__AVX2__
+}
+
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint16_t[16]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint16_t[16] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v16u16_t
+merlin_v16u16_shift_right(const merlin_v16u16_t a, const uint32_t n) {
+#ifdef __AVX2__
+  return __builtin_ia32_psrlwi256(a, n);
+#else
+  merlin_v8u16_t lower = {a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]};
+  merlin_v8u16_t upper = {a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
+
+  lower = merlin_v8u16_shift_right(lower, n);
+  upper = merlin_v8u16_shift_right(upper, n);
+
+  return (merlin_v16u16_t){
+      lower[0], lower[1], lower[2], lower[3],
+      lower[4], lower[5], lower[6], lower[7],
+
+      upper[0], upper[1], upper[2], upper[3],
+      upper[4], upper[5], upper[6], upper[7],
+  };
+#endif //__AVX2__
+}
 
 //----------------------------------mask----------------------------------------
 
 MERLIN_FN_ATTRS static uint32_t merlin_v16u16_mask(const merlin_v16u16_t a) {
-  const merlin_v16u16_t tmp =
-      merlin_v16u16_shift_right(a, merlin_v16u16_set1(15));
+  const merlin_v16u16_t tmp = merlin_v16u16_shift_right(a, 15);
   uint32_t result = 0;
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1131,8 +1349,7 @@ MERLIN_BOP(merlin_v16i16_cmpgeq, merlin_v16i16_t, >=)
 //----------------------------------mask----------------------------------------
 
 MERLIN_FN_ATTRS static uint32_t merlin_v16i16_mask(const merlin_v16i16_t a) {
-  const merlin_v16i16_t tmp =
-      merlin_v16u16_shift_right(a, merlin_v16u16_set1(15));
+  const merlin_v16i16_t tmp = merlin_v16u16_shift_right(a, 15);
   uint32_t result = 0;
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1216,8 +1433,56 @@ MERLIN_BOP(merlin_v8u32_and, merlin_v8u32_t, &)
 MERLIN_BOP(merlin_v8u32_or, merlin_v8u32_t, |)
 MERLIN_BOP(merlin_v8u32_xor, merlin_v8u32_t, ^)
 MERLIN_UOP(merlin_v8u32_not, merlin_v8u32_t, ~)
-MERLIN_BOP(merlin_v8u32_shift_left, merlin_v8u32_t, <<)
-MERLIN_BOP(merlin_v8u32_shift_right, merlin_v8u32_t, >>)
+
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type uint32_t[8]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint32_t[8] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v8u32_t
+merlin_v8u32_shift_left(const merlin_v8u32_t a, const uint32_t n) {
+#ifdef __AVX2__
+  return __builtin_ia32_pslldi256(a, n);
+#else
+  merlin_v4u32_t lower = {a[0], a[1], a[2], a[3]};
+  merlin_v4u32_t upper = {a[4], a[5], a[6], a[7]};
+
+  lower = merlin_v4u32_shift_left(lower, n);
+  upper = merlin_v4u32_shift_left(upper, n);
+
+  return (merlin_v16u16_t){
+      lower[0], lower[1], lower[2], lower[3],
+      upper[0], upper[1], upper[2], upper[3],
+  };
+#endif //__AVX2__
+}
+
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint32_t[8]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint32_t[8] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v8u32_t
+merlin_v8u32_shift_right(const merlin_v8u32_t a, const uint32_t n) {
+#ifdef __AVX2__
+  return __builtin_ia32_psrldi256(a, n);
+#else
+  merlin_v4u32_t lower = {a[0], a[1], a[2], a[3]};
+  merlin_v4u32_t upper = {a[4], a[5], a[6], a[7]};
+
+  lower = merlin_v4u32_shift_right(lower, n);
+  upper = merlin_v4u32_shift_right(upper, n);
+
+  return (merlin_v16u16_t){
+      lower[0], lower[1], lower[2], lower[3],
+      upper[0], upper[1], upper[2], upper[3],
+  };
+#endif //__AVX2__
+}
 
 //----------------------------------mask----------------------------------------
 
@@ -1225,7 +1490,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v8u32_mask(const merlin_v8u32_t a) {
 #ifdef __AVX__
   return __builtin_ia32_movmskps256(a);
 #else
-  const merlin_v8u32_t tmp = merlin_v8u32_shift_right(a, merlin_v8u32_set1(31));
+  const merlin_v8u32_t tmp = merlin_v8u32_shift_right(a, 31);
   uint32_t result = 0;
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1303,8 +1568,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v8i32_mask(const merlin_v8i32_t a) {
 #ifdef __AVX__
   return __builtin_ia32_movmskps256(a);
 #else
-  const merlin_v8u32_t tmp =
-      merlin_v8u32_shift_right((merlin_v8u32_t)a, merlin_v8u32_set1(31));
+  const merlin_v8u32_t tmp = merlin_v8u32_shift_right((merlin_v8u32_t)a, 31);
   uint32_t result = 0;
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1381,8 +1645,50 @@ MERLIN_BOP(merlin_v4u64_and, merlin_v4u64_t, &)
 MERLIN_BOP(merlin_v4u64_or, merlin_v4u64_t, |)
 MERLIN_BOP(merlin_v4u64_xor, merlin_v4u64_t, ^)
 MERLIN_UOP(merlin_v4u64_not, merlin_v4u64_t, ~)
-MERLIN_BOP(merlin_v4u64_shift_left, merlin_v4u64_t, <<)
-MERLIN_BOP(merlin_v4u64_shift_right, merlin_v4u64_t, >>)
+
+/** doc
+ * @description: Shifts each element of vector `a` left by immediate value `n`
+ * @param a: vector of type uint64_t[4]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint64_t[4] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v4u64_t
+merlin_v4u64_shift_left(const merlin_v4u64_t a, const uint32_t n) {
+#ifdef __AVX2__
+  return __builtin_ia32_psllqi256(a, n);
+#else
+  merlin_v2u64_t lower = {a[0], a[1]};
+  merlin_v2u64_t upper = {a[2], a[3]};
+
+  lower = merlin_v2u64_shift_left(lower, n);
+  upper = merlin_v2u64_shift_left(upper, n);
+
+  return (merlin_v16u16_t){lower[0], lower[1], upper[0], upper[1]};
+#endif //__AVX2__
+}
+
+/** doc
+ * @description: Shifts each element of vector `a` right by immediate value `n`
+ * @param a: vector of type uint64_t[4]
+ * @param b: immediate value specifying the number of bits each element in a
+ * will be shifted by
+ * @return: vector of type uint64_t[4] with the shifted values
+ */
+MERLIN_OP_ATTRS static merlin_v4u64_t
+merlin_v4u64_shift_right(const merlin_v4u64_t a, const uint32_t n) {
+#ifdef __AVX2__
+  return __builtin_ia32_psrlqi256(a, n);
+#else
+  merlin_v2u64_t lower = {a[0], a[1]};
+  merlin_v2u64_t upper = {a[2], a[3]};
+
+  lower = merlin_v2u64_shift_right(lower, n);
+  upper = merlin_v2u64_shift_right(upper, n);
+
+  return (merlin_v16u16_t){lower[0], lower[1], upper[0], upper[1]};
+#endif //__AVX2__
+}
 
 //----------------------------------mask----------------------------------------
 
@@ -1390,7 +1696,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v4u64_mask(const merlin_v4u64_t a) {
   return __builtin_ia32_movmskpd256(a);
 #ifdef __AVX__
 #else
-  const merlin_v4u64_t tmp = merlin_v4u64_shift_right(a, merlin_v4u64_set1(63));
+  const merlin_v4u64_t tmp = merlin_v4u64_shift_right(a, 63);
   uint32_t result = 0;
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
@@ -1464,8 +1770,7 @@ MERLIN_FN_ATTRS static uint32_t merlin_v4i64_mask(const merlin_v4i64_t a) {
   return __builtin_ia32_movmskpd256(a);
 #ifdef __AVX__
 #else
-  const merlin_v4u64_t tmp =
-      merlin_v4u64_shift_right((merlin_v4u64_t)a, merlin_v4u64_set1(63));
+  const merlin_v4u64_t tmp = merlin_v4u64_shift_right((merlin_v4u64_t)a, 63);
   uint32_t result = 0;
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
