@@ -1,6 +1,7 @@
 #include <broken/unit.h>
 #include <merlin/simd.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <threads.h>
 #include <time.h>
@@ -1177,6 +1178,174 @@ static test_t TEST_v2i64(void) {
   return test;
 }
 
+//=================================v32u8========================================
+static test_t TEST_v32u8(void) {
+  // time_t t = time(NULL);
+  time_t t = 1714320778;
+  test_t test = TEST_MAKE(TEST_MAKE_STR("%s(%ld)", __func__, t));
+  srand(t);
+
+  uint8_t *arr_a = aligned_alloc(32, 32 * sizeof(*arr_a));
+  uint8_t *arr_b = malloc(33 * sizeof(*arr_b));
+  uint8_t *arr_a_store = aligned_alloc(32, 32 * sizeof(*arr_a_store));
+  uint8_t *arr_b_store = malloc(33 * sizeof(*arr_b_store));
+
+  for (uint32_t i = 0; i < 32; ++i) {
+    arr_a[i] = (uint8_t)rand();
+    arr_b[i + 1] = (uint8_t)rand();
+  }
+
+  merlin_v32u8_t a;
+  merlin_v32u8_t b;
+  merlin_v32u8_t c;
+  merlin_v32u8_t tmp;
+  uint32_t mask;
+
+  // test load
+  a = merlin_v32u8_load_aligned((void *)arr_a);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, a[i], arr_a[i], NULL);
+  }
+  b = merlin_v32u8_load_unaligned((void *)(&arr_b[1]));
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, b[i], arr_b[i + 1], NULL);
+  }
+
+  // test store
+  merlin_v32u8_store_aligned((void *)arr_a_store, a);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, arr_a_store[i], arr_a[i], NULL);
+  }
+  merlin_v32u8_store_unaligned((void *)(&arr_b_store[1]), b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, arr_b_store[i + 1], arr_b[i + 1], NULL);
+  }
+
+  // test set
+  a = merlin_v32u8_set1(arr_a[0]);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, a[i], arr_a[0], NULL);
+  }
+  a = merlin_v32u8_set(
+      arr_a[0], arr_a[1], arr_a[2], arr_a[3], arr_a[4], arr_a[5], arr_a[6],
+      arr_a[7], arr_a[8], arr_a[9], arr_a[10], arr_a[11], arr_a[12], arr_a[13],
+      arr_a[14], arr_a[15], arr_a[16], arr_a[17], arr_a[18], arr_a[19],
+      arr_a[20], arr_a[21], arr_a[22], arr_a[23], arr_a[24], arr_a[25],
+      arr_a[26], arr_a[27], arr_a[28], arr_a[29], arr_a[30], arr_a[31]);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, a[i], arr_a[i], NULL);
+  }
+
+  // test cmp
+  c = merlin_v32u8_cmpeq(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_BOOL(&test, (bool)c[i], a[i] == b[i], NULL);
+  }
+
+  c = merlin_v32u8_cmplt(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_BOOL(&test, (bool)c[i], a[i] < b[i], NULL);
+  }
+
+  c = merlin_v32u8_cmpgt(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_BOOL(&test, (bool)c[i], a[i] > b[i], NULL);
+  }
+
+  c = merlin_v32u8_cmpleq(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_BOOL(&test, (bool)c[i], a[i] <= b[i], NULL);
+  }
+
+  c = merlin_v32u8_cmpgeq(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_BOOL(&test, (bool)c[i], a[i] >= b[i], NULL);
+  }
+
+  // test mask
+  // testing with previous cmpeq data
+  mask = merlin_v32u8_mask(c);
+  for (uint32_t i = 0; i < 32; ++i) {
+    if (mask & (((uint32_t)1u) << i)) {
+      TEST_BOOL(&test, true, a[i] >= b[i], TEST_MAKE_STR("i: %u", i));
+    } else {
+      TEST_BOOL(&test, false, a[i] >= b[i], TEST_MAKE_STR("i: %u", i));
+    }
+  }
+  // TEST_UINT(&test, mask >> 16, 0, NULL);
+
+  // test arithmetic
+  c = merlin_v32u8_add(a, b);
+  for (uint32_t i = 0; i < 32; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] + b[i]), NULL);
+  }
+
+  c = merlin_v32u8_sub(a, b);
+  for (uint32_t i = 0; i < 32; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] - b[i]), NULL);
+  }
+
+  c = merlin_v32u8_mul(a, b);
+  for (uint32_t i = 0; i < 32; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] * b[i]), NULL);
+  }
+
+  // some magic require so we avoid div by 0
+  tmp = merlin_v32u8_cmpeq(b, merlin_v32u8_set1(0));
+  tmp = merlin_v32u8_and(tmp, merlin_v32u8_set1(1));
+  c = merlin_v32u8_add(b, tmp);
+
+  c = merlin_v32u8_div(a, b);
+  for (uint32_t i = 0; i < 32; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] / b[i]), NULL);
+  }
+
+  c = merlin_v32u8_mod(a, b);
+  for (uint32_t i = 0; i < 32; i += 1) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] % b[i]), NULL);
+  }
+
+  // test bitwise
+  c = merlin_v32u8_and(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, c[i], a[i] & b[i], NULL);
+  }
+
+  c = merlin_v32u8_or(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, c[i], a[i] | b[i], NULL);
+  }
+
+  c = merlin_v32u8_xor(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, c[i], a[i] ^ b[i], NULL);
+  }
+
+  c = merlin_v32u8_not(a);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, c[i], (uint8_t)(~a[i]), NULL);
+  }
+
+  b = merlin_v32u8_set1(rand() % 8);
+
+  c = merlin_v32u8_shift_left(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] << b[i]), NULL);
+  }
+
+  c = merlin_v32u8_shift_right(a, b);
+  for (uint32_t i = 0; i < 32; ++i) {
+    TEST_UINT(&test, c[i], (uint8_t)(a[i] >> b[i]), NULL);
+  }
+
+  free(arr_a);
+  free(arr_b);
+  free(arr_a_store);
+  free(arr_b_store);
+
+  return test;
+}
+
 int main(void) {
   TEST_RUN(TEST_v16u8());
   TEST_RUN(TEST_v16i8());
@@ -1186,6 +1355,6 @@ int main(void) {
   TEST_RUN(TEST_v4i32());
   TEST_RUN(TEST_v2u64());
   TEST_RUN(TEST_v2i64());
-  TEST_CLEANUP();
-  return 0;
+  TEST_RUN(TEST_v32u8());
+  return TEST_CLEANUP();
 }

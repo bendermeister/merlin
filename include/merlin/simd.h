@@ -13,6 +13,7 @@
 // TODO(ben): testing
 // TODO(ben): documentation
 
+#include <assert.h>
 #include <sys/cdefs.h>
 #ifndef __clang__
 #error "currently only clang is supported"
@@ -21,8 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MERLIN_VOIDFN_ATTRS                                                    \
-  __attribute__((__always_inline__, nodebug, __unused__))
+#define MERLIN_VOIDFN_ATTRS __attribute__((__noinline__, nodebug, __unused__))
 #define MERLIN_NODISCARD __attribute__((__warn_unused_result__))
 #define MERLIN_FN_ATTRS                                                        \
   MERLIN_VOIDFN_ATTRS MERLIN_NODISCARD __attribute__((__const__))
@@ -39,6 +39,9 @@ MERLIN_FN_ATTRS static uint32_t merlin_mask_first_set(const uint32_t mask) {
 }
 
 // generator macros
+#define MERLIN_OP_ATTRS                                                        \
+  __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
+                 __const__))
 
 #define MERLIN_BOP(NAME, TYPE, BOP)                                            \
   __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
@@ -121,8 +124,41 @@ MERLIN_BOP(merlin_v16u8_and, merlin_v16u8_t, &)
 MERLIN_BOP(merlin_v16u8_or, merlin_v16u8_t, |)
 MERLIN_BOP(merlin_v16u8_xor, merlin_v16u8_t, ^)
 MERLIN_UOP(merlin_v16u8_not, merlin_v16u8_t, ~)
-MERLIN_BOP(merlin_v16u8_shift_left, merlin_v16u8_t, <<)
-MERLIN_BOP(merlin_v16u8_shift_right, merlin_v16u8_t, >>)
+
+/* MERLIN_BOP(merlin_v16u8_shift_left, merlin_v16u8_t, <<) */
+/* MERLIN_BOP(merlin_v16u8_shift_right, merlin_v16u8_t, >>) */
+
+/// \brief Shifting each element of vector `a` left by immediate value `n`
+/// \returns vector of type `uint8_t[16]` containing shifted values
+MERLIN_OP_ATTRS static merlin_v16u8_t
+merlin_v16u8_shift_left(const merlin_v16u8_t a, const uint32_t n) {
+#ifdef __SSE2__
+  merlin_v16u8_t tmp = __builtin_ia32_psllwi128(a, n);
+  tmp = merlin_v16u8_and(tmp, merlin_v16u8_set1((uint8_t)-1 << n));
+  return tmp;
+#else
+  return (merlin_v16u8_t){a[0] << n,  a[1] << n,  a[2] << n,  a[3] << n,
+                          a[4] << n,  a[5] << n,  a[6] << n,  a[7] << n,
+                          a[8] << n,  a[9] << n,  a[10] << n, a[11] << n,
+                          a[12] << n, a[13] << n, a[14] << n, a[15] << n};
+#endif //__SSE2__
+}
+
+/// \brief Shifting each element of vector `a` right by immediate value `n`
+/// \returns vector of type `uint8_t[16]` containing shifted values
+MERLIN_OP_ATTRS static merlin_v16u8_t
+merlin_v16u8_shift_right(const merlin_v16u8_t a, const uint32_t n) {
+#ifdef __SSE2__
+  merlin_v16u8_t tmp = __builtin_ia32_psrlwi128(a, n);
+  tmp = merlin_v16u8_and(tmp, merlin_v16u8_set1((uint8_t)-1 >> n));
+  return tmp;
+#else
+  return (merlin_v16u8_t){a[0] >> n,  a[1] >> n,  a[2] >> n,  a[3] >> n,
+                          a[4] >> n,  a[5] >> n,  a[6] >> n,  a[7] >> n,
+                          a[8] >> n,  a[9] >> n,  a[10] >> n, a[11] >> n,
+                          a[12] >> n, a[13] >> n, a[14] >> n, a[15] >> n};
+#endif //__SSE2__
+}
 
 //----------------------------------mask----------------------------------------
 
