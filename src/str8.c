@@ -14,7 +14,8 @@
 #define UNLIKELY(A)
 #endif
 
-static int str_realloc(merlin_str8_t s[static 1], const size_t capacity) {
+static int internal_realloc(merlin_str8_t s[static 1],
+                            const intptr_t capacity) {
   void *buffer = realloc(s->buffer, capacity);
   if (UNLIKELY(!buffer)) {
     return ENOMEM;
@@ -24,15 +25,25 @@ static int str_realloc(merlin_str8_t s[static 1], const size_t capacity) {
   return 0;
 }
 
-int merlin_str8_reserve(merlin_str8_t s[static 1], const size_t capacity) {
+int merlin_str8_reserve(merlin_str8_t s[static 1], const intptr_t capacity) {
   if (s->capacity >= capacity) {
     return 0;
   }
-  return str_realloc(s, capacity);
+  return internal_realloc(s, capacity);
+}
+
+static int internal_grow(merlin_str8_t s[static 1],
+                         const intptr_t min_capacity) {
+  if (s->length + min_capacity >= s->capacity) {
+    const intptr_t capacity =
+        min_capacity > s->capacity << 1 ? min_capacity : s->capacity << 1;
+    return internal_realloc(s, capacity);
+  }
+  return 0;
 }
 
 int merlin_str8_shrink(merlin_str8_t s[static 1]) {
-  return str_realloc(s, s->length);
+  return internal_realloc(s, s->length);
 }
 
 void merlin_str8_destroy(merlin_str8_t s[static 1]) {
@@ -41,16 +52,16 @@ void merlin_str8_destroy(merlin_str8_t s[static 1]) {
 }
 
 merlin_str8_view_t merlin_str8_get_view(const merlin_str8_t s[static 1],
-                                        const size_t index,
-                                        const size_t length) {
+                                        const intptr_t index,
+                                        const intptr_t length) {
   return (merlin_str8_view_t){.buffer = s->buffer + index, .length = length};
 }
 
-size_t merlin_str8_find(const merlin_str8_view_t haystack[static 1],
-                        const merlin_str8_view_t needle[static 1]) {
+intptr_t merlin_str8_find(const merlin_str8_view_t haystack[static 1],
+                          const merlin_str8_view_t needle[static 1]) {
   merlin_str8_view_t result = (merlin_str8_view_t){.buffer = haystack->buffer,
                                                    .length = needle->length};
-  for (size_t i = 0; i < haystack->length - needle->length; ++i) {
+  for (intptr_t i = 0; i < haystack->length - needle->length; ++i) {
     const bool f = merlin_str8_view_is_equal(needle, &result);
     if (f) {
       return i;
@@ -64,7 +75,7 @@ void merlin_str8_split_at_view(const merlin_str8_view_t s[static 1],
                                const merlin_str8_view_t delim[static 1],
                                merlin_str8_view_t lower[static 1],
                                merlin_str8_view_t upper[static 1]) {
-  const size_t index = merlin_str8_find(s, delim);
+  const intptr_t index = merlin_str8_find(s, delim);
   if (index < s->length) {
     merlin_str8_split_at_index(s, index, lower, upper);
     upper->buffer += delim->length;
@@ -75,10 +86,10 @@ void merlin_str8_split_at_view(const merlin_str8_view_t s[static 1],
   }
 }
 
-size_t merlin_str8_find_char(const merlin_str8_view_t haystack[static 1],
-                             const char needle) {
+intptr_t merlin_str8_find_char(const merlin_str8_view_t haystack[static 1],
+                               const char needle) {
 
-  for (size_t i = 0; i < haystack->length; ++i) {
+  for (intptr_t i = 0; i < haystack->length; ++i) {
     if (haystack->buffer[i] == needle) {
       return i;
     }
@@ -90,7 +101,7 @@ void merlin_str8_split_at_char(const merlin_str8_view_t s[static 1],
                                const uint8_t delim,
                                merlin_str8_view_t lower[static 1],
                                merlin_str8_view_t upper[static 1]) {
-  const size_t index = merlin_str8_find_char(s, delim);
+  const intptr_t index = merlin_str8_find_char(s, delim);
   if (index < s->length) {
     merlin_str8_split_at_index(s, index, lower, upper);
     upper->length -= 1;
@@ -102,10 +113,10 @@ void merlin_str8_split_at_char(const merlin_str8_view_t s[static 1],
 }
 
 void merlin_str8_split_at_index(const merlin_str8_view_t s[static 1],
-                                const size_t index,
+                                const intptr_t index,
                                 merlin_str8_view_t lower[static 1],
                                 merlin_str8_view_t upper[static 1]) {
-  const size_t i = index < s->length ? index : s->length;
+  const intptr_t i = index < s->length ? index : s->length;
   *lower = (merlin_str8_view_t){
       .length = i,
       .buffer = s->buffer,
@@ -143,14 +154,14 @@ int merlin_str8_replace(merlin_str8_t s[static 1],
 int merlin_str8_replace_n(merlin_str8_t s[static 1],
                           const merlin_str8_view_t target[static 1],
                           const merlin_str8_view_t replacement[static 1],
-                          const size_t n) {
+                          const intptr_t n) {
   merlin_str8_t new = (merlin_str8_t){};
 
   merlin_str8_view_t lower = (merlin_str8_view_t){};
   merlin_str8_view_t upper = merlin_str8_get_view(s, 0, s->length);
   merlin_str8_split_at_view(&upper, target, &lower, &upper);
   int err = 0;
-  for (size_t i = 0; i < n && lower.length > 0; ++i) {
+  for (intptr_t i = 0; i < n && lower.length > 0; ++i) {
     err |= merlin_str8_concat(&new, &lower);
     err |= merlin_str8_concat(&new, replacement);
     if (err) {
@@ -171,9 +182,9 @@ int merlin_str8_replace_n(merlin_str8_t s[static 1],
   return 0;
 }
 
-int merlin_str8_insert(merlin_str8_t s[static 1], size_t index,
+int merlin_str8_insert(merlin_str8_t s[static 1], intptr_t index,
                        merlin_str8_view_t view[static 1]) {
-  int err = merlin_str8_reserve(s, s->length + view->length);
+  int err = internal_grow(s, s->length + view->length);
   if (err) {
     return err;
   }
@@ -187,7 +198,7 @@ int merlin_str8_insert(merlin_str8_t s[static 1], size_t index,
 
 void merlin_str8_remove(merlin_str8_t s[static 1],
                         const merlin_str8_view_t view[static 1]) {
-  const size_t index = view->buffer - s->buffer;
+  const intptr_t index = view->buffer - s->buffer;
   __builtin_memmove(&s->buffer[index], &s->buffer[index + view->length],
                     s->length - index - view->length);
   s->length -= view->length;
@@ -195,7 +206,7 @@ void merlin_str8_remove(merlin_str8_t s[static 1],
 
 int merlin_str8_copy(merlin_str8_t dest[static 1],
                      merlin_str8_t src[static 1]) {
-  int err = merlin_str8_reserve(dest, src->capacity);
+  int err = internal_grow(dest, src->capacity);
   if (err) {
     return err;
   }
@@ -206,7 +217,7 @@ int merlin_str8_copy(merlin_str8_t dest[static 1],
 
 int merlin_str8_from_view(merlin_str8_t s[static 1],
                           merlin_str8_view_t view[static 1]) {
-  int err = merlin_str8_reserve(s, view->length);
+  int err = internal_grow(s, view->length);
   if (err) {
     return err;
   }
@@ -217,7 +228,7 @@ int merlin_str8_from_view(merlin_str8_t s[static 1],
 
 int merlin_str8_concat(merlin_str8_t dest[static 1],
                        const merlin_str8_view_t src[static 1]) {
-  int err = merlin_str8_reserve(dest, dest->length + src->length);
+  int err = internal_grow(dest, dest->length + src->length);
   if (err) {
     return err;
   }
@@ -227,8 +238,8 @@ int merlin_str8_concat(merlin_str8_t dest[static 1],
 }
 
 int merlin_str8_cstr(merlin_str8_t dest[static 1], const char src[static 1]) {
-  const size_t length = strlen(src);
-  int err = merlin_str8_reserve(dest, length);
+  const intptr_t length = strlen(src);
+  int err = internal_grow(dest, length);
   if (err) {
     return err;
   }
@@ -236,10 +247,10 @@ int merlin_str8_cstr(merlin_str8_t dest[static 1], const char src[static 1]) {
   return 0;
 }
 
-int merlin_str8_ncstr(merlin_str8_t dest[static 1], const size_t length,
+int merlin_str8_ncstr(merlin_str8_t dest[static 1], const intptr_t length,
                       const char src[length]) {
 
-  int err = merlin_str8_reserve(dest, length);
+  int err = internal_grow(dest, length);
   if (err) {
     return err;
   }
@@ -248,24 +259,24 @@ int merlin_str8_ncstr(merlin_str8_t dest[static 1], const size_t length,
 }
 
 static _Thread_local char concat_buffer[128] = {0};
-static _Thread_local size_t concat_buffer_length = 0;
+static _Thread_local intptr_t concat_buffer_length = 0;
 
 static uint64_t concat_u64_helper_helper(const uint64_t src,
                                          const uint64_t reminder,
-                                         const size_t index) {
+                                         const intptr_t index) {
   if (reminder < 10) {
     concat_buffer[index] = (src % 10) + '0';
     concat_buffer_length += 1;
     return src / 10;
   }
-  const size_t new_src =
+  const intptr_t new_src =
       concat_u64_helper_helper(src, reminder / 10, index + 1);
   concat_buffer[index] = new_src % 10 + '0';
   concat_buffer_length += 1;
   return new_src / 10;
 }
 
-static size_t concat_u64_helper(const uint64_t reminder) {
+static intptr_t concat_u64_helper(const uint64_t reminder) {
   concat_buffer_length = 0;
   (void)concat_u64_helper_helper(reminder, reminder, 0);
   return concat_buffer_length;
@@ -273,12 +284,12 @@ static size_t concat_u64_helper(const uint64_t reminder) {
 
 int merlin_str8_concat_u64(merlin_str8_t dest[static 1], const uint64_t src,
                            const uint8_t padding_char,
-                           const size_t padding_size) {
-  const size_t fmt_length = concat_u64_helper(src);
-  const size_t fmt_padding =
+                           const intptr_t padding_size) {
+  const intptr_t fmt_length = concat_u64_helper(src);
+  const intptr_t fmt_padding =
       padding_size > fmt_length ? padding_size - fmt_length : 0;
 
-  int err = merlin_str8_reserve(dest, dest->length + fmt_length + fmt_padding);
+  int err = internal_grow(dest, dest->length + fmt_length + fmt_padding);
   if (err) {
     return err;
   }
@@ -294,7 +305,7 @@ int merlin_str8_concat_u64(merlin_str8_t dest[static 1], const uint64_t src,
 
 int merlin_str8_concat_i64(merlin_str8_t dest[static 1], const int64_t src,
                            const uint8_t padding_char,
-                           const size_t padding_size) {
+                           const intptr_t padding_size) {
   int isneg = 0;
   uint64_t reminder = src;
   if (src < 0) {
@@ -302,13 +313,13 @@ int merlin_str8_concat_i64(merlin_str8_t dest[static 1], const int64_t src,
     isneg = 1;
   }
 
-  const size_t fmt_length = concat_u64_helper(reminder);
+  const intptr_t fmt_length = concat_u64_helper(reminder);
 
-  size_t fmt_padding =
+  intptr_t fmt_padding =
       padding_size > fmt_length ? padding_size - fmt_length : 0;
 
-  int err = merlin_str8_reserve(dest, dest->length + fmt_padding + fmt_length +
-                                          isneg);
+  int err =
+      internal_grow(dest, dest->length + fmt_padding + fmt_length + isneg);
   if (err) {
     return err;
   }
@@ -331,7 +342,8 @@ int merlin_str8_concat_i64(merlin_str8_t dest[static 1], const int64_t src,
  */
 int merlin_str8_concat_f64(merlin_str8_t dest[static 1], const double src,
                            const uint8_t padding_char,
-                           const size_t padding_size, const uint64_t n_decimal);
+                           const intptr_t padding_size,
+                           const uint64_t n_decimal);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`
@@ -343,10 +355,11 @@ int merlin_str8_concat_f64(merlin_str8_t dest[static 1], const double src,
  */
 int merlin_str8_concat_f32(merlin_str8_t dest[static 1], const float src,
                            const uint8_t padding_char,
-                           const size_t padding_size, const uint64_t n_decimal);
+                           const intptr_t padding_size,
+                           const uint64_t n_decimal);
 
 int merlin_str8_concat_char(merlin_str8_t dest[static 1], const char c) {
-  int err = merlin_str8_reserve(dest, dest->length + 1);
+  int err = internal_grow(dest, dest->length + 1);
   if (err) {
     return err;
   }
@@ -382,8 +395,8 @@ void merlin_str8_view_cut_front(merlin_str8_view_t s[static 1]) {
 }
 
 void merlin_str8_view_cut_n_front(merlin_str8_view_t s[static 1],
-                                  const size_t n) {
-  const size_t m = (intptr_t)s->length - n > 0 ? n : n - s->length;
+                                  const intptr_t n) {
+  const intptr_t m = (intptr_t)s->length - n > 0 ? n : n - s->length;
   s->length -= m;
   s->buffer += m;
 }
@@ -393,14 +406,14 @@ void merlin_str8_view_cut_end(merlin_str8_view_t s[static 1]) {
 }
 
 void merlin_str8_view_cut_n_end(merlin_str8_view_t s[static 1],
-                                const size_t n) {
-  const size_t m = (intptr_t)s->length - n > 0 ? n : n - s->length;
+                                const intptr_t n) {
+  const intptr_t m = (intptr_t)s->length - n > 0 ? n : n - s->length;
   s->length -= m;
 }
 
 int merlin_str8_view_compare(const merlin_str8_view_t a[static 1],
                              const merlin_str8_view_t b[static 1]) {
-  const size_t length = a->length < b->length ? a->length : b->length;
+  const intptr_t length = a->length < b->length ? a->length : b->length;
   int cmp = __builtin_memcmp(a->buffer, b->buffer, length);
   return cmp == 0 ? 0 : a->length < b->length ? -1 : 1;
 }
