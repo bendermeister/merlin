@@ -15,50 +15,45 @@ static test_t TEST_concat(void) {
   test_t test = TEST_MAKE();
 
   merlin_str8_t str = {};
-  merlin_str8_factory_t factory = {};
 
   merlin_str8_view_t view = merlin_str8_view_from_static_cstr("Hello World");
   int err = 0;
 
-  err = merlin_str8_concat(&str, &view, &factory);
+  err = merlin_str8_concat(&str, &view);
   lazy_error(err);
 
   TEST_INT(&test, memcmp(str.buffer, "Hello World", str.length), 0, NULL);
 
-  err = merlin_str8_concat_char(&str, ' ', &factory);
+  err = merlin_str8_concat_char(&str, ' ');
   lazy_error(err);
   TEST_INT(&test, memcmp(str.buffer, "Hello World ", str.length), 0, NULL);
 
-  err = merlin_str8_concat_u64(&str, 69, 0, 0, &factory);
+  err = merlin_str8_concat_u64(&str, 69, 0, 0);
   lazy_error(err);
   TEST_INT(&test, memcmp(str.buffer, "Hello World 69", str.length), 0, NULL);
 
-  err = merlin_str8_concat_i64(&str, -1, 0, 0, &factory);
+  err = merlin_str8_concat_i64(&str, -1, 0, 0);
   lazy_error(err);
 
-  merlin_str8_destroy(&str, &factory);
-  merlin_str8_factory_destroy(&factory);
+  merlin_str8_destroy(&str);
   return test;
 }
 
 static test_t TEST_replace(void) {
   test_t test = TEST_MAKE();
 
-  merlin_str8_factory_t factory = {};
   merlin_str8_t str = {};
   int err = 0;
 
   err = merlin_str8_concat(
-      &str,
-      &merlin_str8_view_from_static_cstr(
-          "Hello World this is again a very nice #include string"),
-      &factory);
+      &str, &merlin_str8_view_from_static_cstr(
+                "Hello World this is again a very nice #include string"));
   lazy_error(err);
 
   merlin_str8_view_t target = merlin_str8_view_from_static_cstr(" ");
   merlin_str8_view_t replace = merlin_str8_view_from_static_cstr("\t\t");
 
-  err = merlin_str8_replace(&str, &target, &replace, &factory);
+  err = merlin_str8_replace(&str, &target, &replace);
   lazy_error(err);
 
   TEST_INT(&test,
@@ -68,7 +63,7 @@ static test_t TEST_replace(void) {
                   str.length),
            0, NULL);
 
-  err = merlin_str8_replace_n(&str, &replace, &target, 5, &factory);
+  err = merlin_str8_replace_n(&str, &replace, &target, 5);
   lazy_error(err);
 
   TEST_INT(&test,
@@ -78,8 +73,7 @@ static test_t TEST_replace(void) {
                   str.length),
            0, NULL);
 
-  merlin_str8_destroy(&str, &factory);
-  merlin_str8_factory_destroy(&factory);
+  merlin_str8_destroy(&str);
 
   return test;
 }
