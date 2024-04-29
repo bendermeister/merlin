@@ -8,6 +8,10 @@
 #define UNLIKELY(A) __builtin_expect((A), 0)
 #endif
 
+#ifndef LIKELY
+#define LIKELY(A) __builtin_expect((A), 1)
+#endif
+
 static void lazy_error(int error);
 static merlin_str8_t get_lorem(void);
 

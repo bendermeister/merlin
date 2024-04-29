@@ -446,10 +446,10 @@ static bench_timer_t linear(void) {
 }
 
 int main(void) {
-  BENCH(linear(), 1000, 10);
-  BENCH(BENCH_simd128(), 1000, 10);
-  BENCH(BENCH_simd256(), 1000, 10);
-  BENCH(BENCH_simd256_presplit(), 1000, 10);
+  /* BENCH(linear(), 1000, 10); */
+  /* BENCH(BENCH_simd128(), 1000, 10); */
+  /* BENCH(BENCH_simd256(), 1000, 10); */
+  /* BENCH(BENCH_simd256_presplit(), 1000, 10); */
   BENCH(BENCH_findall_bench(), 1000, 10);
   return 0;
 }
