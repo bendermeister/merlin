@@ -1,5 +1,5 @@
 HEADERS := include/merlin/simd.h
-TEST := test/simd.out
+TEST := test/simd.out test/str8.out
 SOURCES :=
 CC := clang #just for now later support for other compilers will come
 
@@ -13,6 +13,9 @@ test: ${TEST}
 
 test/%.out: test/%.c
 	${CC} ${DEBUG_FLAGS} $< -o $@
+
+test/str8.out: test/str8.c src/str8.c include/merlin/str8.h
+	${CC} ${DEBUG_FLAGS} src/str8.c $< -o $@
 
 clean:
 	rm -f ${TEST}

@@ -1,6 +1,7 @@
 #ifndef MERLIN_STR8_H
 #define MERLIN_STR8_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -11,10 +12,16 @@ struct merlin_str8_t {
   size_t capacity;
 };
 
-typedef struct merlin_str8_view_t merlin_str8_view_t;
-struct merlin_str8_view_t {
+typedef struct merlin_str8_pview_t merlin_str8_pview_t;
+struct merlin_str8_pview_t {
   const merlin_str8_t *str;
   size_t index;
+  size_t length;
+};
+
+typedef struct merlin_str8_view_t merlin_str8_view_t;
+struct merlin_str8_view_t {
+  const uint8_t *buffer;
   size_t length;
 };
 
@@ -23,6 +30,26 @@ struct merlin_str8_factory_t {
   size_t capacity;
   uint8_t **buffer;
 };
+
+/*** doc
+ *@description: deallocate all resources currently in the factory and deallocate
+ *the factory itself
+ */
+void merlin_str8_factory_destroy(merlin_str8_factory_t factory[static 1]);
+
+/*** doc
+ * returns a persistent version of the non owning view `view` over str8 `s`.
+ * @param(view): must be view into `s`
+ */
+merlin_str8_pview_t
+merlin_str8_view_get_pview(const merlin_str8_t s[static 1],
+                           const merlin_str8_view_t v[static 1]);
+
+/*** doc
+ * returns reconcstructed normal view from persistent view
+ */
+merlin_str8_view_t
+merlin_str8_pview_get_view(const merlin_str8_pview_t pview[static 1]);
 
 /*** doc
  * @desription: reserve space for later writes
@@ -39,6 +66,12 @@ int merlin_str8_reserve(merlin_str8_t s[static 1], const size_t capacity,
  */
 int merlin_str8_shrink(merlin_str8_t s[static 1],
                        merlin_str8_factory_t factory[static 1]);
+
+#define merlin_str8_view_from_static_cstr(CSTR)                                \
+  (merlin_str8_view_t) { .buffer = (uint8_t *)CSTR, .length = sizeof(CSTR) - 1 }
+
+#define merlin_str8_view_from_ncstr(CSTR, LEN)                                 \
+  (merlin_str8_view_t) { .buffer = (uint8_t *)CSTR, .length = LEN }
 
 /*** doc
  * @description: deallocates `s`
@@ -111,10 +144,10 @@ void merlin_str8_split_at_index(const merlin_str8_view_t s[static 1],
  * @param(replacement): replacement view for each `target`
  * @return: error
  */
-int merlin_str8_replace_view(merlin_str8_t s[static 1],
-                             const merlin_str8_view_t target[static 1],
-                             const merlin_str8_view_t replacement[static 1],
-                             merlin_str8_factory_t factory[static 1]);
+int merlin_str8_replace(merlin_str8_t s[static 1],
+                        const merlin_str8_view_t target[static 1],
+                        const merlin_str8_view_t replacement[static 1],
+                        merlin_str8_factory_t factory[static 1]);
 
 /*** doc
  * @description: replace first `n` `target` view with `replacement` in `s`
@@ -123,11 +156,11 @@ int merlin_str8_replace_view(merlin_str8_t s[static 1],
  * @param(n): number of targets to replace
  * @return: error
  */
-int merlin_str8_replace_n_view(merlin_str8_t s[static 1],
-                               const merlin_str8_view_t target[static 1],
-                               const merlin_str8_view_t replacement[static 1],
-                               const size_t n,
-                               merlin_str8_factory_t factory[static 1]);
+int merlin_str8_replace_n(merlin_str8_t s[static 1],
+                          const merlin_str8_view_t target[static 1],
+                          const merlin_str8_view_t replacement[static 1],
+                          const size_t n,
+                          merlin_str8_factory_t factory[static 1]);
 
 /*** doc
  * @description: insert `view` into `s` at `index`
@@ -307,5 +340,11 @@ void merlin_str8_view_cut_n_end(merlin_str8_view_t s[static 1], const size_t n);
  */
 int merlin_str8_view_compare(const merlin_str8_view_t a[static 1],
                              const merlin_str8_view_t b[static 1]);
+
+/*** doc
+ * @description: returns `1` if `a` and `b` are equal, returns false otherwise
+ */
+bool merlin_str8_view_is_equal(const merlin_str8_view_t a[static 1],
+                               const merlin_str8_view_t b[static 1]);
 
 #endif // MERLIN_STR8_H
