@@ -130,10 +130,14 @@ int merlin_str8_replace(merlin_str8_t s[static 1],
                         const merlin_str8_view_t replacement[static 1]) {
   merlin_str8_t new = (merlin_str8_t){};
 
+  int err = merlin_str8_reserve(&new, s->capacity);
+  if (UNLIKELY(err)) {
+    return err;
+  }
+
   merlin_str8_view_t lower = (merlin_str8_view_t){};
   merlin_str8_view_t upper = merlin_str8_get_view(s, 0, s->length);
   merlin_str8_split_at_view(&upper, target, &lower, &upper);
-  int err = 0;
   while (lower.length > 0) {
     err |= merlin_str8_concat(&new, &lower);
     err |= merlin_str8_concat(&new, replacement);
