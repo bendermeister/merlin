@@ -16,27 +16,36 @@ static void lazy_error(int err) {
   }
 }
 
-static merlin_str8_t get_lorem(void) {
+static merlin_str8_t lorem = {};
+
+static void lorem_init(void) {
+
   FILE *file = fopen("bench/str8/loremipsum.txt", "r");
   int err = errno;
   lazy_error(err);
   (void)fseek(file, 0, SEEK_END);
 
-  merlin_str8_t str = {};
-  str.capacity = ftell(file);
-  str.length = str.capacity;
+  lorem.capacity = ftell(file);
+  lorem.length = lorem.capacity;
   rewind(file);
 
-  str.buffer = malloc(str.capacity);
+  lorem.buffer = malloc(lorem.capacity);
   err = errno;
   lazy_error(err);
 
   // TODO(ben): does this always read in one go or do we need loop?
-  fread(str.buffer, str.length, 1, file);
+  fread(lorem.buffer, lorem.length, 1, file);
   lazy_error(ferror(file));
 
   fclose(file);
+}
 
+static merlin_str8_t get_lorem(void) {
+  merlin_str8_t str;
+  str.buffer = malloc(lorem.length);
+  __builtin_memcpy(str.buffer, lorem.buffer, lorem.length);
+  str.length = lorem.length;
+  str.capacity = lorem.length;
   return str;
 }
 
@@ -446,10 +455,13 @@ static bench_timer_t linear(void) {
 }
 
 int main(void) {
+  lorem_init();
+
   /* BENCH(linear(), 1000, 10); */
   /* BENCH(BENCH_simd128(), 1000, 10); */
   /* BENCH(BENCH_simd256(), 1000, 10); */
   /* BENCH(BENCH_simd256_presplit(), 1000, 10); */
   BENCH(BENCH_findall_bench(), 1000, 10);
+  free(lorem.buffer);
   return 0;
 }

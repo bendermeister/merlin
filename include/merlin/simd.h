@@ -22,7 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MERLIN_VOIDFN_ATTRS __attribute__((__noinline__, nodebug, __unused__))
+#define MERLIN_VOIDFN_ATTRS                                                    \
+  __attribute__((__always_inline__, nodebug, __unused__))
 #define MERLIN_NODISCARD __attribute__((__warn_unused_result__))
 #define MERLIN_FN_ATTRS                                                        \
   MERLIN_VOIDFN_ATTRS MERLIN_NODISCARD __attribute__((__const__))
@@ -40,7 +41,8 @@ MERLIN_FN_ATTRS static uint32_t merlin_mask_first_set(const uint32_t mask) {
 
 // generator macros
 #define MERLIN_OP_ATTRS                                                        \
-  __attribute__((__noinline__, __unused__, __warn_unused_result__, __const__))
+  __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
+                 __const__))
 
 #define MERLIN_BOP(NAME, TYPE, BOP)                                            \
   __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
