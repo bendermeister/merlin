@@ -83,11 +83,10 @@ BENCH_findall_find(const merlin_str8_view_t haystack[static 1],
           index_offset += ctz;
           mask >>= ctz;
 
-          if (__builtin_memcmp(haystack->buffer + index + index_offset,
-                               needle->buffer, needle->length) == 0) {
-            result.buffer[result.length] = index + index_offset;
-            result.length += 1;
-          }
+          int cmp = __builtin_memcmp(haystack->buffer + index + index_offset,
+                                     needle->buffer, needle->length) == 0;
+          result.buffer[result.length] = index + index_offset;
+          result.length += cmp;
 
           mask >>= 1;
           index_offset += 1;
@@ -131,11 +130,10 @@ BENCH_findall_find(const merlin_str8_view_t haystack[static 1],
       index_offset += ctz;
       mask >>= ctz;
 
-      if (__builtin_memcmp(haystack->buffer + index + index_offset,
-                           needle->buffer, needle->length) == 0) {
-        result.buffer[result.length] = index + index_offset;
-        result.length += 1;
-      }
+      int cmp = __builtin_memcmp(haystack->buffer + index + index_offset,
+                                 needle->buffer, needle->length) == 0;
+      result.buffer[result.length] = index + index_offset;
+      result.length += cmp;
 
       mask >>= 1;
       index_offset += 1;
@@ -204,17 +202,14 @@ BENCH_findall_replace(merlin_str8_t s[static 1],
   return 0;
 }
 
-static bench_timer_t BENCH_findall_bench(void) {
+static bench_timer_t BENCH_findall_bench(merlin_str8_view_t target[static 1],
+                                         merlin_str8_view_t replace[static 1]) {
   merlin_str8_t str = get_lorem();
 
   bench_timer_t timer = {};
 
-  merlin_str8_view_t target = merlin_str8_view_from_static_cstr("est");
-  merlin_str8_view_t replacement =
-      merlin_str8_view_from_static_cstr("bendermeister");
-
   bench_timer_start(&timer);
-  int err = BENCH_findall_replace(&str, &target, &replacement);
+  int err = BENCH_findall_replace(&str, target, replace);
   bench_timer_end(&timer);
 
   lazy_error(err);

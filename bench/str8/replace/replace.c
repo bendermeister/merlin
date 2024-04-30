@@ -52,6 +52,11 @@ static merlin_str8_t get_lorem(void) {
 #define UNLIKELY(A) __builtin_expect((A), 0)
 
 #include "findall.c"
+#include "findallpcome.c"
+#include "findallpcome128.c"
+#include "findallpcome3.c"
+#include "pfindallpcome.c"
+#include "strstr.c"
 
 intptr_t BENCH_simd256_find(const merlin_str8_view_t haystack[static 1],
                             const merlin_str8_view_t needle[static 1]) {
@@ -252,17 +257,16 @@ int BENCH_simd256_presplit_replace(
   return 0;
 }
 
-static bench_timer_t BENCH_simd256_presplit(void) {
+static bench_timer_t
+BENCH_simd256_presplit(merlin_str8_view_t target[static 1],
+                       merlin_str8_view_t replace[static 1]) {
   bench_timer_t timer = {};
   merlin_str8_t str = get_lorem();
-  merlin_str8_view_t target = merlin_str8_view_from_static_cstr("est");
-  merlin_str8_view_t replace =
-      merlin_str8_view_from_static_cstr("bendermeister");
 
   int err = 0;
 
   bench_timer_start(&timer);
-  err = BENCH_simd256_presplit_replace(&str, &target, &replace);
+  err = BENCH_simd256_presplit_replace(&str, target, replace);
   bench_timer_end(&timer);
 
   lazy_error(err);
@@ -271,17 +275,15 @@ static bench_timer_t BENCH_simd256_presplit(void) {
   return timer;
 }
 
-static bench_timer_t BENCH_simd256(void) {
+static bench_timer_t BENCH_simd256(merlin_str8_view_t target[static 1],
+                                   merlin_str8_view_t replace[static 1]) {
   bench_timer_t timer = {};
   merlin_str8_t str = get_lorem();
-  merlin_str8_view_t target = merlin_str8_view_from_static_cstr("est");
-  merlin_str8_view_t replace =
-      merlin_str8_view_from_static_cstr("bendermeister");
 
   int err = 0;
 
   bench_timer_start(&timer);
-  err = BENCH_simd256_replace(&str, &target, &replace);
+  err = BENCH_simd256_replace(&str, target, replace);
   bench_timer_end(&timer);
 
   lazy_error(err);
@@ -305,13 +307,15 @@ intptr_t BENCH_simd128_find(const merlin_str8_view_t haystack[static 1],
   for (; i + 16 + needle->length < haystack->length; i += 16) {
     merlin_v16u8_t first_data =
         merlin_v16u8_load_unaligned((void *)&haystack->buffer[i]);
+
     first_data = merlin_v16u8_cmpeq(first_char_reg, first_data);
 
     merlin_v16u8_t last_data = merlin_v16u8_load_unaligned(
         (void *)&haystack->buffer[i + last_char_offset]);
+
     last_data = merlin_v16u8_cmpeq(last_char_reg, last_data);
 
-    first_data = merlin_v16u8_or(first_data, last_data);
+    first_data = merlin_v16u8_and(first_data, last_data);
     uint32_t mask = merlin_v16u8_mask(first_data);
 
     uint32_t index_offset = 0;
@@ -386,17 +390,15 @@ int BENCH_simd128_replace(merlin_str8_t s[static 1],
   return 0;
 }
 
-static bench_timer_t BENCH_simd128(void) {
+static bench_timer_t BENCH_simd128(merlin_str8_view_t target[static 1],
+                                   merlin_str8_view_t replace[static 1]) {
   bench_timer_t timer = {};
   merlin_str8_t str = get_lorem();
-  merlin_str8_view_t target = merlin_str8_view_from_static_cstr("est");
-  merlin_str8_view_t replace =
-      merlin_str8_view_from_static_cstr("bendermeister");
 
   int err = 0;
 
   bench_timer_start(&timer);
-  err = BENCH_simd128_replace(&str, &target, &replace);
+  err = BENCH_simd128_replace(&str, target, replace);
   bench_timer_end(&timer);
 
   lazy_error(err);
@@ -435,17 +437,15 @@ int BENCH_linear_replace(merlin_str8_t s[static 1],
   return 0;
 }
 
-static bench_timer_t linear(void) {
+static bench_timer_t linear(merlin_str8_view_t target[static 1],
+                            merlin_str8_view_t replace[static 1]) {
   bench_timer_t timer = {};
   merlin_str8_t str = get_lorem();
-  merlin_str8_view_t target = merlin_str8_view_from_static_cstr("est");
-  merlin_str8_view_t replace =
-      merlin_str8_view_from_static_cstr("bendermeister");
 
   int err = 0;
 
   bench_timer_start(&timer);
-  err = BENCH_linear_replace(&str, &target, &replace);
+  err = BENCH_linear_replace(&str, target, replace);
   bench_timer_end(&timer);
 
   lazy_error(err);
@@ -457,11 +457,50 @@ static bench_timer_t linear(void) {
 int main(void) {
   lorem_init();
 
-  /* BENCH(linear(), 1000, 10); */
-  /* BENCH(BENCH_simd128(), 1000, 10); */
-  /* BENCH(BENCH_simd256(), 1000, 10); */
-  /* BENCH(BENCH_simd256_presplit(), 1000, 10); */
-  BENCH(BENCH_findall_bench(), 1000, 10);
+  merlin_str8_view_t target = merlin_str8_view_from_static_cstr("est");
+  merlin_str8_view_t replace =
+      merlin_str8_view_from_static_cstr("bendermeister");
+
+  BENCH(linear(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd128(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd256(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd256_presplit(&target, &replace), 10000, 10);
+  BENCH(BENCH_findall_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_findallpcome_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_strstr_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_findallpcome128_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_pfindallpcome_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_findallpcome3_bench(&target, &replace), 10000, 0);
+  putc('\n', stdout);
+
+  target = merlin_str8_view_from_static_cstr("pellentesque");
+  replace = merlin_str8_view_from_static_cstr("bendermeister");
+
+  BENCH(linear(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd128(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd256(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd256_presplit(&target, &replace), 10000, 10);
+  BENCH(BENCH_findall_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_findallpcome_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_strstr_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_findallpcome128_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_pfindallpcome_bench(&target, &replace), 10000, 10);
+
+  putc('\n', stdout);
+
+  target = merlin_str8_view_from_static_cstr("metus");
+  replace = merlin_str8_view_from_static_cstr("bendermeister");
+
+  BENCH(linear(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd128(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd256(&target, &replace), 10000, 10);
+  BENCH(BENCH_simd256_presplit(&target, &replace), 10000, 10);
+  BENCH(BENCH_findall_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_findallpcome_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_strstr_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_findallpcome128_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_pfindallpcome_bench(&target, &replace), 10000, 10);
+
   free(lorem.buffer);
   return 0;
 }
