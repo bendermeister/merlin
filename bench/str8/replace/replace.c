@@ -51,6 +51,7 @@ static merlin_str8_t get_lorem(void) {
 
 #define UNLIKELY(A) __builtin_expect((A), 0)
 
+#include "combine.c"
 #include "findall.c"
 #include "findallpcome.c"
 #include "findallpcome128.c"
@@ -471,6 +472,7 @@ int main(void) {
   BENCH(BENCH_findallpcome128_bench(&target, &replace), 10000, 10);
   BENCH(BENCH_pfindallpcome_bench(&target, &replace), 10000, 10);
   BENCH(BENCH_findallpcome3_bench(&target, &replace), 10000, 0);
+  BENCH(BENCH_combine_bench(&target, &replace), 10000, 10);
   putc('\n', stdout);
 
   target = merlin_str8_view_from_static_cstr("pellentesque");
@@ -485,6 +487,7 @@ int main(void) {
   BENCH(BENCH_strstr_bench(&target, &replace), 10000, 10);
   BENCH(BENCH_findallpcome128_bench(&target, &replace), 10000, 10);
   BENCH(BENCH_pfindallpcome_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_combine_bench(&target, &replace), 10000, 10);
 
   putc('\n', stdout);
 
@@ -500,6 +503,7 @@ int main(void) {
   BENCH(BENCH_strstr_bench(&target, &replace), 10000, 10);
   BENCH(BENCH_findallpcome128_bench(&target, &replace), 10000, 10);
   BENCH(BENCH_pfindallpcome_bench(&target, &replace), 10000, 10);
+  BENCH(BENCH_combine_bench(&target, &replace), 10000, 10);
 
   free(lorem.buffer);
   return 0;
