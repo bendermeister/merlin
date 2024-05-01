@@ -1,31 +1,61 @@
 HEADERS := include/merlin/simd.h
-TEST := test/simd.out test/str8.out
-SOURCES :=
 CC := clang #just for now later support for other compilers will come
 
-FLAGS := -Wall -Wextra -I include -msse -msse2 -msse3 -msse4.1 -msse4.2 -mavx -mavx2 -I src/include
-DEBUG_FLAGS := ${FLAGS} -g -fsanitize=address,leak,undefined
+# actual library source code
+HEADERS := $(wildcard include/merlin/*.h)
+STR8_SOURCE := $(wildcard src/str8/*.c)
+MERLIN_SOURCE := ${STR8_SOURCE}
+MERLIN_OBJECT := $(patsubst %.c, %.o, ${MERLIN_SOURCE})
+
+# benchmarking sources
+BENCH_STR8_REPLACE_SOURCE := bench/str8/replace/replace.c
+BENCH_SOURCE := ${BENCH_STR8_REPLACE_SOURCE}
+
+# testing sources
+TEST_SIMD_SOURCE := test/simd.c
+TEST_STR8_SOURCE := test/str8.c
+TEST_SOURCE :+ ${TEST_SIMD_SOURCE} ${TEST_STR8_SOURCE}
+
+# combination of all sources
+SOURCE := ${MERLIN_SOUCE} ${BENCH_SOURCE} ${TEST_SOURCE}
+OBJECT := $(patsubst %.c, %.o, ${SOURCE})
+
+# flags
+SSE_FLAGS := -msse -msse2 -msse3 -msse4.1 -msse4.2
+AVX_FLAGS := -mavx -mavx2
+BASE_FLAGS := -Wall -Wextra -I include ${SSE_FLAGS} ${AVX_FLAGS}
+DEBUG_FLAGS := ${BASE_FLAGS} -g -fsanitize=address,leak,undefined
+RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native -fno-omit-framepointer
+
+#CFLAGS := ${RELEASE_FLAGS}
+CFLAGS := ${DEBUG_FLAGS}
+
+# targets
+# testing
+test/str8.out := test/str8.o
+test/simd.out := test/simd.o
+TEST_TARGETS := test/str8.out test/simd.out
+
+#benching
+bench/str8/replace/replace.out := bench/str8/replace/replace.out
+BENCH_TARGETS := bench/str8/replace/replace.out
+
+TARGETS := ${BENCH_TARGETS} ${TEST_TARGETS} merlin.a
+
+all: ${TARGETS}
 
 tidy: ${SOURCES} ${HEADERS}
 	clang-tidy --checks=altera*,android*,boost*,bugprone*,cert*,concu*,darwin*,fuchsia*,google* $^
 
-test: ${TEST}
+# compilation information
+%.o: %.c ${HEADERS}
+	${CC} ${CFLAGS} -c -o $@ $<
 
-test/%.out: test/%.c
-	${CC} ${DEBUG_FLAGS} $< -o $@
+%.out: %.o merlin ${HEADERS}
+	${CC} ${CFLAGS} ${$@} $< merlin.a -o $@
 
-test/str8.out: test/str8.c src/str8.c include/merlin/str8.h
-	${CC} ${DEBUG_FLAGS} src/str8.c $< -o $@
-
-BENCH := bench/str8/replace/replace.out
-
-BENCH_FLAGS := ${FLAGS} -O3 -march=native -mtune=native
-#BENCH_FLAGS := ${DEBUG_FLAGS}
-
-bench: ${BENCH}
-
-bench/str8/replace/%.out: bench/str8/replace/%.c src/str8.c
-	${CC} ${BENCH_FLAGS} $^ -o $@
+merlin: ${MERLIN_OBJECT}
+	ar r merlin.a $^
 
 clean:
-	rm -f ${TEST} ${BENCH}
+	rm -f ${OBJECT} merlin.a
