@@ -125,67 +125,6 @@ void merlin_str8_split_at_index(const merlin_str8_view_t s[static 1],
       (merlin_str8_view_t){.length = s->length - i, .buffer = s->buffer + i};
 }
 
-int merlin_str8_replace(merlin_str8_t s[static 1],
-                        const merlin_str8_view_t target[static 1],
-                        const merlin_str8_view_t replacement[static 1]) {
-  merlin_str8_t new = (merlin_str8_t){};
-
-  int err = merlin_str8_reserve(&new, s->capacity);
-  if (UNLIKELY(err)) {
-    return err;
-  }
-
-  merlin_str8_view_t lower = (merlin_str8_view_t){};
-  merlin_str8_view_t upper = merlin_str8_get_view(s, 0, s->length);
-  merlin_str8_split_at_view(&upper, target, &lower, &upper);
-  while (lower.length > 0) {
-    err |= merlin_str8_concat(&new, &lower);
-    err |= merlin_str8_concat(&new, replacement);
-    if (err) {
-      return err;
-    }
-    merlin_str8_split_at_view(&upper, target, &lower, &upper);
-  }
-  err |= merlin_str8_concat(&new, &upper);
-  if (err) {
-    return err;
-  }
-  merlin_str8_destroy(s);
-  *s = new;
-  return 0;
-}
-
-int merlin_str8_replace_n(merlin_str8_t s[static 1],
-                          const merlin_str8_view_t target[static 1],
-                          const merlin_str8_view_t replacement[static 1],
-                          const intptr_t n) {
-  merlin_str8_t new = (merlin_str8_t){};
-
-  merlin_str8_view_t lower = (merlin_str8_view_t){};
-  merlin_str8_view_t upper = merlin_str8_get_view(s, 0, s->length);
-  merlin_str8_split_at_view(&upper, target, &lower, &upper);
-  int err = 0;
-  for (intptr_t i = 0; i < n && lower.length > 0; ++i) {
-    err |= merlin_str8_concat(&new, &lower);
-    err |= merlin_str8_concat(&new, replacement);
-    if (err) {
-      return err;
-    }
-    merlin_str8_split_at_view(&upper, target, &lower, &upper);
-  }
-  if (lower.length > 0) {
-    err |= merlin_str8_concat(&new, &lower);
-    err |= merlin_str8_concat(&new, target);
-  }
-  err |= merlin_str8_concat(&new, &upper);
-  if (err) {
-    return err;
-  }
-  merlin_str8_destroy(s);
-  *s = new;
-  return 0;
-}
-
 int merlin_str8_insert(merlin_str8_t s[static 1], intptr_t index,
                        merlin_str8_view_t view[static 1]) {
   int err = internal_grow(s, s->length + view->length);

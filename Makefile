@@ -36,11 +36,7 @@ test/str8.out := test/str8.o
 test/simd.out := test/simd.o
 TEST_TARGETS := test/str8.out test/simd.out
 
-#benching
-bench/str8/replace/replace.out := bench/str8/replace/replace.o
-BENCH_TARGETS := bench/str8/replace/replace.out
-
-TARGETS := ${BENCH_TARGETS} ${TEST_TARGETS} merlin.a
+TARGETS := ${TEST_TARGETS} merlin.a
 
 all: ${TARGETS}
 
