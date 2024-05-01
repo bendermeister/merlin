@@ -3,7 +3,8 @@
 Making parallelism accessible.
 
 ## NOTE: WIP
-This is a work in progress and thinks might change, or documentation / examples might not be up to date.
+This is a work in progress and thinks might change, or documentation / examples
+might not be up to date.
 
 ## Concepts
 ### SIMD Vectors
@@ -53,6 +54,46 @@ is a constant pointer into a string and a length. Which can also be built from a
 classic null terminated string.
 
 #### Example
+```c
+#include <merlin/str8.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(void) {
+  const char cstr[] = "Oh  no  we  used  2  spaces.\n";
+
+  // get view from cstr
+  const merlin_str8_view_t cstr_view = merlin_str8_view_from_static_cstr(cstr);
+
+  int err;
+
+  // concatonate view with empty string
+  merlin_str8_t str8 = {};
+  err = merlin_str8_concat(&str8, &cstr_view);
+  if (err) {
+    fprintf(stderr, "ERROR: %s\n", strerror(err));
+    exit(1);
+  }
+
+  err = merlin_str8_replace(&str8, &merlin_str8_view_from_static_cstr("  "),
+                            &merlin_str8_view_from_static_cstr(" "));
+  if (err) {
+    fprintf(stderr, "ERROR: %s\n", strerror(err));
+    exit(1);
+  }
+
+  printf("%.*s\n", (int)str8.length, str8.buffer);
+
+  merlin_str8_destroy(&str8);
+
+  return 0;
+}
+```
 
 #### Motivation
-String handling in C sucks, and I wanted to built something with the simd types. And searching in a string is a pretty good application for that. And through the `merlin_str8_view_t` the functions are mostly compatible with classic C strings and C strings can be built from a `merlin_str8_t` or a `merlin_str8_t` can be built from a C string.
+String handling in C sucks, and I wanted to built something with the simd
+types. And searching in a string is a pretty good application for that. And
+through the `merlin_str8_view_t` the functions are mostly compatible with
+classic C strings and C strings can be built from a `merlin_str8_t` or a
+`merlin_str8_t` can be built from a C string.

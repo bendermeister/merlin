@@ -1,5 +1,4 @@
 #include <merlin/str8.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +27,8 @@ int main(void) {
   }
 
   printf("%.*s\n", (int)str8.length, str8.buffer);
+
+  merlin_str8_destroy(&str8);
 
   return 0;
 }
