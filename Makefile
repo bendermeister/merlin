@@ -16,8 +16,13 @@ TEST_SIMD_SOURCE := test/simd.c
 TEST_STR8_SOURCE := test/str8.c
 TEST_SOURCE :+ ${TEST_SIMD_SOURCE} ${TEST_STR8_SOURCE}
 
+# example sources
+EXAMPLE_SIMD_SOURCE := $(wildcard example/simd/*.c)
+EXAMPLE_STR8_SOURCE := $(wildcard example/str8/*.c)
+EXAMPLE_SOURCES := ${EXAMPLE_SIMD_SOURCE} ${EXAMPLE_STR8_SOURCE}
+
 # combination of all sources
-SOURCE := ${MERLIN_SOUCE} ${BENCH_SOURCE} ${TEST_SOURCE}
+SOURCE := ${MERLIN_SOUCE} ${BENCH_SOURCE} ${TEST_SOURCE} ${EXAMPLE_SOURCES}
 OBJECT := $(patsubst %.c, %.o, ${SOURCE})
 
 # flags
@@ -36,7 +41,11 @@ test/str8.out := test/str8.o
 test/simd.out := test/simd.o
 TEST_TARGETS := test/str8.out test/simd.out
 
-TARGETS := ${TEST_TARGETS} merlin.a
+# examples
+example/simd/simple.out := example/simd/simple.o
+EXAMPLE_TARGETS := example/simd/simple.out
+
+TARGETS := ${TEST_TARGETS} merlin.a ${EXAMPLE_TARGETS}
 
 all: ${TARGETS}
 

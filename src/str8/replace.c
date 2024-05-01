@@ -34,6 +34,7 @@ result_grow_to(result_t result[static 1], const intptr_t new_cap) {
 static result_t find_2(const merlin_str8_view_t haystack[static 1],
                        const merlin_str8_view_t needle[static 1]) {
 
+  // TODO(ben): fix this
   result_t result = {.capacity = 16, .error = ENOMEM};
 
   intptr_t index = 2;
@@ -526,7 +527,6 @@ int merlin_str8_replace(merlin_str8_t s[static 1],
 
   // TODO(ben): this fails if keys exists back to back and share char at pos
   // str[len - 1] and pos str[0]
-
   const intptr_t splits_end = splits.length;
   intptr_t previous_index = 0;
   for (intptr_t i = 0; i < splits_end; ++i) {
