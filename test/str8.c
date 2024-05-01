@@ -11,49 +11,100 @@ static void lazy_error(int err) {
   }
 }
 
+static test_t TEST_generic(void) {
+  test_t test = TEST_MAKE();
+
+  mrln_str8view_t v0 = mrln_str8view("Hello World");
+
+  TEST_INT(&test, v0.length, 11, NULL);
+  TEST_INT(&test, memcmp(v0.buffer, "Hello World", 11), 0, NULL);
+
+  mrln_str8view_t v1 = mrln_str8view(v0);
+
+  TEST_INT(&test, v1.length, 11, NULL);
+  TEST_INT(&test, memcmp(v1.buffer, "Hello World", 11), 0, NULL);
+
+  v1 = mrln_str8view(&v0);
+
+  TEST_INT(&test, v1.length, 11, NULL);
+  TEST_INT(&test, memcmp(v1.buffer, "Hello World", 11), 0, NULL);
+
+  int err;
+  mrln_str8_t s0, s1;
+  err = mrln_str8(&s0, "Bye World");
+  lazy_error(err);
+
+  TEST_INT(&test, s0.length, 9, NULL);
+  TEST_INT(&test, memcmp(s0.buffer, "Bye World", s0.length), 0, NULL);
+
+  err = mrln_str8(&s1, &s0);
+  lazy_error(err);
+
+  TEST_INT(&test, s1.length, 9, NULL);
+  TEST_INT(&test, memcmp(s1.buffer, "Bye World", s1.length), 0, NULL);
+  TEST_BOOL(&test, s1.buffer == s0.buffer, 0, NULL);
+
+  v0 = mrln_str8view(s0);
+  TEST_INT(&test, v0.length, 9, NULL);
+  TEST_INT(&test, memcmp(v0.buffer, "Bye World", v0.length), 0, NULL);
+  TEST_BOOL(&test, v0.buffer == s0.buffer, 1, NULL);
+
+  v0 = (mrln_str8view_t){};
+
+  v0 = mrln_str8view(&s0);
+  TEST_INT(&test, v0.length, 9, NULL);
+  TEST_INT(&test, memcmp(v0.buffer, "Bye World", v0.length), 0, NULL);
+  TEST_BOOL(&test, v0.buffer == s0.buffer, 1, NULL);
+
+  mrln_str8_destroy(&s0);
+  mrln_str8_destroy(&s1);
+
+  return test;
+}
+
 static test_t TEST_concat(void) {
   test_t test = TEST_MAKE();
 
-  merlin_str8_t str = {};
+  mrln_str8_t str = {};
 
-  merlin_str8_view_t view = merlin_str8_view_from_static_cstr("Hello World");
+  mrln_str8view_t view = mrln_str8view_from_static_cstr("Hello World");
   int err = 0;
 
-  err = merlin_str8_concat(&str, &view);
+  err = mrln_str8_concat(&str, &view);
   lazy_error(err);
 
   TEST_INT(&test, memcmp(str.buffer, "Hello World", str.length), 0, NULL);
 
-  err = merlin_str8_concat_char(&str, ' ');
+  err = mrln_str8_concat_char(&str, ' ');
   lazy_error(err);
   TEST_INT(&test, memcmp(str.buffer, "Hello World ", str.length), 0, NULL);
 
-  err = merlin_str8_concat_u64(&str, 69, 0, 0);
+  err = mrln_str8_concat_u64(&str, 69, 0, 0);
   lazy_error(err);
   TEST_INT(&test, memcmp(str.buffer, "Hello World 69", str.length), 0, NULL);
 
-  err = merlin_str8_concat_i64(&str, -1, 0, 0);
+  err = mrln_str8_concat_i64(&str, -1, 0, 0);
   lazy_error(err);
 
-  merlin_str8_destroy(&str);
+  mrln_str8_destroy(&str);
   return test;
 }
 
 static test_t TEST_replace(void) {
   test_t test = TEST_MAKE();
 
-  merlin_str8_t str = {};
+  mrln_str8_t str = {};
   int err = 0;
 
-  err = merlin_str8_concat(
-      &str, &merlin_str8_view_from_static_cstr(
+  err = mrln_str8_concat(
+      &str, &mrln_str8view_from_static_cstr(
                 "Hello World this is again a very nice #include string"));
   lazy_error(err);
 
-  merlin_str8_view_t target = merlin_str8_view_from_static_cstr(" ");
-  merlin_str8_view_t replace = merlin_str8_view_from_static_cstr("\t\t");
+  mrln_str8view_t target = mrln_str8view_from_static_cstr(" ");
+  mrln_str8view_t replace = mrln_str8view_from_static_cstr("\t\t");
 
-  err = merlin_str8_replace(&str, &target, &replace);
+  err = mrln_str8_replace(&str, &target, &replace);
   lazy_error(err);
 
   TEST_INT(&test,
@@ -63,7 +114,7 @@ static test_t TEST_replace(void) {
                   str.length),
            0, NULL);
 
-  err = merlin_str8_replace_n(&str, &replace, &target, 5);
+  err = mrln_str8_replace_n(&str, &replace, &target, 5);
   lazy_error(err);
 
   TEST_INT(&test,
@@ -73,21 +124,21 @@ static test_t TEST_replace(void) {
                   str.length),
            0, NULL);
 
-  merlin_str8_destroy(&str);
+  mrln_str8_destroy(&str);
 
   return test;
 }
 
 static test_t TEST_find(void) {
   test_t test = TEST_MAKE();
-  merlin_str8_view_t view = merlin_str8_view_from_static_cstr(
+  mrln_str8view_t view = mrln_str8view_from_static_cstr(
       "Hello World this is some sentence written by the great Ben");
-  merlin_str8_view_t needle = merlin_str8_view_from_static_cstr("great");
+  mrln_str8view_t needle = mrln_str8view_from_static_cstr("great");
 
-  size_t index = merlin_str8_find(&view, &needle);
+  size_t index = mrln_str8_find(&view, &needle);
   TEST_UINT(&test, index, 49, TEST_MAKE_STR("%.*s", 4, view.buffer + index));
 
-  index = merlin_str8_find_char(&view, ' ');
+  index = mrln_str8_find_char(&view, ' ');
   TEST_UINT(&test, index, 5, NULL);
 
   return test;
@@ -97,5 +148,6 @@ int main(void) {
   TEST_RUN(TEST_concat());
   TEST_RUN(TEST_find());
   TEST_RUN(TEST_replace());
+  TEST_RUN(TEST_generic());
   return TEST_CLEANUP();
 }

@@ -61,21 +61,21 @@ result_grow_to(result_t result[static 1], const intptr_t new_cap) {
   return 0;
 }
 
-static result_t find_2(const merlin_str8_view_t haystack[static 1],
-                       const merlin_str8_view_t needle[static 1]) {
+static result_t find_2(const mrln_str8view_t haystack[static 1],
+                       const mrln_str8view_t needle[static 1]) {
   ASSUME(haystack != NULL);
   ASSUME(needle != NULL);
   ASSUME(haystack->length > needle->length);
   ASSUME(needle->length == 2);
 
-  result_t result = { .error = ENOMEM, .capacity = 16 };
+  result_t result = {.error = ENOMEM, .capacity = 16};
 
   const intptr_t v32u8_end = ((haystack->length - 1) / 32) * 32;
   intptr_t index = 0;
 
-  merlin_v32u8_t r0, r1, m0, m1, t;
-  m0 = merlin_v32u8_set1(needle->buffer[0]);
-  m1 = merlin_v32u8_set1(needle->buffer[1]);
+  mrln_v32u8_t r0, r1, m0, m1, t;
+  m0 = mrln_v32u8_set1(needle->buffer[0]);
+  m1 = mrln_v32u8_set1(needle->buffer[1]);
   while (index < v32u8_end) {
     int err = result_grow_to(&result, result.capacity << 1);
     if (UNLIKELY(err)) {
@@ -83,12 +83,12 @@ static result_t find_2(const merlin_str8_view_t haystack[static 1],
     }
     const intptr_t result_end = result.capacity;
     for (; index < v32u8_end && result.length < result_end; index += 32) {
-      r0 = merlin_v32u8_load_unaligned((void*)(haystack->buffer + 0 + index));
-      r0 = merlin_v32u8_cmpeq(r0, m0);
-      r1 = merlin_v32u8_load_unaligned((void*)(haystack->buffer + 1 + index));
-      r1 = merlin_v32u8_cmpeq(r1, m1);
-      t  = merlin_v32u8_and(r0, r1);
-      uint32_t mask = merlin_v32u8_mask(t);
+      r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + 0 + index));
+      r0 = mrln_v32u8_cmpeq(r0, m0);
+      r1 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + 1 + index));
+      r1 = mrln_v32u8_cmpeq(r1, m1);
+      t = mrln_v32u8_and(r0, r1);
+      uint32_t mask = mrln_v32u8_mask(t);
       intptr_t index_offset = 0;
       while (mask) {
         int ctz = __builtin_ctz(mask);
@@ -110,15 +110,16 @@ static result_t find_2(const merlin_str8_view_t haystack[static 1],
 
   for (; index < haystack->length - 1; ++index) {
     result.buffer[result.length] = index;
-    result.length += __builtin_memcmp(haystack->buffer + index, needle->buffer, 2) == 0;
+    result.length +=
+        __builtin_memcmp(haystack->buffer + index, needle->buffer, 2) == 0;
   }
 
   result.error = 0;
   return result;
 }
 
-static result_t find_3(const merlin_str8_view_t haystack[static 1],
-                       const merlin_str8_view_t needle[static 1]) {
+static result_t find_3(const mrln_str8view_t haystack[static 1],
+                       const mrln_str8view_t needle[static 1]) {
 
   result_t result = {.capacity = 16, .error = ENOMEM};
 
@@ -127,10 +128,10 @@ static result_t find_3(const merlin_str8_view_t haystack[static 1],
 
   // 256
   {
-    merlin_v32u8_t r0, r1, r2, m0, m1, m2, t;
-    m0 = merlin_v32u8_set1(needle->buffer[0]);
-    m1 = merlin_v32u8_set1(needle->buffer[1]);
-    m2 = merlin_v32u8_set1(needle->buffer[2]);
+    mrln_v32u8_t r0, r1, r2, m0, m1, m2, t;
+    m0 = mrln_v32u8_set1(needle->buffer[0]);
+    m1 = mrln_v32u8_set1(needle->buffer[1]);
+    m2 = mrln_v32u8_set1(needle->buffer[2]);
     for (; index < v32u8_end;) {
       int err = result_grow_to(&result, result.capacity << 1);
       if (UNLIKELY(err)) {
@@ -138,21 +139,18 @@ static result_t find_3(const merlin_str8_view_t haystack[static 1],
       }
       const intptr_t result_end = result.capacity;
       for (; index < v32u8_end && result.length < result_end; index += 32) {
-        r0 =
-            merlin_v32u8_load_unaligned((void *)(haystack->buffer + index + 0));
-        r0 = merlin_v32u8_cmpeq(r0, m0);
+        r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 0));
+        r0 = mrln_v32u8_cmpeq(r0, m0);
 
-        r1 =
-            merlin_v32u8_load_unaligned((void *)(haystack->buffer + index + 1));
-        r1 = merlin_v32u8_cmpeq(r1, m1);
+        r1 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 1));
+        r1 = mrln_v32u8_cmpeq(r1, m1);
 
-        r2 =
-            merlin_v32u8_load_unaligned((void *)(haystack->buffer + index + 2));
-        r2 = merlin_v32u8_cmpeq(r2, m2);
+        r2 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 2));
+        r2 = mrln_v32u8_cmpeq(r2, m2);
 
-        t = merlin_v32u8_and(r0, r1);
-        t = merlin_v32u8_and(t, r2);
-        uint32_t mask = merlin_v32u8_mask(t);
+        t = mrln_v32u8_and(r0, r1);
+        t = mrln_v32u8_and(t, r2);
+        uint32_t mask = mrln_v32u8_mask(t);
         intptr_t index_offset = 0;
         while (mask) {
           intptr_t ctz = __builtin_ctz(mask);
@@ -183,8 +181,8 @@ static result_t find_3(const merlin_str8_view_t haystack[static 1],
   return result;
 }
 
-static result_t find_1(const merlin_str8_view_t haystack[static 1],
-                       const merlin_str8_view_t needle[static 1]) {
+static result_t find_1(const mrln_str8view_t haystack[static 1],
+                       const mrln_str8view_t needle[static 1]) {
   if (haystack->length < 1) {
     return (result_t){};
   }
@@ -192,8 +190,8 @@ static result_t find_1(const merlin_str8_view_t haystack[static 1],
 
   const intptr_t v32u8_end = (haystack->length / 32) * 32;
 
-  const merlin_v32u8_t m0 = merlin_v32u8_set1(needle->buffer[0]);
-  merlin_v32u8_t r0;
+  const mrln_v32u8_t m0 = mrln_v32u8_set1(needle->buffer[0]);
+  mrln_v32u8_t r0;
 
   intptr_t index = 0;
 
@@ -204,9 +202,9 @@ static result_t find_1(const merlin_str8_view_t haystack[static 1],
     }
     const intptr_t result_end = result.capacity;
     for (; index < v32u8_end && result.length < result_end; index += 32) {
-      r0 = merlin_v32u8_load_unaligned((void *)(haystack->buffer + index));
-      r0 = merlin_v32u8_cmpeq(r0, m0);
-      uint32_t mask = merlin_v32u8_mask(r0);
+      r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index));
+      r0 = mrln_v32u8_cmpeq(r0, m0);
+      uint32_t mask = mrln_v32u8_mask(r0);
       intptr_t index_offset = 0;
       while (mask) {
         intptr_t ctz = __builtin_ctz(mask);
@@ -237,18 +235,18 @@ static result_t find_1(const merlin_str8_view_t haystack[static 1],
   return result;
 }
 
-static result_t find_4(const merlin_str8_view_t haystack[static 1],
-                       const merlin_str8_view_t needle[static 1]) {
+static result_t find_4(const mrln_str8view_t haystack[static 1],
+                       const mrln_str8view_t needle[static 1]) {
 
   result_t result = {.capacity = 16, .error = ENOMEM};
 
   const intptr_t v32u8_end = ((haystack->length - 3) / 32) * 32;
 
-  merlin_v32u8_t r0, r1, r2, r3, m0, m1, m2, m3, t;
-  m0 = merlin_v32u8_set1(needle->buffer[0]);
-  m1 = merlin_v32u8_set1(needle->buffer[1]);
-  m2 = merlin_v32u8_set1(needle->buffer[2]);
-  m3 = merlin_v32u8_set1(needle->buffer[3]);
+  mrln_v32u8_t r0, r1, r2, r3, m0, m1, m2, m3, t;
+  m0 = mrln_v32u8_set1(needle->buffer[0]);
+  m1 = mrln_v32u8_set1(needle->buffer[1]);
+  m2 = mrln_v32u8_set1(needle->buffer[2]);
+  m3 = mrln_v32u8_set1(needle->buffer[3]);
   const uint8_t *in = haystack->buffer;
   intptr_t index = 0;
 
@@ -259,23 +257,23 @@ static result_t find_4(const merlin_str8_view_t haystack[static 1],
     }
     const intptr_t result_end = result.capacity;
     for (; index < v32u8_end && result.length < result_end; index += 32) {
-      r0 = merlin_v32u8_load_unaligned((void *)(in + index + 0));
-      r0 = merlin_v32u8_cmpeq(r0, m0);
+      r0 = mrln_v32u8_load_unaligned((void *)(in + index + 0));
+      r0 = mrln_v32u8_cmpeq(r0, m0);
 
-      r1 = merlin_v32u8_load_unaligned((void *)(in + index + 1));
-      r1 = merlin_v32u8_cmpeq(r1, m1);
+      r1 = mrln_v32u8_load_unaligned((void *)(in + index + 1));
+      r1 = mrln_v32u8_cmpeq(r1, m1);
 
-      r2 = merlin_v32u8_load_unaligned((void *)(in + index + 2));
-      r2 = merlin_v32u8_cmpeq(r2, m2);
+      r2 = mrln_v32u8_load_unaligned((void *)(in + index + 2));
+      r2 = mrln_v32u8_cmpeq(r2, m2);
 
-      r3 = merlin_v32u8_load_unaligned((void *)(in + index + 3));
-      r3 = merlin_v32u8_cmpeq(r3, m3);
+      r3 = mrln_v32u8_load_unaligned((void *)(in + index + 3));
+      r3 = mrln_v32u8_cmpeq(r3, m3);
 
-      t = merlin_v32u8_and(r0, r1);
-      t = merlin_v32u8_and(t, r2);
-      t = merlin_v32u8_and(t, r3);
+      t = mrln_v32u8_and(r0, r1);
+      t = mrln_v32u8_and(t, r2);
+      t = mrln_v32u8_and(t, r3);
 
-      uint32_t mask = merlin_v32u8_mask(t);
+      uint32_t mask = mrln_v32u8_mask(t);
       uintptr_t index_offset = 0;
       while (mask) {
         intptr_t ctz = __builtin_ctz(mask);
@@ -307,15 +305,16 @@ static result_t find_4(const merlin_str8_view_t haystack[static 1],
   return result;
 }
 
-static result_t find_long(const merlin_str8_view_t haystack[static 1],
-                          const merlin_str8_view_t needle[static 1]) {
+static result_t find_long(const mrln_str8view_t haystack[static 1],
+                          const mrln_str8view_t needle[static 1]) {
   if (needle->length > haystack->length) {
     return (result_t){};
   }
 
   result_t result = {.error = ENOMEM, .capacity = 16};
 
-  const intptr_t v32u8_end = ((haystack->length - (needle->length - 1)) / 32) * 32;
+  const intptr_t v32u8_end =
+      ((haystack->length - (needle->length - 1)) / 32) * 32;
 
   intptr_t index = 0;
   // 256
@@ -326,12 +325,12 @@ static result_t find_long(const merlin_str8_view_t haystack[static 1],
     const intptr_t r2o = needle->length - 2;
     const intptr_t r3o = needle->length - 1;
     const intptr_t r4o = needle->length / 2;
-    merlin_v32u8_t r0, r1, r2, r3, r4, m0, m1, m2, m3, m4, t;
-    m0 = merlin_v32u8_set1(needle->buffer[r0o]);
-    m1 = merlin_v32u8_set1(needle->buffer[r1o]);
-    m2 = merlin_v32u8_set1(needle->buffer[r0o]);
-    m3 = merlin_v32u8_set1(needle->buffer[r1o]);
-    m4 = merlin_v32u8_set1(needle->buffer[r4o]);
+    mrln_v32u8_t r0, r1, r2, r3, r4, m0, m1, m2, m3, m4, t;
+    m0 = mrln_v32u8_set1(needle->buffer[r0o]);
+    m1 = mrln_v32u8_set1(needle->buffer[r1o]);
+    m2 = mrln_v32u8_set1(needle->buffer[r0o]);
+    m3 = mrln_v32u8_set1(needle->buffer[r1o]);
+    m4 = mrln_v32u8_set1(needle->buffer[r4o]);
 
     while (index < v32u8_end) {
       int err = result_grow_to(&result, result.capacity << 1);
@@ -341,32 +340,27 @@ static result_t find_long(const merlin_str8_view_t haystack[static 1],
 
       const intptr_t result_end = result.capacity;
       for (; index < v32u8_end && result.length < result_end; index += 32) {
-        r0 =
-            merlin_v32u8_load_unaligned((void *)haystack->buffer + index + r0o);
-        r0 = merlin_v32u8_cmpeq(r0, m0);
+        r0 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r0o);
+        r0 = mrln_v32u8_cmpeq(r0, m0);
 
-        r1 =
-            merlin_v32u8_load_unaligned((void *)haystack->buffer + index + r1o);
-        r1 = merlin_v32u8_cmpeq(r1, m1);
+        r1 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r1o);
+        r1 = mrln_v32u8_cmpeq(r1, m1);
 
-        r2 =
-            merlin_v32u8_load_unaligned((void *)haystack->buffer + index + r2o);
-        r2 = merlin_v32u8_cmpeq(r2, m2);
+        r2 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r2o);
+        r2 = mrln_v32u8_cmpeq(r2, m2);
 
-        r3 =
-            merlin_v32u8_load_unaligned((void *)haystack->buffer + index + r3o);
-        r3 = merlin_v32u8_cmpeq(r3, m3);
+        r3 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r3o);
+        r3 = mrln_v32u8_cmpeq(r3, m3);
 
-        r4 =
-            merlin_v32u8_load_unaligned((void *)haystack->buffer + index + r4o);
-        r4 = merlin_v32u8_cmpeq(r4, m4);
+        r4 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r4o);
+        r4 = mrln_v32u8_cmpeq(r4, m4);
 
-        t = merlin_v32u8_and(r0, r1);
-        t = merlin_v32u8_and(t, r2);
-        t = merlin_v32u8_and(t, r3);
-        t = merlin_v32u8_and(t, r4);
+        t = mrln_v32u8_and(r0, r1);
+        t = mrln_v32u8_and(t, r2);
+        t = mrln_v32u8_and(t, r3);
+        t = mrln_v32u8_and(t, r4);
 
-        uint32_t mask = merlin_v32u8_mask(t);
+        uint32_t mask = mrln_v32u8_mask(t);
         intptr_t index_offset = 0;
         while (mask) {
           intptr_t ctz = __builtin_ctz(mask);
@@ -409,8 +403,8 @@ static result_t find_long(const merlin_str8_view_t haystack[static 1],
   return result;
 }
 
-static result_t find(const merlin_str8_view_t haystack[static 1],
-                     const merlin_str8_view_t needle[static 1]) {
+static result_t find(const mrln_str8view_t haystack[static 1],
+                     const mrln_str8view_t needle[static 1]) {
   switch (needle->length) {
   case 0:
   case 1:
@@ -426,39 +420,37 @@ static result_t find(const merlin_str8_view_t haystack[static 1],
   }
 }
 
-static int replace_inplace_1(merlin_str8_t s[static 1], const uint8_t target,
+static int replace_inplace_1(mrln_str8_t s[static 1], const uint8_t target,
                              const uint8_t replacement) {
   const intptr_t end = s->length;
 
   const intptr_t v32u8_end = (end / 32) * 32;
-  const merlin_v32u8_t v32_target_mask = merlin_v32u8_set1(target);
-  const merlin_v32u8_t v32_replace_mask = merlin_v32u8_set1(replacement);
+  const mrln_v32u8_t v32_target_mask = mrln_v32u8_set1(target);
+  const mrln_v32u8_t v32_replace_mask = mrln_v32u8_set1(replacement);
 
   intptr_t index = 0;
   for (; index < v32u8_end; index += 32) {
-    merlin_v32u8_t data =
-        merlin_v32u8_load_unaligned((void *)(s->buffer + index));
-    merlin_v32u8_t mask = merlin_v32u8_cmpeq(data, v32_target_mask);
-    merlin_v32u8_t rmask = merlin_v32u8_and(mask, v32_replace_mask);
-    mask = merlin_v32u8_not(mask);
-    data = merlin_v32u8_and(data, mask);
-    data = merlin_v32u8_or(data, rmask);
-    merlin_v32u8_store_unaligned((void *)(s->buffer + index), data);
+    mrln_v32u8_t data = mrln_v32u8_load_unaligned((void *)(s->buffer + index));
+    mrln_v32u8_t mask = mrln_v32u8_cmpeq(data, v32_target_mask);
+    mrln_v32u8_t rmask = mrln_v32u8_and(mask, v32_replace_mask);
+    mask = mrln_v32u8_not(mask);
+    data = mrln_v32u8_and(data, mask);
+    data = mrln_v32u8_or(data, rmask);
+    mrln_v32u8_store_unaligned((void *)(s->buffer + index), data);
   }
 
   if ((end - v32u8_end) / 16) {
 
-    const merlin_v16u8_t v16_target_mask = merlin_v16u8_set1(target);
-    const merlin_v16u8_t v16_replace_mask = merlin_v16u8_set1(replacement);
+    const mrln_v16u8_t v16_target_mask = mrln_v16u8_set1(target);
+    const mrln_v16u8_t v16_replace_mask = mrln_v16u8_set1(replacement);
 
-    merlin_v16u8_t data =
-        merlin_v16u8_load_unaligned((void *)(s->buffer + index));
-    merlin_v16u8_t mask = merlin_v16u8_cmpeq(data, v16_target_mask);
-    merlin_v16u8_t rmask = merlin_v16u8_and(mask, v16_replace_mask);
-    mask = merlin_v16u8_not(mask);
-    data = merlin_v16u8_and(data, mask);
-    data = merlin_v16u8_or(data, rmask);
-    merlin_v16u8_store_unaligned((void *)(s->buffer + index), data);
+    mrln_v16u8_t data = mrln_v16u8_load_unaligned((void *)(s->buffer + index));
+    mrln_v16u8_t mask = mrln_v16u8_cmpeq(data, v16_target_mask);
+    mrln_v16u8_t rmask = mrln_v16u8_and(mask, v16_replace_mask);
+    mask = mrln_v16u8_not(mask);
+    data = mrln_v16u8_and(data, mask);
+    data = mrln_v16u8_or(data, rmask);
+    mrln_v16u8_store_unaligned((void *)(s->buffer + index), data);
 
     index += 16;
   }
@@ -473,27 +465,26 @@ static int replace_inplace_1(merlin_str8_t s[static 1], const uint8_t target,
   return 0;
 }
 
-static int replace_inplace_1_n(merlin_str8_t s[static 1], const uint8_t target,
+static int replace_inplace_1_n(mrln_str8_t s[static 1], const uint8_t target,
                                const uint8_t replacement, intptr_t n) {
   const intptr_t end = s->length;
 
   const intptr_t v32u8_end = (end / 32) * 32;
-  const merlin_v32u8_t v32_target_mask = merlin_v32u8_set1(target);
-  const merlin_v32u8_t v32_replace_mask = merlin_v32u8_set1(replacement);
+  const mrln_v32u8_t v32_target_mask = mrln_v32u8_set1(target);
+  const mrln_v32u8_t v32_replace_mask = mrln_v32u8_set1(replacement);
 
   intptr_t index = 0;
   for (; index < v32u8_end && n - 32 > 0; index += 32) {
-    merlin_v32u8_t data =
-        merlin_v32u8_load_unaligned((void *)(s->buffer + index));
-    merlin_v32u8_t mask = merlin_v32u8_cmpeq(data, v32_target_mask);
-    uint32_t set = merlin_v32u8_mask(mask);
+    mrln_v32u8_t data = mrln_v32u8_load_unaligned((void *)(s->buffer + index));
+    mrln_v32u8_t mask = mrln_v32u8_cmpeq(data, v32_target_mask);
+    uint32_t set = mrln_v32u8_mask(mask);
     if (set) {
       n -= __builtin_popcount(set);
-      merlin_v32u8_t rmask = merlin_v32u8_and(mask, v32_replace_mask);
-      mask = merlin_v32u8_not(mask);
-      data = merlin_v32u8_and(data, mask);
-      data = merlin_v32u8_or(data, rmask);
-      merlin_v32u8_store_unaligned((void *)(s->buffer + index), data);
+      mrln_v32u8_t rmask = mrln_v32u8_and(mask, v32_replace_mask);
+      mask = mrln_v32u8_not(mask);
+      data = mrln_v32u8_and(data, mask);
+      data = mrln_v32u8_or(data, rmask);
+      mrln_v32u8_store_unaligned((void *)(s->buffer + index), data);
     }
   }
 
@@ -508,15 +499,15 @@ static int replace_inplace_1_n(merlin_str8_t s[static 1], const uint8_t target,
   return 0;
 }
 
-static int replace_inplace_n(merlin_str8_t s[static 1],
-                             const merlin_str8_view_t target[static 1],
-                             const merlin_str8_view_t replacement[static 1],
+static int replace_inplace_n(mrln_str8_t s[static 1],
+                             const mrln_str8view_t target[static 1],
+                             const mrln_str8view_t replacement[static 1],
                              const intptr_t n) {
   if (target->length == 1) {
     return replace_inplace_1_n(s, target->buffer[0], replacement->buffer[0], n);
   }
 
-  merlin_str8_view_t haystack = {.buffer = s->buffer, .length = s->length};
+  mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
   result_t splits = find(&haystack, target);
   if (UNLIKELY(splits.error)) {
     free(splits.buffer);
@@ -532,14 +523,14 @@ static int replace_inplace_n(merlin_str8_t s[static 1],
   return 0;
 }
 
-static int replace_inplace(merlin_str8_t s[static 1],
-                           const merlin_str8_view_t target[static 1],
-                           const merlin_str8_view_t replacement[static 1]) {
+static int replace_inplace(mrln_str8_t s[static 1],
+                           const mrln_str8view_t target[static 1],
+                           const mrln_str8view_t replacement[static 1]) {
   if (target->length == 1) {
     return replace_inplace_1(s, target->buffer[0], replacement->buffer[0]);
   }
 
-  merlin_str8_view_t haystack = {.buffer = s->buffer, .length = s->length};
+  mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
   result_t splits = find(&haystack, target);
   if (UNLIKELY(splits.error)) {
     free(splits.buffer);
@@ -555,21 +546,21 @@ static int replace_inplace(merlin_str8_t s[static 1],
   return 0;
 }
 
-int merlin_str8_replace(merlin_str8_t s[static 1],
-                        const merlin_str8_view_t target[static 1],
-                        const merlin_str8_view_t replacement[static 1]) {
+int mrln_str8_replace(mrln_str8_t s[static 1],
+                      const mrln_str8view_t target[static 1],
+                      const mrln_str8view_t replacement[static 1]) {
   if (target->length == replacement->length) {
     return replace_inplace(s, target, replacement);
   }
 
-  merlin_str8_view_t haystack = {.buffer = s->buffer, .length = s->length};
+  mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
   result_t splits = find(&haystack, target);
   if (UNLIKELY(splits.error)) {
     free(splits.buffer);
     return splits.error;
   }
 
-  merlin_str8_t str_new = {};
+  mrln_str8_t str_new = {};
   str_new.capacity =
       s->length + splits.length * (replacement->length - target->length);
   str_new.buffer = malloc(str_new.capacity);
@@ -603,28 +594,28 @@ int merlin_str8_replace(merlin_str8_t s[static 1],
   return 0;
 }
 
-int merlin_str8_replace_n(merlin_str8_t s[static 1],
-                          const merlin_str8_view_t target[static 1],
-                          const merlin_str8_view_t replacement[static 1],
-                          intptr_t n) {
+int mrln_str8_replace_n(mrln_str8_t s[static 1],
+                        const mrln_str8view_t target[static 1],
+                        const mrln_str8view_t replacement[static 1],
+                        intptr_t n) {
   if (target->length == replacement->length) {
     return replace_inplace_n(s, target, replacement, n);
   }
   if (n < 0) {
-    return merlin_str8_replace(s, target, replacement);
+    return mrln_str8_replace(s, target, replacement);
   }
   if (n == 0) {
     return 0;
   }
 
-  merlin_str8_view_t haystack = {.buffer = s->buffer, .length = s->length};
+  mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
   result_t splits = find(&haystack, target);
   if (UNLIKELY(splits.error)) {
     free(splits.buffer);
     return splits.error;
   }
 
-  merlin_str8_t str_new = {};
+  mrln_str8_t str_new = {};
   str_new.capacity = s->length + (splits.length < n ? splits.length : n) *
                                      (replacement->length - target->length);
   str_new.buffer = malloc(str_new.capacity);
