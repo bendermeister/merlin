@@ -24,7 +24,7 @@ EXAMPLE_STR8_SOURCE := $(wildcard example/str8/*.c)
 EXAMPLE_SOURCE := ${EXAMPLE_SIMD_SOURCE} ${EXAMPLE_STR8_SOURCE}
 
 # combination of all sources
-SOURCE := ${MERLIN_SOUCE} ${BENCH_SOURCE} ${TEST_SOURCE} ${EXAMPLE_SOURCE}
+SOURCE := ${MERLIN_SOURCE} ${BENCH_SOURCE} ${TEST_SOURCE} ${EXAMPLE_SOURCE}
 OBJECT := $(patsubst %.c, %.o, ${SOURCE})
 
 # flags
@@ -32,17 +32,18 @@ SSE_FLAGS := -msse -msse2 -msse3 -msse4.1 -msse4.2
 AVX_FLAGS := -mavx -mavx2
 BASE_FLAGS := -Wall -Wextra -I include ${SSE_FLAGS} ${AVX_FLAGS}
 DEBUG_FLAGS := ${BASE_FLAGS} -g -fsanitize=address,leak,undefined
-RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native -fno-omit-framepointer
+RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native
 
-#CFLAGS := ${RELEASE_FLAGS}
-CFLAGS := ${DEBUG_FLAGS}
+CFLAGS := ${RELEASE_FLAGS}
+#CFLAGS := ${DEBUG_FLAGS}
 
 # targets
 # testing
 test/str8.out := test/str8.o
 test/simd.out := test/simd.o
 test/stack2.out := test/stack2.o
-TEST_TARGETS := test/str8.out test/simd.out test/stack2.out
+bench/str8/replace/replace.out := bench/str8/replace/replace.o
+TEST_TARGETS := test/str8.out test/simd.out test/stack2.out bench/str8/replace/replace.out
 
 # examples
 example/simd/simple.out := example/simd/simple.o

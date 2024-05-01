@@ -1,4 +1,5 @@
 #include "../util.h"
+#include "merlin/stack2.h"
 
 #include <merlin/simd.h>
 #include <merlin/str8.h>
@@ -10,10 +11,8 @@
 
 typedef struct result_t result_t;
 struct result_t {
-  intptr_t *buffer;
-  intptr_t capacity;
   intptr_t length;
-  int error;
+  intptr_t buffer[];
 };
 
 /**
@@ -45,30 +44,14 @@ struct result_t {
  *   with memcmp
  */
 
-__attribute__((__always_inline__, __nonnull__(1))) static int
-result_grow_to(result_t result[static 1], const intptr_t new_cap) {
-  ASSUME(result != NULL);
-  ASSUME(result->capacity < new_cap);
-
-  void *buffer = realloc(result->buffer, new_cap * sizeof(*result->buffer));
-
-  if (UNLIKELY(!buffer)) {
-    return ENOMEM;
-  }
-
-  result->buffer = buffer;
-  result->capacity = new_cap;
-  return 0;
-}
-
-static result_t find_2(const mrln_str8view_t haystack[static 1],
-                       const mrln_str8view_t needle[static 1]) {
+static result_t *find_2(const mrln_str8view_t haystack[static 1],
+                        const mrln_str8view_t needle[static 1]) {
   ASSUME(haystack != NULL);
   ASSUME(needle != NULL);
   ASSUME(haystack->length > needle->length);
   ASSUME(needle->length == 2);
 
-  result_t result = {.error = ENOMEM, .capacity = 16};
+  result_t *result = mrln_stack2();
 
   const intptr_t v32u8_end = ((haystack->length - 1) / 32) * 32;
   intptr_t index = 0;
@@ -76,52 +59,37 @@ static result_t find_2(const mrln_str8view_t haystack[static 1],
   mrln_v32u8_t r0, r1, m0, m1, t;
   m0 = mrln_v32u8_set1(needle->buffer[0]);
   m1 = mrln_v32u8_set1(needle->buffer[1]);
-  while (index < v32u8_end) {
-    int err = result_grow_to(&result, result.capacity << 1);
-    if (UNLIKELY(err)) {
-      return result;
-    }
-    const intptr_t result_end = result.capacity;
-    for (; index < v32u8_end && result.length < result_end; index += 32) {
-      r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + 0 + index));
-      r0 = mrln_v32u8_cmpeq(r0, m0);
-      r1 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + 1 + index));
-      r1 = mrln_v32u8_cmpeq(r1, m1);
-      t = mrln_v32u8_and(r0, r1);
-      uint32_t mask = mrln_v32u8_mask(t);
-      intptr_t index_offset = 0;
-      while (mask) {
-        int ctz = __builtin_ctz(mask);
-        index_offset += ctz;
-        mask >>= ctz;
-        result.buffer[result.length++] = index + index_offset;
-        mask >>= 1;
-        index_offset += 1;
-      }
-    }
-  }
-
-  if (result.length + 32 > result.capacity) {
-    int err = result_grow_to(&result, result.capacity << 1);
-    if (UNLIKELY(err)) {
-      return result;
+  for (; index < v32u8_end; index += 32) {
+    r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + 0 + index));
+    r0 = mrln_v32u8_cmpeq(r0, m0);
+    r1 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + 1 + index));
+    r1 = mrln_v32u8_cmpeq(r1, m1);
+    t = mrln_v32u8_and(r0, r1);
+    uint32_t mask = mrln_v32u8_mask(t);
+    intptr_t index_offset = 0;
+    while (mask) {
+      int ctz = __builtin_ctz(mask);
+      index_offset += ctz;
+      mask >>= ctz;
+      result->buffer[result->length++] = index + index_offset;
+      mask >>= 1;
+      index_offset += 1;
     }
   }
 
   for (; index < haystack->length - 1; ++index) {
-    result.buffer[result.length] = index;
-    result.length +=
+    result->buffer[result->length] = index;
+    result->length +=
         __builtin_memcmp(haystack->buffer + index, needle->buffer, 2) == 0;
   }
 
-  result.error = 0;
   return result;
 }
 
-static result_t find_3(const mrln_str8view_t haystack[static 1],
-                       const mrln_str8view_t needle[static 1]) {
+static result_t *find_3(const mrln_str8view_t haystack[static 1],
+                        const mrln_str8view_t needle[static 1]) {
 
-  result_t result = {.capacity = 16, .error = ENOMEM};
+  result_t *result = mrln_stack2();
 
   const intptr_t v32u8_end = ((haystack->length - 2) / 32) * 32;
   intptr_t index = 0;
@@ -132,61 +100,47 @@ static result_t find_3(const mrln_str8view_t haystack[static 1],
     m0 = mrln_v32u8_set1(needle->buffer[0]);
     m1 = mrln_v32u8_set1(needle->buffer[1]);
     m2 = mrln_v32u8_set1(needle->buffer[2]);
-    for (; index < v32u8_end;) {
-      int err = result_grow_to(&result, result.capacity << 1);
-      if (UNLIKELY(err)) {
-        return result;
-      }
-      const intptr_t result_end = result.capacity;
-      for (; index < v32u8_end && result.length < result_end; index += 32) {
-        r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 0));
-        r0 = mrln_v32u8_cmpeq(r0, m0);
+    for (; index < v32u8_end; index += 32) {
+      r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 0));
+      r0 = mrln_v32u8_cmpeq(r0, m0);
 
-        r1 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 1));
-        r1 = mrln_v32u8_cmpeq(r1, m1);
+      r1 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 1));
+      r1 = mrln_v32u8_cmpeq(r1, m1);
 
-        r2 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 2));
-        r2 = mrln_v32u8_cmpeq(r2, m2);
+      r2 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index + 2));
+      r2 = mrln_v32u8_cmpeq(r2, m2);
 
-        t = mrln_v32u8_and(r0, r1);
-        t = mrln_v32u8_and(t, r2);
-        uint32_t mask = mrln_v32u8_mask(t);
-        intptr_t index_offset = 0;
-        while (mask) {
-          intptr_t ctz = __builtin_ctz(mask);
-          index_offset += ctz;
-          mask >>= ctz;
-          result.buffer[result.length++] = index + index_offset;
-          index_offset += 1;
-          mask >>= 1;
-        }
+      t = mrln_v32u8_and(r0, r1);
+      t = mrln_v32u8_and(t, r2);
+      uint32_t mask = mrln_v32u8_mask(t);
+      intptr_t index_offset = 0;
+      while (mask) {
+        intptr_t ctz = __builtin_ctz(mask);
+        index_offset += ctz;
+        mask >>= ctz;
+        result->buffer[result->length++] = index + index_offset;
+        index_offset += 1;
+        mask >>= 1;
       }
     }
   }
 
-  if (result.length + 32 > result.capacity) {
-    int err = result_grow_to(&result, result.capacity + 32);
-    if (UNLIKELY(err)) {
-      return result;
-    }
-  }
-
-  for (; index < haystack->length; ++index) {
-    result.buffer[result.length] = index;
-    result.length +=
+  for (; index < haystack->length - 2; ++index) {
+    result->buffer[result->length] = index;
+    result->length +=
         __builtin_memcmp(haystack->buffer + index, needle->buffer, 3) == 0;
   }
 
-  result.error = 0;
   return result;
 }
 
-static result_t find_1(const mrln_str8view_t haystack[static 1],
-                       const mrln_str8view_t needle[static 1]) {
-  if (haystack->length < 1) {
-    return (result_t){};
-  }
-  result_t result = {.capacity = 16, .error = ENOMEM};
+static result_t *find_1(const mrln_str8view_t haystack[static 1],
+                        const mrln_str8view_t needle[static 1]) {
+  // TODO
+  /* if (haystack->length < 1) { */
+  /*   return */
+  /* } */
+  result_t *result = mrln_stack2();
 
   const intptr_t v32u8_end = (haystack->length / 32) * 32;
 
@@ -195,50 +149,35 @@ static result_t find_1(const mrln_str8view_t haystack[static 1],
 
   intptr_t index = 0;
 
-  while (index < v32u8_end) {
-    int err = result_grow_to(&result, result.capacity << 1);
-    if (UNLIKELY(err)) {
-      return result;
-    }
-    const intptr_t result_end = result.capacity;
-    for (; index < v32u8_end && result.length < result_end; index += 32) {
-      r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index));
-      r0 = mrln_v32u8_cmpeq(r0, m0);
-      uint32_t mask = mrln_v32u8_mask(r0);
-      intptr_t index_offset = 0;
-      while (mask) {
-        intptr_t ctz = __builtin_ctz(mask);
-        index_offset += ctz;
-        mask >>= ctz;
-        result.buffer[result.length++] = index + index_offset;
-        mask >>= 1;
-        index_offset += 1;
-      }
+  for (; index < v32u8_end; index += 32) {
+    r0 = mrln_v32u8_load_unaligned((void *)(haystack->buffer + index));
+    r0 = mrln_v32u8_cmpeq(r0, m0);
+    uint32_t mask = mrln_v32u8_mask(r0);
+    intptr_t index_offset = 0;
+    while (mask) {
+      intptr_t ctz = __builtin_ctz(mask);
+      index_offset += ctz;
+      mask >>= ctz;
+      result->buffer[result->length++] = index + index_offset;
+      mask >>= 1;
+      index_offset += 1;
     }
   }
 
   index = v32u8_end;
 
-  if (result.length + 32 > result.capacity) {
-    int err = result_grow_to(&result, result.capacity + 32);
-    if (UNLIKELY(err)) {
-      return result;
-    }
-  }
-
   for (; index < haystack->length; ++index) {
-    result.buffer[result.length] = index;
-    result.length += haystack->buffer[index] == needle->buffer[0];
+    result->buffer[result->length] = index;
+    result->length += haystack->buffer[index] == needle->buffer[0];
   }
 
-  result.error = 0;
   return result;
 }
 
-static result_t find_4(const mrln_str8view_t haystack[static 1],
-                       const mrln_str8view_t needle[static 1]) {
+static result_t *find_4(const mrln_str8view_t haystack[static 1],
+                        const mrln_str8view_t needle[static 1]) {
 
-  result_t result = {.capacity = 16, .error = ENOMEM};
+  result_t *result = mrln_stack2();
 
   const intptr_t v32u8_end = ((haystack->length - 3) / 32) * 32;
 
@@ -250,68 +189,54 @@ static result_t find_4(const mrln_str8view_t haystack[static 1],
   const uint8_t *in = haystack->buffer;
   intptr_t index = 0;
 
-  while (index < v32u8_end) {
-    int err = result_grow_to(&result, result.capacity << 1);
-    if (UNLIKELY(err)) {
-      return result;
-    }
-    const intptr_t result_end = result.capacity;
-    for (; index < v32u8_end && result.length < result_end; index += 32) {
-      r0 = mrln_v32u8_load_unaligned((void *)(in + index + 0));
-      r0 = mrln_v32u8_cmpeq(r0, m0);
+  for (; index < v32u8_end; index += 32) {
+    r0 = mrln_v32u8_load_unaligned((void *)(in + index + 0));
+    r0 = mrln_v32u8_cmpeq(r0, m0);
 
-      r1 = mrln_v32u8_load_unaligned((void *)(in + index + 1));
-      r1 = mrln_v32u8_cmpeq(r1, m1);
+    r1 = mrln_v32u8_load_unaligned((void *)(in + index + 1));
+    r1 = mrln_v32u8_cmpeq(r1, m1);
 
-      r2 = mrln_v32u8_load_unaligned((void *)(in + index + 2));
-      r2 = mrln_v32u8_cmpeq(r2, m2);
+    r2 = mrln_v32u8_load_unaligned((void *)(in + index + 2));
+    r2 = mrln_v32u8_cmpeq(r2, m2);
 
-      r3 = mrln_v32u8_load_unaligned((void *)(in + index + 3));
-      r3 = mrln_v32u8_cmpeq(r3, m3);
+    r3 = mrln_v32u8_load_unaligned((void *)(in + index + 3));
+    r3 = mrln_v32u8_cmpeq(r3, m3);
 
-      t = mrln_v32u8_and(r0, r1);
-      t = mrln_v32u8_and(t, r2);
-      t = mrln_v32u8_and(t, r3);
+    t = mrln_v32u8_and(r0, r1);
+    t = mrln_v32u8_and(t, r2);
+    t = mrln_v32u8_and(t, r3);
 
-      uint32_t mask = mrln_v32u8_mask(t);
-      uintptr_t index_offset = 0;
-      while (mask) {
-        intptr_t ctz = __builtin_ctz(mask);
-        index_offset += ctz;
-        mask >>= ctz;
-        result.buffer[result.length++] = index + index_offset;
-        index_offset += 1;
-        mask >>= 1;
-      }
+    uint32_t mask = mrln_v32u8_mask(t);
+    uintptr_t index_offset = 0;
+    while (mask) {
+      intptr_t ctz = __builtin_ctz(mask);
+      index_offset += ctz;
+      mask >>= ctz;
+      result->buffer[result->length++] = index + index_offset;
+      index_offset += 1;
+      mask >>= 1;
     }
   }
 
   index = v32u8_end;
 
-  if (result.length + 32 > result.capacity) {
-    int err = result_grow_to(&result, result.capacity + 32);
-    if (UNLIKELY(err)) {
-      return result;
-    }
-  }
-
   for (; index < haystack->length - 4; ++index) {
-    result.buffer[result.length] = index;
-    result.length +=
+    result->buffer[result->length] = index;
+    result->length +=
         __builtin_memcmp(haystack->buffer + index, needle->buffer, 4) == 0;
   }
 
-  result.error = 0;
   return result;
 }
 
-static result_t find_long(const mrln_str8view_t haystack[static 1],
-                          const mrln_str8view_t needle[static 1]) {
-  if (needle->length > haystack->length) {
-    return (result_t){};
-  }
+static result_t *find_long(const mrln_str8view_t haystack[static 1],
+                           const mrln_str8view_t needle[static 1]) {
+  // TODO
+  /* if (needle->length > haystack->length) { */
+  /*   return (result_t){}; */
+  /* } */
 
-  result_t result = {.error = ENOMEM, .capacity = 16};
+  result_t *result = mrln_stack2();
 
   const intptr_t v32u8_end =
       ((haystack->length - (needle->length - 1)) / 32) * 32;
@@ -332,79 +257,64 @@ static result_t find_long(const mrln_str8view_t haystack[static 1],
     m3 = mrln_v32u8_set1(needle->buffer[r1o]);
     m4 = mrln_v32u8_set1(needle->buffer[r4o]);
 
-    while (index < v32u8_end) {
-      int err = result_grow_to(&result, result.capacity << 1);
-      if (UNLIKELY(err)) {
-        return result;
-      }
+    for (; index < v32u8_end; index += 32) {
+      r0 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r0o);
+      r0 = mrln_v32u8_cmpeq(r0, m0);
 
-      const intptr_t result_end = result.capacity;
-      for (; index < v32u8_end && result.length < result_end; index += 32) {
-        r0 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r0o);
-        r0 = mrln_v32u8_cmpeq(r0, m0);
+      r1 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r1o);
+      r1 = mrln_v32u8_cmpeq(r1, m1);
 
-        r1 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r1o);
-        r1 = mrln_v32u8_cmpeq(r1, m1);
+      r2 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r2o);
+      r2 = mrln_v32u8_cmpeq(r2, m2);
 
-        r2 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r2o);
-        r2 = mrln_v32u8_cmpeq(r2, m2);
+      r3 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r3o);
+      r3 = mrln_v32u8_cmpeq(r3, m3);
 
-        r3 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r3o);
-        r3 = mrln_v32u8_cmpeq(r3, m3);
+      r4 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r4o);
+      r4 = mrln_v32u8_cmpeq(r4, m4);
 
-        r4 = mrln_v32u8_load_unaligned((void *)haystack->buffer + index + r4o);
-        r4 = mrln_v32u8_cmpeq(r4, m4);
+      t = mrln_v32u8_and(r0, r1);
+      t = mrln_v32u8_and(t, r2);
+      t = mrln_v32u8_and(t, r3);
+      t = mrln_v32u8_and(t, r4);
 
-        t = mrln_v32u8_and(r0, r1);
-        t = mrln_v32u8_and(t, r2);
-        t = mrln_v32u8_and(t, r3);
-        t = mrln_v32u8_and(t, r4);
-
-        uint32_t mask = mrln_v32u8_mask(t);
-        intptr_t index_offset = 0;
-        while (mask) {
-          intptr_t ctz = __builtin_ctz(mask);
-          mask >>= ctz;
-          index_offset += ctz;
-          result.buffer[result.length++] = index + index_offset;
-          index_offset += 1;
-          mask >>= 1;
-        }
+      uint32_t mask = mrln_v32u8_mask(t);
+      intptr_t index_offset = 0;
+      while (mask) {
+        intptr_t ctz = __builtin_ctz(mask);
+        mask >>= ctz;
+        index_offset += ctz;
+        result->buffer[result->length++] = index + index_offset;
+        index_offset += 1;
+        mask >>= 1;
       }
     }
   }
 
   intptr_t new_length = 0;
-  const intptr_t result_end = result.length;
+  const intptr_t result_end = result->length;
   for (intptr_t i = 0; i < result_end; ++i) {
-    result.buffer[new_length] = result.buffer[i];
-    new_length += memcmp(haystack->buffer + result.buffer[i], needle->buffer,
+    result->buffer[new_length] = result->buffer[i];
+    new_length += memcmp(haystack->buffer + result->buffer[i], needle->buffer,
                          needle->length) == 0;
   }
-  result.length = new_length;
 
-  if (result.length + 32 > result.capacity) {
-    int err = result_grow_to(&result, result.capacity + 32);
-    if (UNLIKELY(err)) {
-      return result;
-    }
-  }
+  result->length = new_length;
 
   for (; index < haystack->length - (needle->length - 1); ++index) {
-    result.buffer[result.length] = index;
-    result.length +=
+    result->buffer[result->length] = index;
+    result->length +=
         haystack->buffer[index] == needle->buffer[0] &&
         haystack->buffer[needle->length - 1] ==
             needle->buffer[needle->length - 1] &&
         memcmp(haystack->buffer + index, needle->buffer, needle->length) == 0;
   }
 
-  result.error = 0;
   return result;
 }
 
-static result_t find(const mrln_str8view_t haystack[static 1],
-                     const mrln_str8view_t needle[static 1]) {
+static result_t *find(const mrln_str8view_t haystack[static 1],
+                      const mrln_str8view_t needle[static 1]) {
   switch (needle->length) {
   case 0:
   case 1:
@@ -508,18 +418,13 @@ static int replace_inplace_n(mrln_str8_t s[static 1],
   }
 
   mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
-  result_t splits = find(&haystack, target);
-  if (UNLIKELY(splits.error)) {
-    free(splits.buffer);
-    return splits.error;
-  }
+  result_t *splits = find(&haystack, target);
 
-  const intptr_t splits_end = splits.length;
+  const intptr_t splits_end = splits->length;
   for (intptr_t i = 0; i < splits_end && i < n; ++i) {
-    const intptr_t index = splits.buffer[i];
+    const intptr_t index = splits->buffer[i];
     memcpy(s->buffer + index, replacement->buffer, replacement->length);
   }
-  free(splits.buffer);
   return 0;
 }
 
@@ -531,18 +436,14 @@ static int replace_inplace(mrln_str8_t s[static 1],
   }
 
   mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
-  result_t splits = find(&haystack, target);
-  if (UNLIKELY(splits.error)) {
-    free(splits.buffer);
-    return splits.error;
-  }
+  result_t *splits = find(&haystack, target);
 
-  const intptr_t splits_end = splits.length;
+  const intptr_t splits_end = splits->length;
   for (intptr_t i = 0; i < splits_end; ++i) {
-    const intptr_t index = splits.buffer[i];
+    const intptr_t index = splits->buffer[i];
     memcpy(s->buffer + index, replacement->buffer, replacement->length);
   }
-  free(splits.buffer);
+  free(splits->buffer);
   return 0;
 }
 
@@ -554,24 +455,21 @@ int mrln_str8_replace(mrln_str8_t s[static 1],
   }
 
   mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
-  result_t splits = find(&haystack, target);
-  if (UNLIKELY(splits.error)) {
-    free(splits.buffer);
-    return splits.error;
-  }
+  result_t *splits = find(&haystack, target);
+  ASSUME(splits != NULL);
 
   mrln_str8_t str_new = {};
   str_new.capacity =
-      s->length + splits.length * (replacement->length - target->length);
+      s->length + splits->length * (replacement->length - target->length);
   str_new.buffer = malloc(str_new.capacity);
   if (UNLIKELY(!str_new.buffer)) {
     return ENOMEM;
   }
 
-  const intptr_t splits_end = splits.length;
+  const intptr_t splits_end = splits->length;
   intptr_t previous_index = 0;
   for (intptr_t i = 0; i < splits_end; ++i) {
-    const intptr_t index = splits.buffer[i];
+    const intptr_t index = splits->buffer[i];
 
     __builtin_memcpy(str_new.buffer + str_new.length,
                      haystack.buffer + previous_index, index - previous_index);
@@ -588,7 +486,6 @@ int mrln_str8_replace(mrln_str8_t s[static 1],
 
   str_new.length += haystack.length - previous_index;
 
-  free(splits.buffer);
   free(s->buffer);
   *s = str_new;
   return 0;
@@ -609,14 +506,10 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
   }
 
   mrln_str8view_t haystack = {.buffer = s->buffer, .length = s->length};
-  result_t splits = find(&haystack, target);
-  if (UNLIKELY(splits.error)) {
-    free(splits.buffer);
-    return splits.error;
-  }
+  result_t *splits = find(&haystack, target);
 
   mrln_str8_t str_new = {};
-  str_new.capacity = s->length + (splits.length < n ? splits.length : n) *
+  str_new.capacity = s->length + (splits->length < n ? splits->length : n) *
                                      (replacement->length - target->length);
   str_new.buffer = malloc(str_new.capacity);
   if (UNLIKELY(!str_new.buffer)) {
@@ -626,10 +519,10 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
   // TODO(ben): this fails if keys exists back to back and share char at pos
   // str[len - 1] and pos str[0]
 
-  const intptr_t splits_end = splits.length;
+  const intptr_t splits_end = splits->length;
   intptr_t previous_index = 0;
   for (intptr_t i = 0; i < splits_end && i < n; ++i) {
-    const intptr_t index = splits.buffer[i];
+    const intptr_t index = splits->buffer[i];
 
     __builtin_memcpy(str_new.buffer + str_new.length,
                      haystack.buffer + previous_index, index - previous_index);
@@ -646,7 +539,6 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
 
   str_new.length += haystack.length - previous_index;
 
-  free(splits.buffer);
   free(s->buffer);
   *s = str_new;
   return 0;
