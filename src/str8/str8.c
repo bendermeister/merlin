@@ -8,14 +8,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __GNUC__
-#define UNLIKELY(A) __builtin_expect((A), 0)
-#else
-#define UNLIKELY(A)
-#endif
+#include "../util.h"
 
 static int internal_realloc(merlin_str8_t s[static 1],
                             const intptr_t capacity) {
+  ASSUME(s->capacity < capacity);
+
   void *buffer = realloc(s->buffer, capacity);
   if (UNLIKELY(!buffer)) {
     return ENOMEM;
