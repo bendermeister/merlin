@@ -37,7 +37,7 @@ test/simd.out := test/simd.o
 TEST_TARGETS := test/str8.out test/simd.out
 
 #benching
-bench/str8/replace/replace.out := bench/str8/replace/replace.out
+bench/str8/replace/replace.out := bench/str8/replace/replace.o
 BENCH_TARGETS := bench/str8/replace/replace.out
 
 TARGETS := ${BENCH_TARGETS} ${TEST_TARGETS} merlin.a
@@ -51,11 +51,11 @@ tidy: ${SOURCES} ${HEADERS}
 %.o: %.c ${HEADERS}
 	${CC} ${CFLAGS} -c -o $@ $<
 
-%.out: %.o merlin ${HEADERS}
-	${CC} ${CFLAGS} ${$@} $< merlin.a -o $@
+%.out: %.o merlin.a ${HEADERS}
+	${CC} ${CFLAGS} ${$@} merlin.a -o $@
 
-merlin: ${MERLIN_OBJECT}
+merlin.a: ${MERLIN_OBJECT}
 	ar r merlin.a $^
 
 clean:
-	rm -f ${OBJECT} merlin.a
+	rm -f ${TARGETS} ${OBJECT} merlin.a
