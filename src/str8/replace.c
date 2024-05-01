@@ -242,7 +242,7 @@ static result_t find_4(const merlin_str8_view_t haystack[static 1],
 
   result_t result = {.capacity = 16, .error = ENOMEM};
 
-  const intptr_t v32u8_end = ((haystack->length - 3 - 32) / 32) * 32;
+  const intptr_t v32u8_end = ((haystack->length - 3) / 32) * 32;
 
   merlin_v32u8_t r0, r1, r2, r3, m0, m1, m2, m3, t;
   m0 = merlin_v32u8_set1(needle->buffer[0]);
@@ -250,7 +250,6 @@ static result_t find_4(const merlin_str8_view_t haystack[static 1],
   m2 = merlin_v32u8_set1(needle->buffer[2]);
   m3 = merlin_v32u8_set1(needle->buffer[3]);
   const uint8_t *in = haystack->buffer;
-
   intptr_t index = 0;
 
   while (index < v32u8_end) {
@@ -316,7 +315,7 @@ static result_t find_long(const merlin_str8_view_t haystack[static 1],
 
   result_t result = {.error = ENOMEM, .capacity = 16};
 
-  const intptr_t v32u8_end = ((haystack->length - needle->length) / 32) * 32;
+  const intptr_t v32u8_end = ((haystack->length - (needle->length - 1)) / 32) * 32;
 
   intptr_t index = 0;
   // 256
@@ -397,9 +396,7 @@ static result_t find_long(const merlin_str8_view_t haystack[static 1],
     }
   }
 
-  // TODO: do we have todo haystack->length + 1 - needle->length, i fucking hate
-  // off by one shit
-  for (; index < haystack->length - needle->length; ++index) {
+  for (; index < haystack->length - (needle->length - 1); ++index) {
     result.buffer[result.length] = index;
     result.length +=
         haystack->buffer[index] == needle->buffer[0] &&
@@ -580,8 +577,6 @@ int merlin_str8_replace(merlin_str8_t s[static 1],
     return ENOMEM;
   }
 
-  // TODO(ben): this fails if keys exists back to back and share char at pos
-  // str[len - 1] and pos str[0]
   const intptr_t splits_end = splits.length;
   intptr_t previous_index = 0;
   for (intptr_t i = 0; i < splits_end; ++i) {

@@ -13,7 +13,6 @@
 // TODO(ben): testing
 // TODO(ben): documentation
 
-#include <assert.h>
 #include <sys/cdefs.h>
 #ifndef __clang__
 #error "currently only clang is supported"
