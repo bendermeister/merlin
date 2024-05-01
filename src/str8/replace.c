@@ -16,12 +16,42 @@ struct result_t {
   int error;
 };
 
+/**
+ * # main algorithm for replacing things
+ * - find all occrences of the target/needle in the haystack
+ * - calculate needed buffer size for a new string with the replacements
+ * - allocate this new string
+ * - iterate over needle positions while memcpying into the new string
+ *
+ * ## caveats
+ * - if target.length == replacement.length replace in place
+ * - if target.length == replacement.length == 1, replace with SIMD in place
+ *
+ * # algorithm for finding needles
+ * - iterate over the string with 5 offsets:
+ *   - offset 0: 0
+ *   - offset 1: 1
+ *   - offset 2: needle.length / 2
+ *   - offset 3: needle.length - 2
+ *   - offset 4: needle.length - 1
+ * - check if the chars at the given offset match
+ *   the chars in the needle at the given offset
+ * - if this is the case: store them in a buffer for later
+ * - after finding all possible positions iterate over them and check with
+ *   memcmp
+ *
+ * ## caveats
+ * - if needle->length <= 5 call a seperate function that doesn't need to check
+ *   with memcmp
+ */
+
 __attribute__((__always_inline__, __nonnull__(1))) static int
 result_grow_to(result_t result[static 1], const intptr_t new_cap) {
   ASSUME(result != NULL);
   ASSUME(result->capacity < new_cap);
 
   void *buffer = realloc(result->buffer, new_cap * sizeof(*result->buffer));
+
   if (UNLIKELY(!buffer)) {
     return ENOMEM;
   }
@@ -33,29 +63,54 @@ result_grow_to(result_t result[static 1], const intptr_t new_cap) {
 
 static result_t find_2(const merlin_str8_view_t haystack[static 1],
                        const merlin_str8_view_t needle[static 1]) {
+  ASSUME(haystack != NULL);
+  ASSUME(needle != NULL);
+  ASSUME(haystack->length > needle->length);
+  ASSUME(needle->length == 2);
 
-  // TODO(ben): fix this
-  result_t result = {.capacity = 16, .error = ENOMEM};
+  result_t result = { .error = ENOMEM, .capacity = 16 };
 
-  intptr_t index = 2;
-  const intptr_t end = haystack->length - needle->length + 1;
+  const intptr_t v32u8_end = ((haystack->length - 1) / 32) * 32;
+  intptr_t index = 0;
 
-  const uint16_t hash = ((uint16_t)needle->buffer[0] << 8) | needle->buffer[1];
-  uint16_t rolling_hash =
-      ((uint16_t)haystack->buffer[0] << 8) | haystack->buffer[1];
-
-  for (; index < end;) {
-    int err = result_grow_to(&result, result.capacity * 2);
+  merlin_v32u8_t r0, r1, m0, m1, t;
+  m0 = merlin_v32u8_set1(needle->buffer[0]);
+  m1 = merlin_v32u8_set1(needle->buffer[1]);
+  while (index < v32u8_end) {
+    int err = result_grow_to(&result, result.capacity << 1);
     if (UNLIKELY(err)) {
       return result;
     }
     const intptr_t result_end = result.capacity;
-    for (; index < end && result.length < result_end; ++index) {
-      result.buffer[result.length] = index - 2;
-      result.length += rolling_hash == hash;
-      rolling_hash <<= 8;
-      rolling_hash |= haystack->buffer[index];
+    for (; index < v32u8_end && result.length < result_end; index += 32) {
+      r0 = merlin_v32u8_load_unaligned((void*)(haystack->buffer + 0 + index));
+      r0 = merlin_v32u8_cmpeq(r0, m0);
+      r1 = merlin_v32u8_load_unaligned((void*)(haystack->buffer + 1 + index));
+      r1 = merlin_v32u8_cmpeq(r1, m1);
+      t  = merlin_v32u8_and(r0, r1);
+      uint32_t mask = merlin_v32u8_mask(t);
+      intptr_t index_offset = 0;
+      while (mask) {
+        int ctz = __builtin_ctz(mask);
+        index_offset += ctz;
+        mask >>= ctz;
+        result.buffer[result.length++] = index + index_offset;
+        mask >>= 1;
+        index_offset += 1;
+      }
     }
+  }
+
+  if (result.length + 32 > result.capacity) {
+    int err = result_grow_to(&result, result.capacity << 1);
+    if (UNLIKELY(err)) {
+      return result;
+    }
+  }
+
+  for (; index < haystack->length - 1; ++index) {
+    result.buffer[result.length] = index;
+    result.length += __builtin_memcmp(haystack->buffer + index, needle->buffer, 2) == 0;
   }
 
   result.error = 0;
