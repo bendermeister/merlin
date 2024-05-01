@@ -8,7 +8,7 @@ might not be up to date.
 
 ## Concepts
 ### SIMD Vectors
-The vector types and functions are prefixed with `merlin_vXXYYY_` where `X` is
+The vector types and functions are prefixed with `mrln_vXXYYY_` where `X` is
 the number of elements and `YYY` the type, currently implemented are:  `128` and
 `256` bit vectors of `(u)int8_t`, `(u)int16_t`, `(u)int32_t`, `(u)int64_t`. With
 basic functions for loading/storing, setting, arithmetics and comparisons and for
@@ -22,14 +22,14 @@ the unsigned types all bitwise operations (see the documentation for more).
 #include <stdio.h>
 
 int main(void) {
-  const merlin_v4u32_t a = merlin_v4u32_set1(34);
-  const merlin_v4u32_t b = merlin_v4u32_set1(35);
+  const mrln_v4u32_t b = mrln_v4u32_set1(35);
+  const mrln_v4u32_t a = mrln_v4u32_set1(34);
 
-  merlin_v4u32_t c = merlin_v4u32_add(a, b);
+  mrln_v4u32_t c = mrln_v4u32_add(a, b);
 
   uint32_t array[4];
 
-  merlin_v4u32_store_unaligned((void *)array, c);
+  mrln_v4u32_store_unaligned((void *)array, c);
 
   for (int i = 0; i < 4; ++i) {
     printf("%u\n", array[i]);
@@ -48,10 +48,10 @@ And built on these for better implementations of standard datastructures and
 algorithms (see `merlin_str8_t`).
 
 ### str8
-The `merlin_str8_t` type is a heap allocated string with functions for string
-handling. Most of these functions operate on the `merlin_str8_view_t` type which
-is a constant pointer into a string and a length. Which can also be built from a
-classic null terminated string.
+The `mrln_str8_t` type is a heap allocated string with functions for string
+handling. Most of these functions operate on the `mrln_str8view_t` type which
+is a constant pointer into a string and a length. Which can also be built from
+a classic null terminated string.
 
 #### Example
 ```c
@@ -63,21 +63,26 @@ classic null terminated string.
 int main(void) {
   const char cstr[] = "Oh  no  we  used  2  spaces.\n";
 
-  // get view from cstr
-  const merlin_str8_view_t cstr_view = merlin_str8_view_from_static_cstr(cstr);
-
   int err;
 
-  // concatonate view with empty string
-  merlin_str8_t str8 = {};
-  err = merlin_str8_concat(&str8, &cstr_view);
+  // str8 has to be zeroed
+  mrln_str8_t str8 = {};
+
+  // allocate string and fill it with cstr
+  err = mrln_str8(&str8, cstr);
+
+  // check for errors
   if (err) {
     fprintf(stderr, "ERROR: %s\n", strerror(err));
     exit(1);
   }
 
-  err = merlin_str8_replace(&str8, &merlin_str8_view_from_static_cstr("  "),
-                            &merlin_str8_view_from_static_cstr(" "));
+  // replace "  " with " "
+  mrln_str8view_t target = mrln_str8view("  ");
+  mrln_str8view_t replace = mrln_str8view(" ");
+  err = mrln_str8_replace(&str8, &target, &replace);
+
+  // check for errors
   if (err) {
     fprintf(stderr, "ERROR: %s\n", strerror(err));
     exit(1);
@@ -85,9 +90,11 @@ int main(void) {
 
   printf("%.*s\n", (int)str8.length, str8.buffer);
 
-  merlin_str8_destroy(&str8);
+  // deallocate str8
+  mrln_str8_destroy(&str8);
 
   return 0;
+}
 }
 ```
 

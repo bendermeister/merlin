@@ -6,22 +6,26 @@
 int main(void) {
   const char cstr[] = "Oh  no  we  used  2  spaces.\n";
 
-  mrln_str8view_t cstr_view = mrln_str8view(cstr);
-
   int err;
 
-  // concatonate view with empty string
+  // str8 has to be zeroed
   mrln_str8_t str8 = {};
-  err = mrln_str8_concat(&str8, &cstr_view);
+
+  // allocate string and fill it with cstr
+  err = mrln_str8(&str8, cstr);
+
+  // check for errors
   if (err) {
     fprintf(stderr, "ERROR: %s\n", strerror(err));
     exit(1);
   }
 
+  // replace "  " with " "
   mrln_str8view_t target = mrln_str8view("  ");
   mrln_str8view_t replace = mrln_str8view(" ");
   err = mrln_str8_replace(&str8, &target, &replace);
 
+  // check for errors
   if (err) {
     fprintf(stderr, "ERROR: %s\n", strerror(err));
     exit(1);
@@ -29,6 +33,7 @@ int main(void) {
 
   printf("%.*s\n", (int)str8.length, str8.buffer);
 
+  // deallocate str8
   mrln_str8_destroy(&str8);
 
   return 0;
