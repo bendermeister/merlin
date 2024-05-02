@@ -9,13 +9,13 @@ struct mrln_str8_t {
   uint8_t *buffer;
   intptr_t length;
   intptr_t capacity;
-};
+} __attribute__((__aligned__(32)));
 
 typedef struct mrln_str8view_t mrln_str8view_t;
 struct mrln_str8view_t {
   const uint8_t *buffer;
   intptr_t length;
-};
+} __attribute__((__aligned__(16)));
 
 __attribute__((__always_inline__, __const__)) static inline mrln_str8view_t
 mrln_str8view_from_view(const mrln_str8view_t a) {
@@ -40,7 +40,7 @@ mrln_str8view_from_str8ptr(const mrln_str8_t *a) {
 __attribute__((__always_inline__, __nonnull__(1))) static inline mrln_str8view_t
 mrln_str8view_from_cstr(const char *a) {
   return (mrln_str8view_t){.buffer = (const uint8_t *)a,
-                           .length = __builtin_strlen(a)};
+                           .length = (intptr_t)__builtin_strlen(a)};
 }
 
 #define mrln_str8view(ARG)                                                     \
@@ -94,12 +94,6 @@ int mrln_str8_reserve(mrln_str8_t s[static 1], const intptr_t capacity);
  * @return: error
  */
 int mrln_str8_shrink(mrln_str8_t s[static 1]);
-
-#define mrln_str8view_from_static_cstr(CSTR)                                   \
-  (mrln_str8view_t) { .buffer = (uint8_t *)CSTR, .length = sizeof(CSTR) - 1 }
-
-#define mrln_str8view_from_ncstr(CSTR, LEN)                                    \
-  (mrln_str8view_t) { .buffer = (uint8_t *)CSTR, .length = LEN }
 
 /*** doc
  * @description: deallocates `s`
@@ -338,5 +332,4 @@ int mrln_str8view_compare(const mrln_str8view_t a[static 1],
  */
 bool mrln_str8view_is_equal(const mrln_str8view_t a[static 1],
                             const mrln_str8view_t b[static 1]);
-
 #endif // MRLN_STR8_H

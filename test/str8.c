@@ -67,7 +67,7 @@ static test_t TEST_concat(void) {
 
   mrln_str8_t str = {};
 
-  mrln_str8view_t view = mrln_str8view_from_static_cstr("Hello World");
+  mrln_str8view_t view = mrln_str8view("Hello World");
   int err = 0;
 
   err = mrln_str8_concat(&str, &view);
@@ -93,16 +93,15 @@ static test_t TEST_concat(void) {
 static test_t TEST_replace(void) {
   test_t test = TEST_MAKE();
 
-  mrln_str8_t str = {};
   int err = 0;
+  mrln_str8_t str = {};
+  err =
+      mrln_str8(&str, "Hello World this is again a very nice #include string");
 
-  err = mrln_str8_concat(
-      &str, &mrln_str8view_from_static_cstr(
-                "Hello World this is again a very nice #include string"));
   lazy_error(err);
 
-  mrln_str8view_t target = mrln_str8view_from_static_cstr(" ");
-  mrln_str8view_t replace = mrln_str8view_from_static_cstr("\t\t");
+  mrln_str8view_t target = mrln_str8view(" ");
+  mrln_str8view_t replace = mrln_str8view("\t\t");
 
   err = mrln_str8_replace(&str, &target, &replace);
   lazy_error(err);
@@ -131,9 +130,9 @@ static test_t TEST_replace(void) {
 
 static test_t TEST_find(void) {
   test_t test = TEST_MAKE();
-  mrln_str8view_t view = mrln_str8view_from_static_cstr(
+  mrln_str8view_t view = mrln_str8view(
       "Hello World this is some sentence written by the great Ben");
-  mrln_str8view_t needle = mrln_str8view_from_static_cstr("great");
+  mrln_str8view_t needle = mrln_str8view("great");
 
   size_t index = mrln_str8_find(&view, &needle);
   TEST_UINT(&test, index, 49, TEST_MAKE_STR("%.*s", 4, view.buffer + index));

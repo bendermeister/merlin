@@ -5,11 +5,10 @@
 // TODO(ben): mul low / high ?
 // TODO(ben): align function moves the elements inside the vector to different
 // positions
-// TODO(ben): abs functions for the signed vectors
 // TODO(ben): floating point vector
+// TODO(ben): abs functions for the signed vectors
 // TODO(ben): max min
 // TODO(ben): shuffle
-// TODO(ben): testing
 // TODO(ben): documentation
 
 #include <sys/cdefs.h>
@@ -20,14 +19,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MRLN_VOIDFN_ATTRS                                                    \
+#define MRLN_VOIDFN_ATTRS                                                      \
   __attribute__((__always_inline__, nodebug, __unused__))
 #define MRLN_NODISCARD __attribute__((__warn_unused_result__))
-#define MRLN_FN_ATTRS                                                        \
+#define MRLN_FN_ATTRS                                                          \
   MRLN_VOIDFN_ATTRS MRLN_NODISCARD __attribute__((__const__))
 #define MRLN_NONNULL(PARAM) __attribute__((__nonnull__(PARAM)))
 
-#define MRLN_ASSUME(X)                                                       \
+#define MRLN_ASSUME(X)                                                         \
   if (!(X))                                                                    \
   __builtin_unreachable()
 
@@ -38,18 +37,18 @@ MRLN_FN_ATTRS static uint32_t mrln_mask_first_set(const uint32_t mask) {
 }
 
 // generator macros
-#define MRLN_OP_ATTRS                                                        \
+#define MRLN_OP_ATTRS                                                          \
   __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
                  __const__))
 
-#define MRLN_BOP(NAME, TYPE, BOP)                                            \
+#define MRLN_BOP(NAME, TYPE, BOP)                                              \
   __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
                  __const__)) static TYPE                                       \
   NAME(const TYPE a, const TYPE b) {                                           \
     return a BOP b;                                                            \
   }
 
-#define MRLN_UOP(NAME, TYPE, UOP)                                            \
+#define MRLN_UOP(NAME, TYPE, UOP)                                              \
   __attribute__((__always_inline__, __unused__, __warn_unused_result__,        \
                  __const__)) static TYPE                                       \
   NAME(const TYPE a) {                                                         \
@@ -69,13 +68,13 @@ MRLN_FN_ATTRS static mrln_v16u8_t mrln_v16u8_set1(const uint8_t v) {
 
 MRLN_FN_ATTRS static mrln_v16u8_t
 mrln_v16u8_set(const uint8_t v00, const uint8_t v01, const uint8_t v02,
-                 const uint8_t v03, const uint8_t v04, const uint8_t v05,
-                 const uint8_t v06, const uint8_t v07, const uint8_t v08,
-                 const uint8_t v09, const uint8_t v10, const uint8_t v11,
-                 const uint8_t v12, const uint8_t v13, const uint8_t v14,
-                 const uint8_t v15) {
+               const uint8_t v03, const uint8_t v04, const uint8_t v05,
+               const uint8_t v06, const uint8_t v07, const uint8_t v08,
+               const uint8_t v09, const uint8_t v10, const uint8_t v11,
+               const uint8_t v12, const uint8_t v13, const uint8_t v14,
+               const uint8_t v15) {
   return (mrln_v16u8_t){v00, v01, v02, v03, v04, v05, v06, v07,
-                          v08, v09, v10, v11, v12, v13, v14, v15};
+                        v08, v09, v10, v11, v12, v13, v14, v15};
 }
 
 //----------------------------------load/store----------------------------------
@@ -131,17 +130,17 @@ MRLN_UOP(mrln_v16u8_not, mrln_v16u8_t, ~)
  * will be shifted by
  * @return: vector of type uint8_t[16] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v16u8_t
-mrln_v16u8_shift_left(const mrln_v16u8_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v16u8_t mrln_v16u8_shift_left(const mrln_v16u8_t a,
+                                                        const uint32_t n) {
 #ifdef __SSE2__
-  mrln_v16u8_t tmp = __builtin_ia32_psllwi128(a, n);
+  mrln_v16u8_t tmp = __builtin_ia32_psllwi128(a, (int)n);
   tmp = mrln_v16u8_and(tmp, mrln_v16u8_set1((uint8_t)-1 << n));
   return tmp;
 #else
   return (mrln_v16u8_t){a[0] << n,  a[1] << n,  a[2] << n,  a[3] << n,
-                          a[4] << n,  a[5] << n,  a[6] << n,  a[7] << n,
-                          a[8] << n,  a[9] << n,  a[10] << n, a[11] << n,
-                          a[12] << n, a[13] << n, a[14] << n, a[15] << n};
+                        a[4] << n,  a[5] << n,  a[6] << n,  a[7] << n,
+                        a[8] << n,  a[9] << n,  a[10] << n, a[11] << n,
+                        a[12] << n, a[13] << n, a[14] << n, a[15] << n};
 #endif //__SSE2__
 }
 
@@ -152,17 +151,17 @@ mrln_v16u8_shift_left(const mrln_v16u8_t a, const uint32_t n) {
  * will be shifted by
  * @return: vector of type uint8_t[16] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v16u8_t
-mrln_v16u8_shift_right(const mrln_v16u8_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v16u8_t mrln_v16u8_shift_right(const mrln_v16u8_t a,
+                                                         const uint32_t n) {
 #ifdef __SSE2__
-  mrln_v16u8_t tmp = __builtin_ia32_psrlwi128(a, n);
+  mrln_v16u8_t tmp = __builtin_ia32_psrlwi128(a, (int)n);
   tmp = mrln_v16u8_and(tmp, mrln_v16u8_set1((uint8_t)-1 >> n));
   return tmp;
 #else
   return (mrln_v16u8_t){a[0] >> n,  a[1] >> n,  a[2] >> n,  a[3] >> n,
-                          a[4] >> n,  a[5] >> n,  a[6] >> n,  a[7] >> n,
-                          a[8] >> n,  a[9] >> n,  a[10] >> n, a[11] >> n,
-                          a[12] >> n, a[13] >> n, a[14] >> n, a[15] >> n};
+                        a[4] >> n,  a[5] >> n,  a[6] >> n,  a[7] >> n,
+                        a[8] >> n,  a[9] >> n,  a[10] >> n, a[11] >> n,
+                        a[12] >> n, a[13] >> n, a[14] >> n, a[15] >> n};
 #endif //__SSE2__
 }
 
@@ -211,7 +210,7 @@ MRLN_FN_ATTRS static mrln_v16i8_t mrln_v16i8_set(
     const int8_t v08, const int8_t v09, const int8_t v10, const int8_t v11,
     const int8_t v12, const int8_t v13, const int8_t v14, const int8_t v15) {
   return (mrln_v16i8_t){v00, v01, v02, v03, v04, v05, v06, v07,
-                          v08, v09, v10, v11, v12, v13, v14, v15};
+                        v08, v09, v10, v11, v12, v13, v14, v15};
 }
 
 //----------------------------------load/store----------------------------------
@@ -296,8 +295,8 @@ MRLN_FN_ATTRS static mrln_v8u16_t mrln_v8u16_set1(const uint16_t v) {
 
 MRLN_FN_ATTRS static mrln_v8u16_t
 mrln_v8u16_set(const uint16_t v00, const uint16_t v01, const uint16_t v02,
-                 const uint16_t v03, const uint16_t v04, const uint16_t v05,
-                 const uint16_t v06, const uint16_t v07) {
+               const uint16_t v03, const uint16_t v04, const uint16_t v05,
+               const uint16_t v06, const uint16_t v07) {
   return (mrln_v8u16_t){v00, v01, v02, v03, v04, v05, v06, v07};
 }
 
@@ -354,13 +353,13 @@ MRLN_UOP(mrln_v8u16_not, mrln_v8u16_t, ~)
  * will be shifted by
  * @return: vector of type uint16_t[8] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v8u16_t
-mrln_v8u16_shift_left(const mrln_v8u16_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v8u16_t mrln_v8u16_shift_left(const mrln_v8u16_t a,
+                                                        const uint32_t n) {
 #ifdef __SSE2__
-  return __builtin_ia32_psllwi128(a, n);
+  return __builtin_ia32_psllwi128(a, (int)n);
 #else
   return (mrln_v8u16_t){a[0] << n, a[1] << n, a[2] << n, a[3] << n,
-                          a[4] << n, a[5] << n, a[6] << n, a[7] << n};
+                        a[4] << n, a[5] << n, a[6] << n, a[7] << n};
 #endif //__SSE2__
 }
 
@@ -371,13 +370,13 @@ mrln_v8u16_shift_left(const mrln_v8u16_t a, const uint32_t n) {
  * will be shifted by
  * @return: vector of type uint16_t[8] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v8u16_t
-mrln_v8u16_shift_right(const mrln_v8u16_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v8u16_t mrln_v8u16_shift_right(const mrln_v8u16_t a,
+                                                         const uint32_t n) {
 #ifdef __SSE2__
-  return __builtin_ia32_psrlwi128(a, n);
+  return __builtin_ia32_psrlwi128(a, (int)n);
 #else
   return (mrln_v8u16_t){a[0] >> n, a[1] >> n, a[2] >> n, a[3] >> n,
-                          a[4] >> n, a[5] >> n, a[6] >> n, a[7] >> n};
+                        a[4] >> n, a[5] >> n, a[6] >> n, a[7] >> n};
 #endif //__SSE2__
 }
 
@@ -410,8 +409,8 @@ MRLN_FN_ATTRS static mrln_v8i16_t mrln_v8i16_set1(const int16_t v) {
 
 MRLN_FN_ATTRS static mrln_v8i16_t
 mrln_v8i16_set(const int16_t v00, const int16_t v01, const int16_t v02,
-                 const int16_t v03, const int16_t v04, const int16_t v05,
-                 const int16_t v06, const int16_t v07) {
+               const int16_t v03, const int16_t v04, const int16_t v05,
+               const int16_t v06, const int16_t v07) {
   return (mrln_v8i16_t){v00, v01, v02, v03, v04, v05, v06, v07};
 }
 
@@ -459,8 +458,7 @@ MRLN_BOP(mrln_v8i16_cmpgeq, mrln_v8i16_t, >=)
 
 MRLN_FN_ATTRS static uint32_t mrln_v8i16_mask(const mrln_v8i16_t a) {
   uint32_t result = 0;
-  const mrln_v8u16_t tmp =
-      mrln_v8u16_shift_right((const mrln_v8u16_t)a, 15);
+  const mrln_v8u16_t tmp = mrln_v8u16_shift_right((const mrln_v8u16_t)a, 15);
   result |= tmp[0] << 0;
   result |= tmp[1] << 1;
   result |= tmp[2] << 2;
@@ -484,9 +482,9 @@ MRLN_FN_ATTRS static mrln_v4u32_t mrln_v4u32_set1(const uint32_t v) {
 }
 
 MRLN_FN_ATTRS static mrln_v4u32_t mrln_v4u32_set(const uint32_t v00,
-                                                       const uint32_t v01,
-                                                       const uint32_t v02,
-                                                       const uint32_t v03) {
+                                                 const uint32_t v01,
+                                                 const uint32_t v02,
+                                                 const uint32_t v03) {
   return (mrln_v4u32_t){v00, v01, v02, v03};
 }
 
@@ -543,10 +541,10 @@ MRLN_UOP(mrln_v4u32_not, mrln_v4u32_t, ~)
  * will be shifted by
  * @return: vector of type `uint32_t[4]` with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v4u32_t
-mrln_v4u32_shift_left(const mrln_v4u32_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v4u32_t mrln_v4u32_shift_left(const mrln_v4u32_t a,
+                                                        const uint32_t n) {
 #ifdef __SSE2__
-  return __builtin_ia32_pslldi128(a, n);
+  return __builtin_ia32_pslldi128(a, (int)n);
 #else
   return (mrln_v4u32_t){a[0] << n, a[1] << n, a[2] << n, a[3] << n};
 #endif //__SSE2__
@@ -559,10 +557,10 @@ mrln_v4u32_shift_left(const mrln_v4u32_t a, const uint32_t n) {
  * will be shifted by
  * @return: vector of type uint32_t[4] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v4u32_t
-mrln_v4u32_shift_right(const mrln_v4u32_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v4u32_t mrln_v4u32_shift_right(const mrln_v4u32_t a,
+                                                         const uint32_t n) {
 #ifdef __SSE2__
-  return __builtin_ia32_psrldi128(a, n);
+  return __builtin_ia32_psrldi128(a, (int)n);
 #else
   return (mrln_v4u32_t){a[0] >> n, a[1] >> n, a[2] >> n, a[3] >> n};
 #endif //__SSE2__
@@ -596,9 +594,9 @@ MRLN_FN_ATTRS static mrln_v4i32_t mrln_v4i32_set1(const int32_t v) {
 }
 
 MRLN_FN_ATTRS static mrln_v4i32_t mrln_v4i32_set(const int32_t v00,
-                                                       const int32_t v01,
-                                                       const int32_t v02,
-                                                       const int32_t v03) {
+                                                 const int32_t v01,
+                                                 const int32_t v02,
+                                                 const int32_t v03) {
   return (mrln_v4i32_t){v00, v01, v02, v03};
 }
 
@@ -670,7 +668,7 @@ MRLN_FN_ATTRS static mrln_v2u64_t mrln_v2u64_set1(const uint64_t v) {
 }
 
 MRLN_FN_ATTRS static mrln_v2u64_t mrln_v2u64_set(const uint64_t v00,
-                                                       const uint64_t v01) {
+                                                 const uint64_t v01) {
   return (mrln_v2u64_t){v00, v01};
 }
 
@@ -727,10 +725,10 @@ MRLN_UOP(mrln_v2u64_not, mrln_v2u64_t, ~)
  * will be shifted by
  * @return: vector of type `uint64_t[2]` with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v2u64_t
-mrln_v2u64_shift_left(const mrln_v2u64_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v2u64_t mrln_v2u64_shift_left(const mrln_v2u64_t a,
+                                                        const uint32_t n) {
 #ifdef __SSE2__
-  return __builtin_ia32_psllqi128(a, n);
+  return __builtin_ia32_psllqi128(a, (int)n);
 #else
   return (mrln_v2u64_t){a[0] << n, a[1] << n};
 #endif //__SSE2__
@@ -743,10 +741,10 @@ mrln_v2u64_shift_left(const mrln_v2u64_t a, const uint32_t n) {
  * will be shifted by
  * @return: vector of type uint64_t[2] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v2u64_t
-mrln_v2u64_shift_right(const mrln_v2u64_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v2u64_t mrln_v2u64_shift_right(const mrln_v2u64_t a,
+                                                         const uint32_t n) {
 #ifdef __SSE2__
-  return __builtin_ia32_psrlqi128(a, n);
+  return __builtin_ia32_psrlqi128(a, (int)n);
 #else
   return (mrln_v2u64_t){a[0] >> n, a[1] >> n};
 #endif //__SSE2__
@@ -777,7 +775,7 @@ MRLN_FN_ATTRS static mrln_v2i64_t mrln_v2i64_set1(const int64_t v) {
 }
 
 MRLN_FN_ATTRS static mrln_v2i64_t mrln_v2i64_set(const int64_t v00,
-                                                       const int64_t v01) {
+                                                 const int64_t v01) {
   return (mrln_v2i64_t){v00, v01};
 }
 //----------------------------------load/store----------------------------------
@@ -843,7 +841,7 @@ typedef uint8_t mrln_v32u8_unaligned_t
 //----------------------------------set-----------------------------------------
 MRLN_FN_ATTRS static mrln_v32u8_t mrln_v32u8_set1(const uint8_t v) {
   return (mrln_v32u8_t){v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v,
-                          v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v};
+                        v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v};
 }
 
 MRLN_FN_ATTRS static mrln_v32u8_t mrln_v32u8_set(
@@ -857,8 +855,8 @@ MRLN_FN_ATTRS static mrln_v32u8_t mrln_v32u8_set(
     const uint8_t v28, const uint8_t v29, const uint8_t v30,
     const uint8_t v31) {
   return (mrln_v32u8_t){v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10,
-                          v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21,
-                          v22, v23, v24, v25, v26, v27, v28, v29, v30, v31};
+                        v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21,
+                        v22, v23, v24, v25, v26, v27, v28, v29, v30, v31};
 }
 
 //----------------------------------load/store----------------------------------
@@ -914,18 +912,17 @@ MRLN_UOP(mrln_v32u8_not, mrln_v32u8_t, ~)
  * will be shifted by
  * @return: vector of type uint8_t[32] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v32u8_t
-mrln_v32u8_shift_left(const mrln_v32u8_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v32u8_t mrln_v32u8_shift_left(const mrln_v32u8_t a,
+                                                        const uint32_t n) {
 #ifdef __AVX2__
-  mrln_v32u8_t tmp = __builtin_ia32_psllwi256(a, n);
+  mrln_v32u8_t tmp = __builtin_ia32_psllwi256(a, (int)n);
   tmp = mrln_v32u8_and(tmp, mrln_v32u8_set1((uint8_t)-1 << n));
   return tmp;
 #else
   mrln_v16u8_t lower = {a[0], a[1], a[2],  a[3],  a[4],  a[5],  a[6],  a[7],
-                          a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
-  mrln_v16u8_t upper = {a[16], a[17], a[18], a[19], a[20], a[21],
-                          a[22], a[23], a[24], a[25], a[26], a[27],
-                          a[28], a[29], a[30], a[31]};
+                        a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
+  mrln_v16u8_t upper = {a[16], a[17], a[18], a[19], a[20], a[21], a[22], a[23],
+                        a[24], a[25], a[26], a[27], a[28], a[29], a[30], a[31]};
 
   lower = mrln_v16u8_shift_left(lower, n);
   upper = mrln_v16u8_shift_left(upper, n);
@@ -949,18 +946,17 @@ mrln_v32u8_shift_left(const mrln_v32u8_t a, const uint32_t n) {
  * will be shifted by
  * @return: vector of type uint8_t[32] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v32u8_t
-mrln_v32u8_shift_right(const mrln_v32u8_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v32u8_t mrln_v32u8_shift_right(const mrln_v32u8_t a,
+                                                         const uint32_t n) {
 #ifdef __AVX2__
-  mrln_v32u8_t tmp = __builtin_ia32_psrlwi256(a, n);
+  mrln_v32u8_t tmp = __builtin_ia32_psrlwi256(a, (int)n);
   tmp = mrln_v32u8_and(tmp, mrln_v32u8_set1((uint8_t)-1 >> n));
   return tmp;
 #else
   mrln_v16u8_t lower = {a[0], a[1], a[2],  a[3],  a[4],  a[5],  a[6],  a[7],
-                          a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
-  mrln_v16u8_t upper = {a[16], a[17], a[18], a[19], a[20], a[21],
-                          a[22], a[23], a[24], a[25], a[26], a[27],
-                          a[28], a[29], a[30], a[31]};
+                        a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
+  mrln_v16u8_t upper = {a[16], a[17], a[18], a[19], a[20], a[21], a[22], a[23],
+                        a[24], a[25], a[26], a[27], a[28], a[29], a[30], a[31]};
 
   lower = mrln_v16u8_shift_right(lower, n);
   upper = mrln_v16u8_shift_right(upper, n);
@@ -1030,7 +1026,7 @@ typedef int8_t mrln_v32i8_unaligned_t
 //----------------------------------set-----------------------------------------
 MRLN_FN_ATTRS static mrln_v32i8_t mrln_v32i8_set1(const int8_t v) {
   return (mrln_v32i8_t){v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v,
-                          v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v};
+                        v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v};
 }
 
 MRLN_FN_ATTRS static mrln_v32i8_t mrln_v32i8_set(
@@ -1043,8 +1039,8 @@ MRLN_FN_ATTRS static mrln_v32i8_t mrln_v32i8_set(
     const int8_t v24, const int8_t v25, const int8_t v26, const int8_t v27,
     const int8_t v28, const int8_t v29, const int8_t v30, const int8_t v31) {
   return (mrln_v32i8_t){v00, v01, v02, v03, v04, v05, v06, v07, v08, v09, v10,
-                          v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21,
-                          v22, v23, v24, v25, v26, v27, v28, v29, v30, v31};
+                        v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21,
+                        v22, v23, v24, v25, v26, v27, v28, v29, v30, v31};
 }
 
 //----------------------------------load/store----------------------------------
@@ -1145,13 +1141,13 @@ MRLN_FN_ATTRS static mrln_v16u16_t mrln_v16u16_set1(const uint16_t v) {
 
 MRLN_FN_ATTRS static mrln_v16u16_t
 mrln_v16u16_set(const uint16_t v00, const uint16_t v01, const uint16_t v02,
-                  const uint16_t v03, const uint16_t v04, const uint16_t v05,
-                  const uint16_t v06, const uint16_t v07, const uint16_t v08,
-                  const uint16_t v09, const uint16_t v10, const uint16_t v11,
-                  const uint16_t v12, const uint16_t v13, const uint16_t v14,
-                  const uint16_t v15) {
+                const uint16_t v03, const uint16_t v04, const uint16_t v05,
+                const uint16_t v06, const uint16_t v07, const uint16_t v08,
+                const uint16_t v09, const uint16_t v10, const uint16_t v11,
+                const uint16_t v12, const uint16_t v13, const uint16_t v14,
+                const uint16_t v15) {
   return (mrln_v16u16_t){v00, v01, v02, v03, v04, v05, v06, v07,
-                           v08, v09, v10, v11, v12, v13, v14, v15};
+                         v08, v09, v10, v11, v12, v13, v14, v15};
 }
 
 //----------------------------------load/store----------------------------------
@@ -1163,8 +1159,7 @@ MRLN_FN_ATTRS MRLN_NONNULL(1) static mrln_v16u16_t
 }
 
 MRLN_FN_ATTRS MRLN_NONNULL(1) static mrln_v16u16_t
-    mrln_v16u16_load_unaligned(
-        const mrln_v16u16_unaligned_t addr[static 1]) {
+    mrln_v16u16_load_unaligned(const mrln_v16u16_unaligned_t addr[static 1]) {
   MRLN_ASSUME(addr != NULL);
   return *addr;
 }
@@ -1208,10 +1203,10 @@ MRLN_UOP(mrln_v16u16_not, mrln_v16u16_t, ~)
  * will be shifted by
  * @return: vector of type uint16_t[16] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v16u16_t
-mrln_v16u16_shift_left(const mrln_v16u16_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v16u16_t mrln_v16u16_shift_left(const mrln_v16u16_t a,
+                                                          const uint32_t n) {
 #ifdef __AVX2__
-  return __builtin_ia32_psllwi256(a, n);
+  return __builtin_ia32_psllwi256(a, (int)n);
 #else
   mrln_v8u16_t lower = {a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]};
   mrln_v8u16_t upper = {a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
@@ -1239,7 +1234,7 @@ mrln_v16u16_shift_left(const mrln_v16u16_t a, const uint32_t n) {
 MRLN_OP_ATTRS static mrln_v16u16_t
 mrln_v16u16_shift_right(const mrln_v16u16_t a, const uint32_t n) {
 #ifdef __AVX2__
-  return __builtin_ia32_psrlwi256(a, n);
+  return __builtin_ia32_psrlwi256(a, (int)n);
 #else
   mrln_v8u16_t lower = {a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]};
   mrln_v8u16_t upper = {a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]};
@@ -1296,13 +1291,13 @@ MRLN_FN_ATTRS static mrln_v16i16_t mrln_v16i16_set1(const int16_t v) {
 
 MRLN_FN_ATTRS static mrln_v16i16_t
 mrln_v16i16_set(const int16_t v00, const int16_t v01, const int16_t v02,
-                  const int16_t v03, const int16_t v04, const int16_t v05,
-                  const int16_t v06, const int16_t v07, const int16_t v08,
-                  const int16_t v09, const int16_t v10, const int16_t v11,
-                  const int16_t v12, const int16_t v13, const int16_t v14,
-                  const int16_t v15) {
+                const int16_t v03, const int16_t v04, const int16_t v05,
+                const int16_t v06, const int16_t v07, const int16_t v08,
+                const int16_t v09, const int16_t v10, const int16_t v11,
+                const int16_t v12, const int16_t v13, const int16_t v14,
+                const int16_t v15) {
   return (mrln_v16i16_t){v00, v01, v02, v03, v04, v05, v06, v07,
-                           v08, v09, v10, v11, v12, v13, v14, v15};
+                         v08, v09, v10, v11, v12, v13, v14, v15};
 }
 
 //----------------------------------load/store----------------------------------
@@ -1314,8 +1309,7 @@ MRLN_FN_ATTRS MRLN_NONNULL(1) static mrln_v16i16_t
 }
 
 MRLN_FN_ATTRS MRLN_NONNULL(1) static mrln_v16i16_t
-    mrln_v16i16_load_unaligned(
-        const mrln_v16i16_unaligned_t addr[static 1]) {
+    mrln_v16i16_load_unaligned(const mrln_v16i16_unaligned_t addr[static 1]) {
   MRLN_ASSUME(addr != NULL);
   return *addr;
 }
@@ -1383,8 +1377,8 @@ MRLN_FN_ATTRS static mrln_v8u32_t mrln_v8u32_set1(const uint32_t v) {
 
 MRLN_FN_ATTRS static mrln_v8u32_t
 mrln_v8u32_set(const uint32_t v00, const uint32_t v01, const uint32_t v02,
-                 const uint32_t v03, const uint32_t v04, const uint32_t v05,
-                 const uint32_t v06, const uint32_t v07) {
+               const uint32_t v03, const uint32_t v04, const uint32_t v05,
+               const uint32_t v06, const uint32_t v07) {
   return (mrln_v8u32_t){v00, v01, v02, v03, v04, v05, v06, v07};
 }
 
@@ -1441,10 +1435,10 @@ MRLN_UOP(mrln_v8u32_not, mrln_v8u32_t, ~)
  * will be shifted by
  * @return: vector of type uint32_t[8] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v8u32_t
-mrln_v8u32_shift_left(const mrln_v8u32_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v8u32_t mrln_v8u32_shift_left(const mrln_v8u32_t a,
+                                                        const uint32_t n) {
 #ifdef __AVX2__
-  return __builtin_ia32_pslldi256(a, n);
+  return __builtin_ia32_pslldi256(a, (int)n);
 #else
   mrln_v4u32_t lower = {a[0], a[1], a[2], a[3]};
   mrln_v4u32_t upper = {a[4], a[5], a[6], a[7]};
@@ -1466,10 +1460,10 @@ mrln_v8u32_shift_left(const mrln_v8u32_t a, const uint32_t n) {
  * will be shifted by
  * @return: vector of type uint32_t[8] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v8u32_t
-mrln_v8u32_shift_right(const mrln_v8u32_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v8u32_t mrln_v8u32_shift_right(const mrln_v8u32_t a,
+                                                         const uint32_t n) {
 #ifdef __AVX2__
-  return __builtin_ia32_psrldi256(a, n);
+  return __builtin_ia32_psrldi256(a, (int)n);
 #else
   mrln_v4u32_t lower = {a[0], a[1], a[2], a[3]};
   mrln_v4u32_t upper = {a[4], a[5], a[6], a[7]};
@@ -1517,8 +1511,8 @@ MRLN_FN_ATTRS static mrln_v8i32_t mrln_v8i32_set1(const int32_t v) {
 
 MRLN_FN_ATTRS static mrln_v8i32_t
 mrln_v8i32_set(const int32_t v00, const int32_t v01, const int32_t v02,
-                 const int32_t v03, const int32_t v04, const int32_t v05,
-                 const int32_t v06, const int32_t v07) {
+               const int32_t v03, const int32_t v04, const int32_t v05,
+               const int32_t v06, const int32_t v07) {
   return (mrln_v8i32_t){v00, v01, v02, v03, v04, v05, v06, v07};
 }
 
@@ -1594,9 +1588,9 @@ MRLN_FN_ATTRS static mrln_v4u64_t mrln_v4u64_set1(const uint64_t v) {
 }
 
 MRLN_FN_ATTRS static mrln_v4u64_t mrln_v4u64_set(const uint64_t v00,
-                                                       const uint64_t v01,
-                                                       const uint64_t v02,
-                                                       const uint64_t v03) {
+                                                 const uint64_t v01,
+                                                 const uint64_t v02,
+                                                 const uint64_t v03) {
   return (mrln_v4u64_t){v00, v01, v02, v03};
 }
 
@@ -1653,10 +1647,10 @@ MRLN_UOP(mrln_v4u64_not, mrln_v4u64_t, ~)
  * will be shifted by
  * @return: vector of type uint64_t[4] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v4u64_t
-mrln_v4u64_shift_left(const mrln_v4u64_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v4u64_t mrln_v4u64_shift_left(const mrln_v4u64_t a,
+                                                        const uint32_t n) {
 #ifdef __AVX2__
-  return __builtin_ia32_psllqi256(a, n);
+  return __builtin_ia32_psllqi256(a, (int)n);
 #else
   mrln_v2u64_t lower = {a[0], a[1]};
   mrln_v2u64_t upper = {a[2], a[3]};
@@ -1675,10 +1669,10 @@ mrln_v4u64_shift_left(const mrln_v4u64_t a, const uint32_t n) {
  * will be shifted by
  * @return: vector of type uint64_t[4] with the shifted values
  */
-MRLN_OP_ATTRS static mrln_v4u64_t
-mrln_v4u64_shift_right(const mrln_v4u64_t a, const uint32_t n) {
+MRLN_OP_ATTRS static mrln_v4u64_t mrln_v4u64_shift_right(const mrln_v4u64_t a,
+                                                         const uint32_t n) {
 #ifdef __AVX2__
-  return __builtin_ia32_psrlqi256(a, n);
+  return __builtin_ia32_psrlqi256(a, (int)n);
 #else
   mrln_v2u64_t lower = {a[0], a[1]};
   mrln_v2u64_t upper = {a[2], a[3]};
@@ -1718,9 +1712,9 @@ MRLN_FN_ATTRS static mrln_v4i64_t mrln_v4i64_set1(const int64_t v) {
 }
 
 MRLN_FN_ATTRS static mrln_v4i64_t mrln_v4i64_set(const int64_t v00,
-                                                       const int64_t v01,
-                                                       const int64_t v02,
-                                                       const int64_t v03) {
+                                                 const int64_t v01,
+                                                 const int64_t v02,
+                                                 const int64_t v03) {
   return (mrln_v4i64_t){v00, v01, v02, v03};
 }
 
