@@ -20,4 +20,20 @@ typedef int64_t i64;
 typedef uintptr_t usize;
 typedef intptr_t isize;
 
+#define UNUSED(A) (void)A
+
+#define MIN(A, B)                                                              \
+  ({                                                                           \
+    __auto_type MIN_a_ = A;                                                    \
+    __auto_type MIN_b_ = B;                                                    \
+    MIN_a_ < MIN_b_ ? MIN_a_ : MIN_b_;                                         \
+  })
+
+#define MAX(A, B)                                                              \
+  ({                                                                           \
+    __auto_type MAX_a_ = A;                                                    \
+    __auto_type MAX_b_ = B;                                                    \
+    MAX_a_ > MAX_b_ ? MAX_a_ : MAX_b_;                                         \
+  })
+
 #endif // SRC_UTIL_H

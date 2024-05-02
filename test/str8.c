@@ -14,6 +14,8 @@ static void lazy_error(int err) {
 static test_t TEST_generic(void) {
   test_t test = TEST_MAKE();
 
+  mrln_aloctr_t *a = mrln_aloctr_global();
+
   mrln_str8view_t v0 = mrln_str8view("Hello World");
 
   TEST_INT(&test, v0.length, 11, NULL);
@@ -31,13 +33,13 @@ static test_t TEST_generic(void) {
 
   int err;
   mrln_str8_t s0, s1;
-  err = mrln_str8(&s0, "Bye World");
+  err = mrln_str8(&s0, "Bye World", a);
   lazy_error(err);
 
   TEST_INT(&test, s0.length, 9, NULL);
   TEST_INT(&test, memcmp(s0.buffer, "Bye World", s0.length), 0, NULL);
 
-  err = mrln_str8(&s1, &s0);
+  err = mrln_str8(&s1, &s0, a);
   lazy_error(err);
 
   TEST_INT(&test, s1.length, 9, NULL);
@@ -56,8 +58,8 @@ static test_t TEST_generic(void) {
   TEST_INT(&test, memcmp(v0.buffer, "Bye World", v0.length), 0, NULL);
   TEST_BOOL(&test, v0.buffer == s0.buffer, 1, NULL);
 
-  mrln_str8_destroy(&s0);
-  mrln_str8_destroy(&s1);
+  mrln_str8_destroy(&s0, a);
+  mrln_str8_destroy(&s1, a);
 
   return test;
 }
@@ -67,43 +69,47 @@ static test_t TEST_concat(void) {
 
   mrln_str8_t str = {};
 
+  mrln_aloctr_t *a = mrln_aloctr_global();
+
   mrln_str8view_t view = mrln_str8view("Hello World");
   int err = 0;
 
-  err = mrln_str8_concat(&str, &view);
+  err = mrln_str8_concat(&str, &view, a);
   lazy_error(err);
 
   TEST_INT(&test, memcmp(str.buffer, "Hello World", str.length), 0, NULL);
 
-  err = mrln_str8_concat_char(&str, ' ');
+  err = mrln_str8_concat_char(&str, ' ', a);
   lazy_error(err);
   TEST_INT(&test, memcmp(str.buffer, "Hello World ", str.length), 0, NULL);
 
-  err = mrln_str8_concat_u64(&str, 69, 0, 0);
+  err = mrln_str8_concat_u64(&str, 69, 0, 0, a);
   lazy_error(err);
   TEST_INT(&test, memcmp(str.buffer, "Hello World 69", str.length), 0, NULL);
 
-  err = mrln_str8_concat_i64(&str, -1, 0, 0);
+  err = mrln_str8_concat_i64(&str, -1, 0, 0, a);
   lazy_error(err);
 
-  mrln_str8_destroy(&str);
+  mrln_str8_destroy(&str, a);
   return test;
 }
 
 static test_t TEST_replace(void) {
   test_t test = TEST_MAKE();
 
+  mrln_aloctr_t *a = mrln_aloctr_global();
+
   int err = 0;
   mrln_str8_t str = {};
-  err =
-      mrln_str8(&str, "Hello World this is again a very nice #include string");
+  err = mrln_str8(&str, "Hello World this is again a very nice #include string",
+                  a);
 
   lazy_error(err);
 
   mrln_str8view_t target = mrln_str8view(" ");
   mrln_str8view_t replace = mrln_str8view("\t\t");
 
-  err = mrln_str8_replace(&str, &target, &replace);
+  err = mrln_str8_replace(&str, &target, &replace, a);
   lazy_error(err);
 
   TEST_INT(&test,
@@ -113,7 +119,7 @@ static test_t TEST_replace(void) {
                   str.length),
            0, NULL);
 
-  err = mrln_str8_replace_n(&str, &replace, &target, 5);
+  err = mrln_str8_replace_n(&str, &replace, &target, 5, a);
   lazy_error(err);
 
   TEST_INT(&test,
@@ -123,7 +129,7 @@ static test_t TEST_replace(void) {
                   str.length),
            0, NULL);
 
-  mrln_str8_destroy(&str);
+  mrln_str8_destroy(&str, a);
 
   return test;
 }

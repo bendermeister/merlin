@@ -4,7 +4,8 @@ CC := clang #just for now later support for other compilers will come
 # actual library source code
 HEADERS := $(wildcard include/merlin/*.h)
 STR8_SOURCE := $(wildcard src/str8/*.c)
-MERLIN_SOURCE := ${STR8_SOURCE}
+ALOCTR_SOURCE := $(wildcard src/aloctr/*.c)
+MERLIN_SOURCE := ${STR8_SOURCE} ${ALOCTR_SOURCE}
 MERLIN_OBJECT := $(patsubst %.c, %.o, ${MERLIN_SOURCE})
 
 # benchmarking sources

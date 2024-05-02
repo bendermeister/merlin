@@ -1,4 +1,5 @@
 #include "../util.h"
+#include "merlin/aloctr.h"
 
 #include <merlin/simd.h>
 #include <merlin/str8.h>
@@ -548,7 +549,8 @@ static int replace_inplace(mrln_str8_t s[static 1],
 
 int mrln_str8_replace(mrln_str8_t s[static 1],
                       const mrln_str8view_t target[static 1],
-                      const mrln_str8view_t replacement[static 1]) {
+                      const mrln_str8view_t replacement[static 1],
+                      mrln_aloctr_t *a) {
   if (target->length == replacement->length) {
     return replace_inplace(s, target, replacement);
   }
@@ -561,11 +563,14 @@ int mrln_str8_replace(mrln_str8_t s[static 1],
   }
 
   mrln_str8_t str_new = {};
-  str_new.capacity =
-      s->length + splits.length * (replacement->length - target->length);
-  str_new.buffer = malloc(str_new.capacity);
-  if (UNLIKELY(!str_new.buffer)) {
-    return ENOMEM;
+  {
+    const isize capacity =
+        s->length + splits.length * (replacement->length - target->length);
+    int err =
+        mrln_aloctr(a, (void **)&str_new.buffer, &str_new.capacity, capacity);
+    if (UNLIKELY(err)) {
+      return err;
+    }
   }
 
   const intptr_t splits_end = splits.length;
@@ -589,20 +594,20 @@ int mrln_str8_replace(mrln_str8_t s[static 1],
   str_new.length += haystack.length - previous_index;
 
   free(splits.buffer);
-  free(s->buffer);
+  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, 0);
   *s = str_new;
   return 0;
 }
 
 int mrln_str8_replace_n(mrln_str8_t s[static 1],
                         const mrln_str8view_t target[static 1],
-                        const mrln_str8view_t replacement[static 1],
-                        intptr_t n) {
+                        const mrln_str8view_t replacement[static 1], intptr_t n,
+                        mrln_aloctr_t *a) {
   if (target->length == replacement->length) {
     return replace_inplace_n(s, target, replacement, n);
   }
   if (n < 0) {
-    return mrln_str8_replace(s, target, replacement);
+    return mrln_str8_replace(s, target, replacement, a);
   }
   if (n == 0) {
     return 0;
@@ -616,11 +621,15 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
   }
 
   mrln_str8_t str_new = {};
-  str_new.capacity = s->length + (splits.length < n ? splits.length : n) *
-                                     (replacement->length - target->length);
-  str_new.buffer = malloc(str_new.capacity);
-  if (UNLIKELY(!str_new.buffer)) {
-    return ENOMEM;
+  {
+    const isize capacity =
+        s->length + (splits.length < n ? splits.length : n) *
+                        (replacement->length - target->length);
+    int err =
+        mrln_aloctr(a, (void **)&str_new.buffer, &str_new.capacity, capacity);
+    if (UNLIKELY(err)) {
+      return err;
+    }
   }
 
   // TODO(ben): this fails if keys exists back to back and share char at pos
@@ -647,7 +656,7 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
   str_new.length += haystack.length - previous_index;
 
   free(splits.buffer);
-  free(s->buffer);
+  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, 0);
   *s = str_new;
   return 0;
 }

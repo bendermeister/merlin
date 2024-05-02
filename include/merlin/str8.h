@@ -1,6 +1,8 @@
 #ifndef MRLN_STR8_H
 #define MRLN_STR8_H
 
+#include <merlin/aloctr.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -52,53 +54,58 @@ mrln_str8view_from_cstr(const char *a) {
       char *: mrln_str8view_from_cstr,                                         \
       const char *: mrln_str8view_from_cstr)(ARG)
 
-int mrln_str8_from_cstr(mrln_str8_t dest[static 1], const char src[static 1]);
+int mrln_str8_from_cstr(mrln_str8_t dest[static 1], const char src[static 1],
+                        mrln_aloctr_t *a);
 
 int mrln_str8_from_view(mrln_str8_t dest[static 1],
-                        const mrln_str8view_t src[static 1]);
+                        const mrln_str8view_t src[static 1], mrln_aloctr_t *a);
 
 __attribute__((__always_inline__)) static inline int
-mrln_str8_from_viewlit(mrln_str8_t dest[static 1], const mrln_str8view_t view) {
-  return mrln_str8_from_view(dest, &view);
+mrln_str8_from_viewlit(mrln_str8_t dest[static 1], const mrln_str8view_t view,
+                       mrln_aloctr_t *a) {
+  return mrln_str8_from_view(dest, &view, a);
 }
 
 int mrln_str8_from_str8(mrln_str8_t dest[static 1],
-                        const mrln_str8_t src[static 1]);
+                        const mrln_str8_t src[static 1], mrln_aloctr_t *a);
 
 __attribute__((__always_inline__)) static inline int
-mrln_str8_from_str8lit(mrln_str8_t dest[static 1], const mrln_str8_t src) {
-  return mrln_str8_from_str8(dest, &src);
+mrln_str8_from_str8lit(mrln_str8_t dest[static 1], const mrln_str8_t src,
+                       mrln_aloctr_t *a) {
+  return mrln_str8_from_str8(dest, &src, a);
 }
 
-#define mrln_str8(DEST, SRC)                                                   \
+#define mrln_str8(DEST, SRC, A)                                                \
   ({                                                                           \
     mrln_str8_t *mrln_dest_ = DEST;                                            \
+    mrln_aloctr_t *mrln_a_ = A;                                                \
     _Generic(SRC,                                                              \
         mrln_str8view_t: mrln_str8_from_viewlit,                               \
         mrln_str8view_t *: mrln_str8_from_view,                                \
         mrln_str8_t: mrln_str8_from_str8lit,                                   \
         mrln_str8_t *: mrln_str8_from_str8,                                    \
         char *: mrln_str8_from_cstr,                                           \
-        const char *: mrln_str8_from_cstr)(mrln_dest_, SRC);                   \
+        const char *: mrln_str8_from_cstr)(mrln_dest_, SRC, mrln_a_);          \
   })
 
 /*** doc
  * @desription: reserve space for later writes
  * @return: error
  */
-int mrln_str8_reserve(mrln_str8_t s[static 1], const intptr_t capacity);
+int mrln_str8_reserve(mrln_str8_t s[static 1], const intptr_t capacity,
+                      mrln_aloctr_t *a);
 
 /*** doc
  * @description: shrinks the allocated space for `s` to fit elements in
  * `s`
  * @return: error
  */
-int mrln_str8_shrink(mrln_str8_t s[static 1]);
+int mrln_str8_shrink(mrln_str8_t s[static 1], mrln_aloctr_t *a);
 
 /*** doc
  * @description: deallocates `s`
  */
-void mrln_str8_destroy(mrln_str8_t s[static 1]);
+void mrln_str8_destroy(mrln_str8_t s[static 1], mrln_aloctr_t *a);
 
 /*** doc
  * @description: get view into `s` at position `index` with length
@@ -167,7 +174,8 @@ void mrln_str8_split_at_index(const mrln_str8view_t s[static 1],
  */
 int mrln_str8_replace(mrln_str8_t s[static 1],
                       const mrln_str8view_t target[static 1],
-                      const mrln_str8view_t replacement[static 1]);
+                      const mrln_str8view_t replacement[static 1],
+                      mrln_aloctr_t *a);
 
 /*** doc
  * @description: replace first `n` `target` view with `replacement` in `s`
@@ -179,7 +187,7 @@ int mrln_str8_replace(mrln_str8_t s[static 1],
 int mrln_str8_replace_n(mrln_str8_t s[static 1],
                         const mrln_str8view_t target[static 1],
                         const mrln_str8view_t replacement[static 1],
-                        const intptr_t n);
+                        const intptr_t n, mrln_aloctr_t *a);
 
 /*** doc
  * @description: insert `view` into `s` at `index`
@@ -188,7 +196,7 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
  * @return: error
  */
 int mrln_str8_insert(mrln_str8_t s[static 1], intptr_t index,
-                     mrln_str8view_t view[static 1]);
+                     mrln_str8view_t view[static 1], mrln_aloctr_t *a);
 
 /*** doc
  * @description: remove `view` from `s`
@@ -201,27 +209,29 @@ void mrln_str8_remove(mrln_str8_t s[static 1],
  * @description copy `src` into `dest`
  * @return: error
  */
-int mrln_str8_copy(mrln_str8_t dest[static 1], mrln_str8_t src[static 1]);
+int mrln_str8_copy(mrln_str8_t dest[static 1], mrln_str8_t src[static 1],
+                   mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with `src`
  * @return: error
  */
 int mrln_str8_concat(mrln_str8_t dest[static 1],
-                     const mrln_str8view_t src[static 1]);
+                     const mrln_str8view_t src[static 1], mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with `src`
  * @return: error
  */
-int mrln_str8_cstr(mrln_str8_t dest[static 1], const char src[static 1]);
+int mrln_str8_cstr(mrln_str8_t dest[static 1], const char src[static 1],
+                   mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with `src`
  * @return: error
  */
 int mrln_str8_ncstr(mrln_str8_t dest[static 1], const intptr_t len,
-                    const char src[len]);
+                    const char src[len], mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`
@@ -231,7 +241,7 @@ int mrln_str8_ncstr(mrln_str8_t dest[static 1], const intptr_t len,
  */
 int mrln_str8_concat_u64(mrln_str8_t dest[static 1], const uint64_t src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size);
+                         const intptr_t padding_size, mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`
@@ -241,7 +251,7 @@ int mrln_str8_concat_u64(mrln_str8_t dest[static 1], const uint64_t src,
  */
 int mrln_str8_concat_i64(mrln_str8_t dest[static 1], const int64_t src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size);
+                         const intptr_t padding_size, mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`
@@ -252,7 +262,8 @@ int mrln_str8_concat_i64(mrln_str8_t dest[static 1], const int64_t src,
  */
 int mrln_str8_concat_f64(mrln_str8_t dest[static 1], const double src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size, const uint64_t n_decimal);
+                         const intptr_t padding_size, const uint64_t n_decimal,
+                         mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`
@@ -263,13 +274,15 @@ int mrln_str8_concat_f64(mrln_str8_t dest[static 1], const double src,
  */
 int mrln_str8_concat_f32(mrln_str8_t dest[static 1], const float src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size, const uint64_t n_decimal);
+                         const intptr_t padding_size, const uint64_t n_decimal,
+                         mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`
  * @return: error
  */
-int mrln_str8_concat_char(mrln_str8_t dest[static 1], const char c);
+int mrln_str8_concat_char(mrln_str8_t dest[static 1], const char c,
+                          mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`

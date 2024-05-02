@@ -1,6 +1,7 @@
 #include <asm-generic/errno-base.h>
 #include <complex.h>
 #include <ctype.h>
+#include <merlin/aloctr.h>
 #include <merlin/str8.h>
 
 #include <stdbool.h>
@@ -10,47 +11,31 @@
 
 #include "../util.h"
 
-static int internal_realloc(mrln_str8_t s[static 1], const intptr_t capacity) {
-  ASSUME(s->capacity < capacity);
-
-  void *buffer = realloc(s->buffer, capacity);
-  if (UNLIKELY(!buffer)) {
-    return ENOMEM;
-  }
-  s->buffer = buffer;
-  s->capacity = capacity;
-  return 0;
-}
-
-int mrln_str8_reserve(mrln_str8_t s[static 1], const intptr_t capacity) {
+int mrln_str8_reserve(mrln_str8_t s[static 1], const intptr_t capacity,
+                      mrln_aloctr_t *a) {
   if (s->capacity >= capacity) {
     return 0;
   }
-  return internal_realloc(s, capacity);
+  return mrln_aloctr(a, (void **)&s->buffer, &s->capacity, capacity);
 }
 
-static int internal_grow(mrln_str8_t s[static 1], const intptr_t min_capacity) {
+static int internal_grow(mrln_str8_t s[static 1], const intptr_t min_capacity,
+                         mrln_aloctr_t *a) {
   if (s->length + min_capacity >= s->capacity) {
-    const intptr_t capacity =
-        min_capacity > s->capacity << 1 ? min_capacity : s->capacity << 1;
-    return internal_realloc(s, capacity);
+    return mrln_aloctr(a, (void **)&s->buffer, &s->capacity,
+                       MAX(s->capacity << 1, min_capacity));
   }
+
   return 0;
 }
 
-int mrln_str8_shrink(mrln_str8_t s[static 1]) {
-  return internal_realloc(s, s->length);
+int mrln_str8_shrink(mrln_str8_t s[static 1], mrln_aloctr_t *a) {
+  return mrln_aloctr(a, (void **)&s->buffer, &s->capacity, s->length);
 }
 
-void mrln_str8_destroy(mrln_str8_t s[static 1]) {
-  free(s->buffer);
-  *s = (mrln_str8_t){};
-}
-
-mrln_str8view_t mrln_str8_get_view(const mrln_str8_t s[static 1],
-                                   const intptr_t index,
-                                   const intptr_t length) {
-  return (mrln_str8view_t){.buffer = s->buffer + index, .length = length};
+void mrln_str8_destroy(mrln_str8_t s[static 1], mrln_aloctr_t *a) {
+  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, 0);
+  s->length = 0;
 }
 
 intptr_t mrln_str8_find(const mrln_str8view_t haystack[static 1],
@@ -121,8 +106,8 @@ void mrln_str8_split_at_index(const mrln_str8view_t s[static 1],
 }
 
 int mrln_str8_insert(mrln_str8_t s[static 1], intptr_t index,
-                     mrln_str8view_t view[static 1]) {
-  int err = internal_grow(s, s->length + view->length);
+                     mrln_str8view_t view[static 1], mrln_aloctr_t *a) {
+  int err = internal_grow(s, s->length + view->length, a);
   if (err) {
     return err;
   }
@@ -142,8 +127,9 @@ void mrln_str8_remove(mrln_str8_t s[static 1],
   s->length -= view->length;
 }
 
-int mrln_str8_copy(mrln_str8_t dest[static 1], mrln_str8_t src[static 1]) {
-  int err = internal_grow(dest, src->capacity);
+int mrln_str8_copy(mrln_str8_t dest[static 1], mrln_str8_t src[static 1],
+                   mrln_aloctr_t *a) {
+  int err = internal_grow(dest, src->capacity, a);
   if (err) {
     return err;
   }
@@ -153,8 +139,8 @@ int mrln_str8_copy(mrln_str8_t dest[static 1], mrln_str8_t src[static 1]) {
 }
 
 int mrln_str8_from_str8(mrln_str8_t dest[static 1],
-                        const mrln_str8_t src[static 1]) {
-  int err = internal_grow(dest, src->length);
+                        const mrln_str8_t src[static 1], mrln_aloctr_t *a) {
+  int err = internal_grow(dest, src->length, a);
   if (UNLIKELY(err)) {
     return err;
   }
@@ -163,9 +149,10 @@ int mrln_str8_from_str8(mrln_str8_t dest[static 1],
   return 0;
 }
 
-int mrln_str8_from_cstr(mrln_str8_t dest[static 1], const char src[static 1]) {
+int mrln_str8_from_cstr(mrln_str8_t dest[static 1], const char src[static 1],
+                        mrln_aloctr_t *a) {
   const intptr_t src_length = strlen(src);
-  int err = internal_grow(dest, src_length);
+  int err = internal_grow(dest, src_length, a);
   if (UNLIKELY(err)) {
     return err;
   }
@@ -175,8 +162,9 @@ int mrln_str8_from_cstr(mrln_str8_t dest[static 1], const char src[static 1]) {
 }
 
 int mrln_str8_from_view(mrln_str8_t s[static 1],
-                        const mrln_str8view_t view[static 1]) {
-  int err = internal_grow(s, view->length);
+                        const mrln_str8view_t view[static 1],
+                        mrln_aloctr_t *a) {
+  int err = internal_grow(s, view->length, a);
   if (UNLIKELY(err)) {
     return err;
   }
@@ -186,8 +174,8 @@ int mrln_str8_from_view(mrln_str8_t s[static 1],
 }
 
 int mrln_str8_concat(mrln_str8_t dest[static 1],
-                     const mrln_str8view_t src[static 1]) {
-  int err = internal_grow(dest, dest->length + src->length);
+                     const mrln_str8view_t src[static 1], mrln_aloctr_t *a) {
+  int err = internal_grow(dest, dest->length + src->length, a);
   if (err) {
     return err;
   }
@@ -196,9 +184,10 @@ int mrln_str8_concat(mrln_str8_t dest[static 1],
   return 0;
 }
 
-int mrln_str8_cstr(mrln_str8_t dest[static 1], const char src[static 1]) {
+int mrln_str8_cstr(mrln_str8_t dest[static 1], const char src[static 1],
+                   mrln_aloctr_t *a) {
   const intptr_t length = strlen(src);
-  int err = internal_grow(dest, length);
+  int err = internal_grow(dest, length, a);
   if (err) {
     return err;
   }
@@ -207,9 +196,9 @@ int mrln_str8_cstr(mrln_str8_t dest[static 1], const char src[static 1]) {
 }
 
 int mrln_str8_ncstr(mrln_str8_t dest[static 1], const intptr_t length,
-                    const char src[length]) {
+                    const char src[length], mrln_aloctr_t *a) {
 
-  int err = internal_grow(dest, length);
+  int err = internal_grow(dest, length, a);
   if (err) {
     return err;
   }
@@ -243,12 +232,12 @@ static intptr_t concat_u64_helper(const uint64_t reminder) {
 
 int mrln_str8_concat_u64(mrln_str8_t dest[static 1], const uint64_t src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size) {
+                         const intptr_t padding_size, mrln_aloctr_t *a) {
   const intptr_t fmt_length = concat_u64_helper(src);
   const intptr_t fmt_padding =
       padding_size > fmt_length ? padding_size - fmt_length : 0;
 
-  int err = internal_grow(dest, dest->length + fmt_length + fmt_padding);
+  int err = internal_grow(dest, dest->length + fmt_length + fmt_padding, a);
   if (err) {
     return err;
   }
@@ -264,7 +253,7 @@ int mrln_str8_concat_u64(mrln_str8_t dest[static 1], const uint64_t src,
 
 int mrln_str8_concat_i64(mrln_str8_t dest[static 1], const int64_t src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size) {
+                         const intptr_t padding_size, mrln_aloctr_t *a) {
   int isneg = 0;
   uint64_t reminder = src;
   if (src < 0) {
@@ -278,7 +267,7 @@ int mrln_str8_concat_i64(mrln_str8_t dest[static 1], const int64_t src,
       padding_size > fmt_length ? padding_size - fmt_length : 0;
 
   int err =
-      internal_grow(dest, dest->length + fmt_padding + fmt_length + isneg);
+      internal_grow(dest, dest->length + fmt_padding + fmt_length + isneg, a);
   if (err) {
     return err;
   }
@@ -301,7 +290,8 @@ int mrln_str8_concat_i64(mrln_str8_t dest[static 1], const int64_t src,
  */
 int mrln_str8_concat_f64(mrln_str8_t dest[static 1], const double src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size, const uint64_t n_decimal);
+                         const intptr_t padding_size, const uint64_t n_decimal,
+                         mrln_aloctr_t *a);
 
 /*** doc
  * @description: concatinates `dest` with formatted `src`
@@ -313,10 +303,12 @@ int mrln_str8_concat_f64(mrln_str8_t dest[static 1], const double src,
  */
 int mrln_str8_concat_f32(mrln_str8_t dest[static 1], const float src,
                          const uint8_t padding_char,
-                         const intptr_t padding_size, const uint64_t n_decimal);
+                         const intptr_t padding_size, const uint64_t n_decimal,
+                         mrln_aloctr_t *a);
 
-int mrln_str8_concat_char(mrln_str8_t dest[static 1], const char c) {
-  int err = internal_grow(dest, dest->length + 1);
+int mrln_str8_concat_char(mrln_str8_t dest[static 1], const char c,
+                          mrln_aloctr_t *a) {
+  int err = internal_grow(dest, dest->length + 1, a);
   if (err) {
     return err;
   }
