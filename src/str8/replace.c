@@ -566,8 +566,8 @@ int mrln_str8_replace(mrln_str8_t s[static 1],
   {
     const isize capacity =
         s->length + splits.length * (replacement->length - target->length);
-    int err =
-        mrln_aloctr(a, (void **)&str_new.buffer, &str_new.capacity, capacity);
+    int err = mrln_aloctr(a, (void **)&str_new.buffer, &str_new.capacity,
+                          _Alignof(u8), capacity);
     if (UNLIKELY(err)) {
       return err;
     }
@@ -594,7 +594,7 @@ int mrln_str8_replace(mrln_str8_t s[static 1],
   str_new.length += haystack.length - previous_index;
 
   free(splits.buffer);
-  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, 0);
+  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, _Alignof(u8), 0);
   *s = str_new;
   return 0;
 }
@@ -625,8 +625,8 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
     const isize capacity =
         s->length + (splits.length < n ? splits.length : n) *
                         (replacement->length - target->length);
-    int err =
-        mrln_aloctr(a, (void **)&str_new.buffer, &str_new.capacity, capacity);
+    int err = mrln_aloctr(a, (void **)&str_new.buffer, &str_new.capacity,
+                          _Alignof(u8), capacity);
     if (UNLIKELY(err)) {
       return err;
     }
@@ -656,7 +656,7 @@ int mrln_str8_replace_n(mrln_str8_t s[static 1],
   str_new.length += haystack.length - previous_index;
 
   free(splits.buffer);
-  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, 0);
+  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, _Alignof(u8), 0);
   *s = str_new;
   return 0;
 }

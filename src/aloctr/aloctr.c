@@ -4,10 +4,11 @@
 
 #include <asm-generic/errno-base.h>
 #include <stdlib.h>
+#include <string.h>
 
 __attribute__((__nonnull__(1, 2), __warn_unused_result__)) static int
 global_aloctr_func(mrln_aloctr_t *a, void **chunk, isize *chunk_size,
-                   const intptr_t size) {
+                   const intptr_t align, const intptr_t size) {
   UNUSED(a);
   if (size == 0) {
     free(*chunk);
@@ -16,14 +17,24 @@ global_aloctr_func(mrln_aloctr_t *a, void **chunk, isize *chunk_size,
     return 0;
   }
 
-  void *new = realloc(*chunk, size);
-
-  if (UNLIKELY(!new)) {
-    return ENOMEM;
+  void *new;
+  if (align <= 16) {
+    new = realloc(*chunk, size);
+    if (UNLIKELY(!new)) {
+      return ENOMEM;
+    }
+    *chunk = new;
+    *chunk_size = size;
+  } else {
+    new = aligned_alloc((uintptr_t)align, size);
+    if (UNLIKELY(!new)) {
+      return ENOMEM;
+    }
+    (void)memcpy(new, *chunk, size);
+    *chunk = new;
+    *chunk_size = size;
   }
 
-  *chunk = new;
-  *chunk_size = size;
   return 0;
 }
 

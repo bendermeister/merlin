@@ -26,7 +26,7 @@ typedef void mrln_aloctr_t;
 // - `new_size` the new size of the chunk, if it is non zero see the above,
 //   otherwise if it **is** zero, this function can be thought of as a free
 typedef int(mrln_aloctr_f)(mrln_aloctr_t *a, void **dest, intptr_t *dest_size,
-                           const intptr_t new_size);
+                           const intptr_t align, const intptr_t new_size);
 
 typedef struct mrln_aloctr_layout_t mrln_aloctr_layout_t;
 struct mrln_aloctr_layout_t {
@@ -37,8 +37,8 @@ struct mrln_aloctr_layout_t {
 __attribute__((__always_inline__, __nonnull__(1, 2, 3),
                __warn_unused_result__)) static inline int
 mrln_aloctr(mrln_aloctr_t *a, void **chunk, intptr_t *chunk_size,
-            const intptr_t size) {
-  return ((mrln_aloctr_layout_t *)a)->alloc(a, chunk, chunk_size, size);
+            const intptr_t align, const intptr_t size) {
+  return ((mrln_aloctr_layout_t *)a)->alloc(a, chunk, chunk_size, align, size);
 }
 
 // get a the global aloctr this should be used for everything passed between
