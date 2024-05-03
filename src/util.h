@@ -36,4 +36,11 @@ typedef intptr_t isize;
     MAX_a_ > MAX_b_ ? MAX_a_ : MAX_b_;                                         \
   })
 
+#define let const __auto_type
+#define var __auto_type
+
+#define NONNULL(...) __attribute__((nonnull(__VA_ARGS__)))
+#define CONST_FUNC __attribute__((const))
+#define NODISCARD __attribute__((warn_unused_result))
+
 #endif // SRC_UTIL_H

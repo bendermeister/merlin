@@ -5,7 +5,8 @@ CC := clang #just for now later support for other compilers will come
 HEADERS := $(wildcard include/merlin/*.h)
 STR8_SOURCE := $(wildcard src/str8/*.c)
 ALOCTR_SOURCE := $(wildcard src/aloctr/*.c)
-MERLIN_SOURCE := ${STR8_SOURCE} ${ALOCTR_SOURCE}
+UMAP_SOURCE := $(wildcard src/umap/*.c)
+MERLIN_SOURCE := ${STR8_SOURCE} ${ALOCTR_SOURCE} ${UMAP_SOURCE}
 MERLIN_OBJECT := $(patsubst %.c, %.o, ${MERLIN_SOURCE})
 
 # benchmarking sources
@@ -15,6 +16,7 @@ BENCH_SOURCE := ${BENCH_STR8_REPLACE_SOURCE}
 # testing sources
 TEST_SIMD_SOURCE := test/simd.c
 TEST_STR8_SOURCE := test/str8.c
+TEST_UMAP_SOURCE := test/umap.c
 TEST_SOURCE := ${TEST_SIMD_SOURCE} ${TEST_STR8_SOURCE}
 
 # example sources
@@ -41,7 +43,8 @@ CFLAGS := ${DEBUG_FLAGS}
 # testing
 test/str8.out := test/str8.o
 test/simd.out := test/simd.o
-TEST_TARGETS := test/str8.out test/simd.out
+test/umap.out := test/umap.o
+TEST_TARGETS := test/str8.out test/simd.out test/umap.out
 
 # examples
 example/simd/simple.out := example/simd/simple.o

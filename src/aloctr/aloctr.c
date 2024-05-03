@@ -6,36 +6,55 @@
 #include <stdlib.h>
 #include <string.h>
 
-__attribute__((__nonnull__(1, 2), __warn_unused_result__)) static int
-global_aloctr_func(mrln_aloctr_t *a, void **chunk, isize *chunk_size,
-                   const intptr_t align, const intptr_t size) {
+NONNULL(1, 2) NODISCARD static int free_wrapper(void **chnk, intptr_t *chnksz) {
+  free(*chnk);
+  *chnk = NULL;
+  *chnksz = 0;
+  return 0;
+}
+
+NONNULL(1, 2)
+NODISCARD static int realloc_wrapper(void **chnk, intptr_t *chnksz,
+                                     const intptr_t new_chnksz) {
+  var p = realloc(*chnk, new_chnksz);
+  if (p == NULL) {
+    return ENOMEM;
+  }
+  *chnk = p;
+  *chnksz = new_chnksz;
+  return 0;
+}
+
+NONNULL(1, 2)
+NODISCARD
+static int aligned_alloc_wrapper(void **chnk, intptr_t *chnksz, int align,
+                                 const intptr_t new_chnksz) {
+  var p = aligned_alloc(align, new_chnksz);
+  if (!p) {
+    return ENOMEM;
+  }
+  if (*chnk) {
+    memcpy(p, *chnk, *chnksz);
+  }
+  *chnk = p;
+  *chnksz = new_chnksz;
+  return 0;
+}
+
+NONNULL(1, 2, 3)
+NODISCARD static int global_aloctr_func(mrln_aloctr_t *a, void **chunk,
+                                        isize *chunk_size, const intptr_t align,
+                                        const intptr_t size) {
   UNUSED(a);
   if (size == 0) {
-    free(*chunk);
-    *chunk = NULL;
-    *chunk_size = 0;
-    return 0;
+    return free_wrapper(chunk, chunk_size);
   }
 
-  void *new;
   if (align <= 16) {
-    new = realloc(*chunk, size);
-    if (UNLIKELY(!new)) {
-      return ENOMEM;
-    }
-    *chunk = new;
-    *chunk_size = size;
-  } else {
-    new = aligned_alloc((uintptr_t)align, size);
-    if (UNLIKELY(!new)) {
-      return ENOMEM;
-    }
-    (void)memcpy(new, *chunk, size);
-    *chunk = new;
-    *chunk_size = size;
+    return realloc_wrapper(chunk, chunk_size, size);
   }
 
-  return 0;
+  return aligned_alloc_wrapper(chunk, chunk_size, align, size);
 }
 
 static struct {
