@@ -20,7 +20,8 @@ TEST_SOURCE := ${TEST_SIMD_SOURCE} ${TEST_STR8_SOURCE}
 # example sources
 EXAMPLE_SIMD_SOURCE := $(wildcard example/simd/*.c)
 EXAMPLE_STR8_SOURCE := $(wildcard example/str8/*.c)
-EXAMPLE_SOURCE := ${EXAMPLE_SIMD_SOURCE} ${EXAMPLE_STR8_SOURCE}
+EXAMPLE_ALOCTR_SOURCE := $(wildcard example/aloctr/*.c)
+EXAMPLE_SOURCE := ${EXAMPLE_SIMD_SOURCE} ${EXAMPLE_STR8_SOURCE} ${EXAMPLE_ALOCTR_SOURCE}
 
 # combination of all sources
 SOURCE := ${MERLIN_SOUCE} ${BENCH_SOURCE} ${TEST_SOURCE} ${EXAMPLE_SOURCE}
@@ -45,7 +46,8 @@ TEST_TARGETS := test/str8.out test/simd.out
 # examples
 example/simd/simple.out := example/simd/simple.o
 example/str8/simple.out := example/str8/simple.o
-EXAMPLE_TARGETS := example/simd/simple.out example/str8/simple.out
+example/aloctr/simple.out := example/aloctr/simple.o
+EXAMPLE_TARGETS := example/simd/simple.out example/str8/simple.out example/aloctr/simple.out
 
 TARGETS := ${TEST_TARGETS} merlin.a ${EXAMPLE_TARGETS}
 
