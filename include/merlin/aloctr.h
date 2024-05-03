@@ -36,8 +36,8 @@ struct mrln_aloctr_layout_t {
 // call an allocator to allocate or deallocate memory according to size
 __attribute__((__always_inline__, __nonnull__(1, 2, 3),
                __warn_unused_result__)) static inline int
-mrln_aloctr(mrln_aloctr_t *a, void **chunk, intptr_t *chunk_size,
-            const intptr_t align, const intptr_t size) {
+mrln_alloc(mrln_aloctr_t *a, void **chunk, intptr_t *chunk_size,
+           const intptr_t align, const intptr_t size) {
   return ((mrln_aloctr_layout_t *)a)->alloc(a, chunk, chunk_size, align, size);
 }
 

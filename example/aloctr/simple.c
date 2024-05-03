@@ -23,8 +23,8 @@ int main(void) {
   // 4. paramter is the alignment of the buffer
   // 5. paramter is the new capcity of the buffer
   // -  return value is an error value
-  int err = mrln_aloctr(a, (void **)&array, &capacity, _Alignof(int),
-                        10 * sizeof(*array));
+  int err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int),
+                       10 * sizeof(*array));
 
   // check the error value
   if (err) {
@@ -43,8 +43,8 @@ int main(void) {
   //
   // no problem we can use the same function to reallocate the array
 
-  err = mrln_aloctr(a, (void **)&array, &capacity, _Alignof(int),
-                    11 * sizeof(*array));
+  err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int),
+                   11 * sizeof(*array));
 
   // this reallocates the array, please keep in mind that capacity needs to be
   // the capacity in bytes of the current buffer, a mrln_aloctr is not required
@@ -59,7 +59,7 @@ int main(void) {
 
   // we use the same function again to deallocate the buffer, by reallocating it
   // to size zero, this will set `capacity` to `0` and `array` to NULL
-  err = mrln_aloctr(a, (void **)&array, &capacity, _Alignof(int), 0);
+  err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int), 0);
 
   if (err) {
     // checking the error value of the global allocator is not necessary, this

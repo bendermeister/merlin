@@ -17,26 +17,26 @@ int mrln_str8_reserve(mrln_str8_t s[static 1], const intptr_t capacity,
   if (s->capacity >= capacity) {
     return 0;
   }
-  return mrln_aloctr(a, (void **)&s->buffer, &s->capacity, 1, capacity);
+  return mrln_alloc(a, (void **)&s->buffer, &s->capacity, 1, capacity);
 }
 
 static int internal_grow(mrln_str8_t s[static 1], const intptr_t min_capacity,
                          mrln_aloctr_t *a) {
   if (s->length + min_capacity >= s->capacity) {
-    return mrln_aloctr(a, (void **)&s->buffer, &s->capacity, 1,
-                       MAX(s->capacity << 1, min_capacity));
+    return mrln_alloc(a, (void **)&s->buffer, &s->capacity, 1,
+                      MAX(s->capacity << 1, min_capacity));
   }
 
   return 0;
 }
 
 int mrln_str8_shrink(mrln_str8_t s[static 1], mrln_aloctr_t *a) {
-  return mrln_aloctr(a, (void **)&s->buffer, &s->capacity, _Alignof(u8),
-                     s->length);
+  return mrln_alloc(a, (void **)&s->buffer, &s->capacity, _Alignof(u8),
+                    s->length);
 }
 
 void mrln_str8_destroy(mrln_str8_t s[static 1], mrln_aloctr_t *a) {
-  (void)mrln_aloctr(a, (void **)&s->buffer, &s->capacity, _Alignof(u8), 0);
+  (void)mrln_alloc(a, (void **)&s->buffer, &s->capacity, _Alignof(u8), 0);
   s->length = 0;
 }
 

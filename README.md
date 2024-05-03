@@ -47,14 +47,13 @@ the intel intrinsics with fallsbacks in case the instructions are not available.
 And built on these for better implementations of standard datastructures and
 algorithms (see `merlin_str8_t`).
 
-## Allocator
+### Allocator
 Merlin doesn't use a specific allocation scheme by default but lets the user
 decide how things are allocated. This is done through the `mrln_aloctr_t` type
-and the `mrln_aloctr` function. The `mrln_aloctr` function acts as a `malloc`,
-a `realloc`, and a `free` depending on its parameters. In addition it takes in
-a alignment parameter. You don't have to write your own allocators and can use
-`mrln_aloctr_global` to get a wrapper around your systems `malloc` which you
-can pass to the merlin functions requireing an allocator.
+and the `mrln_alloc` function. The `mrln_alloc` function acts either as a `malloc`,
+a `realloc`, or a `free` depending on its parameters. In addition it takes in a
+alignment parameter. If you don't want to write your own allocator you can get
+the global allocator through `mrln_aloctr_global`.
 
 #### Example
 ```c
@@ -83,8 +82,8 @@ int main(void) {
   // 4. paramter is the alignment of the buffer
   // 5. paramter is the new capcity of the buffer
   // -  return value is an error value
-  int err = mrln_aloctr(a, (void **)&array, &capacity, _Alignof(int),
-                        10 * sizeof(*array));
+  int err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int),
+                       10 * sizeof(*array));
 
   // check the error value
   if (err) {
@@ -103,8 +102,8 @@ int main(void) {
   //
   // no problem we can use the same function to reallocate the array
 
-  err = mrln_aloctr(a, (void **)&array, &capacity, _Alignof(int),
-                    11 * sizeof(*array));
+  err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int),
+                   11 * sizeof(*array));
 
   // this reallocates the array, please keep in mind that capacity needs to be
   // the capacity in bytes of the current buffer, a mrln_aloctr is not required
@@ -119,7 +118,7 @@ int main(void) {
 
   // we use the same function again to deallocate the buffer, by reallocating it
   // to size zero, this will set `capacity` to `0` and `array` to NULL
-  err = mrln_aloctr(a, (void **)&array, &capacity, _Alignof(int), 0);
+  err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int), 0);
 
   if (err) {
     // checking the error value of the global allocator is not necessary, this
@@ -131,11 +130,9 @@ int main(void) {
 ```
 
 #### Motivation
-Memory management is very hard. And using libraries which are not conforment
-with your way of doing it can be frustrating and cumbersome. Which is way we
-provide the ability to pass a custom allocator to us, or if you don't want to
-think about it you can just use the global allocator, which should always if
-you are compiling against a standard conforment libc work .
+Custom allocators are very cool and too many libs out their missout on
+supporting them. Not us though!
+
 
 ### str8
 The `mrln_str8_t` type is a heap allocated string with functions for string
