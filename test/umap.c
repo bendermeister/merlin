@@ -9,6 +9,64 @@ static void lazy_error(uintptr_t err) {
   }
 }
 
+static test_t TEST_upsert_on_empty() {
+  test_t test = TEST_MAKE();
+
+  mrln_aloctr_t *a = mrln_aloctr_global();
+
+  mrln_umap_t m = {};
+
+  const intptr_t NUM = 1000;
+  int err;
+
+  for (intptr_t i = 0; i < NUM; ++i) {
+    uintptr_t j = i;
+    err = mrln_umap_upsert(&m, i, &j, a);
+    TEST_UINT(&test, j, i, NULL);
+    lazy_error(err);
+  }
+
+  for (intptr_t i = 0; i < NUM; ++i) {
+    const intptr_t j = mrln_umap_find(&m, i);
+    TEST_BOOL(&test, mrln_umap_isset(&m, j), true, NULL);
+    TEST_UINT(&test, m.key[j], i, NULL);
+    TEST_UINT(&test, m.val[j], i, NULL);
+    lazy_error(err);
+  }
+
+  mrln_umap_destroy(&m, a);
+
+  return test;
+}
+
+static test_t TEST_insert_on_empty() {
+  test_t test = TEST_MAKE();
+
+  mrln_aloctr_t *a = mrln_aloctr_global();
+
+  mrln_umap_t m = {};
+
+  const intptr_t NUM = 1000;
+  int err;
+
+  for (intptr_t i = 0; i < NUM; ++i) {
+    err = mrln_umap_insert(&m, i, i, a);
+    lazy_error(err);
+  }
+
+  for (intptr_t i = 0; i < NUM; ++i) {
+    const intptr_t j = mrln_umap_find(&m, i);
+    TEST_BOOL(&test, mrln_umap_isset(&m, j), true, NULL);
+    TEST_UINT(&test, m.key[j], i, NULL);
+    TEST_UINT(&test, m.val[j], i, NULL);
+    lazy_error(err);
+  }
+
+  mrln_umap_destroy(&m, a);
+
+  return test;
+}
+
 static test_t TEST_map(void) {
   test_t test = TEST_MAKE();
 
@@ -50,6 +108,13 @@ static test_t TEST_map(void) {
     TEST_UINT(&test, val, NUM + 69, NULL);
   }
 
+  for (uintptr_t i = 0; i < NUM + NUM; ++i) {
+    const bool c = mrln_umap_contains(&m, i);
+    TEST_BOOL(&test, c, true, NULL);
+  }
+
+  TEST_INT(&test, m.len, NUM + NUM, NULL);
+
   mrln_umap_destroy(&m, a);
 
   return test;
@@ -57,5 +122,7 @@ static test_t TEST_map(void) {
 
 int main(void) {
   TEST_RUN(TEST_map());
+  TEST_RUN(TEST_insert_on_empty());
+  TEST_RUN(TEST_upsert_on_empty());
   return TEST_CLEANUP();
 }

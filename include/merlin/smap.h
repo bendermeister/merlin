@@ -4,6 +4,7 @@
 #include <merlin/aloctr.h>
 #include <merlin/str8.h>
 #include <stdint.h>
+#include <xxhash.h>
 
 typedef struct mrln_smap_t mrln_smap_t;
 struct mrln_smap_t {
@@ -15,10 +16,11 @@ struct mrln_smap_t {
   intptr_t _bufsz;
   intptr_t _chnksz;
   int _tomb;
+  XXH128_hash_t
 };
 
 __attribute__((nonnull(1, 3), warn_unused_result("returns an error code"))) int
-mrln_tabl(mrln_smap_t *t, const intptr_t capacity, mrln_aloctr_t *a);
+mrln_smap(mrln_smap_t *t, const intptr_t capacity, mrln_aloctr_t *a);
 
 __attribute__((nonnull(1, 3), warn_unused_result("returns an error code"))) int
 mrln_smap_reserve(mrln_smap_t *t, const intptr_t capacity, mrln_aloctr_t *a);
