@@ -18,7 +18,7 @@ struct mrln_umap_t {
   uint8_t *_ctrl;
   intptr_t _chnksz;
   int _tomb;
-};
+} __attribute__((aligned(64)));
 
 __attribute__((nonnull(1, 3), warn_unused_result("returns an error code"))) int
 mrln_umap(mrln_umap_t *t, const intptr_t capacity, mrln_aloctr_t *a);

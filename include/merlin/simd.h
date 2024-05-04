@@ -10,6 +10,7 @@
 // TODO(ben): max min
 // TODO(ben): shuffle
 // TODO(ben): documentation
+// TODO(ben): __builtin_shufflevector(vec1, vec2, index1, index2, ...)
 
 #include <sys/cdefs.h>
 #ifndef __clang__

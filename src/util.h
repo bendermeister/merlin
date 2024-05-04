@@ -3,7 +3,16 @@
 
 #define LIKELY(A) __builtin_expect((A), 1)
 #define UNLIKELY(A) __builtin_expect((A), 0)
+
+#ifdef MRLN_ASSUME_TRAPS
+#define ASSUME(A)                                                              \
+  if (!(A)) {                                                                  \
+    \ 
+    __builtin_trap();                                                          \
+  }
+#else
 #define ASSUME(A) __builtin_assume((A))
+#endif // MRLN_ASSUME_TRAPS
 
 #include <stdint.h>
 

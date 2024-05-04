@@ -3,12 +3,6 @@
 
 #include <stdint.h>
 
-typedef struct mrln_chunk_t mrln_chunk_t;
-struct mrln_chunk_t {
-  void *chunk;
-  intptr_t size;
-};
-
 // opaque type for a general allocator. a general allocator is everything which
 // is able to be cast to a `mrln_aloctr_layout_t` where the alloc function can
 // be called

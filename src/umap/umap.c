@@ -14,16 +14,49 @@ CONST_FUNC NODISCARD static intptr_t cap_to_bufz(const intptr_t cap) {
 }
 
 CONST_FUNC NODISCARD static intptr_t bufz_to_chnksz(const intptr_t bufsz) {
+  ASSUME(bufsz >= 32);
+
   return sizeof(u8) * bufsz + 32 * sizeof(u8) + sizeof(uintptr_t) * bufsz +
          sizeof(uintptr_t) * bufsz;
 }
 
 CONST_FUNC NODISCARD NONNULL(1) static uintptr_t *keybuf(const mrln_umap_t *t) {
+  ASSUME(t);
+  ASSUME(t->_ctrl);
+  ASSUME(t->_bufsz >= 32);
+
   return (uintptr_t *)(t->_ctrl + 32 + t->_bufsz);
 }
 
 CONST_FUNC NODISCARD NONNULL(1) static uintptr_t *valbuf(const mrln_umap_t *t) {
+  ASSUME(t);
+  ASSUME(t->_bufsz >= 32);
+  ASSUME(t->_ctrl);
+
   return keybuf(t) + t->_bufsz;
+}
+
+NONNULL(1)
+CONST_FUNC NODISCARD static bool umap_well_formed(const mrln_umap_t *t) {
+  ASSUME(t);
+
+  // either everything is corretly setup so all invariands hold
+  let b0 = t->_bufsz >= 32 && __builtin_popcountll(t->_bufsz) == 1;
+  let b1 = t->_chnksz >= bufz_to_chnksz(t->_bufsz);
+  let b2 = t->_ctrl != NULL && t->key != NULL && t->val != NULL;
+  let b3 = (void *)t->key < (void *)t->_ctrl + t->_chnksz;
+  let b4 = (void *)t->val < (void *)t->_ctrl + t->_chnksz;
+  let b5 = t->key == keybuf(t);
+  let b6 = t->val == valbuf(t);
+  let b7 = t->len >= 0 && t->_tomb >= 0;
+
+  if (b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7) {
+    return true;
+  }
+
+  // or the map is empty initilized
+  return t->_bufsz == 0 && t->_chnksz == 0 && t->_ctrl == 0 && t->key == NULL &&
+         t->_tomb == 0 && t->len == 0 && t->val == NULL && t->end == 0;
 }
 
 #define ISSET ((u8)0x80)
@@ -44,6 +77,9 @@ CONST_FUNC NODISCARD static u64 hash(uintptr_t x) {
 
 CONST_FUNC NODISCARD NONNULL(1) static intptr_t
     find(const mrln_umap_t *t, const uintptr_t key, const u64 h) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+
   let ctrl = mrln_v32u8_set1(hash_to_ctrl(h));
   let zero = mrln_v32u8_set1(0);
   let mod = t->_bufsz - 1;
@@ -73,6 +109,10 @@ CONST_FUNC NODISCARD NONNULL(1) static intptr_t
 NONNULL(1, 3)
 NODISCARD static int rehash_to(mrln_umap_t *t, const intptr_t bufsz,
                                mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
   mrln_umap_t new = {._bufsz = bufsz};
   let err = mrln_alloc(a, (void **)&new._ctrl, &new._chnksz, 32,
                        bufz_to_chnksz(new._bufsz));
@@ -104,6 +144,10 @@ NODISCARD static int rehash_to(mrln_umap_t *t, const intptr_t bufsz,
 }
 
 NODISCARD NONNULL(1, 2) static int grow_if(mrln_umap_t *t, mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
   let should = t->_tomb + t->len >= (t->_bufsz * 7) / 8;
   if (should) {
     const intptr_t bufsz = MAX(32, t->_bufsz * 2);
@@ -114,6 +158,10 @@ NODISCARD NONNULL(1, 2) static int grow_if(mrln_umap_t *t, mrln_aloctr_t *a) {
 
 NODISCARD NONNULL(1, 3) int mrln_umap(mrln_umap_t *t, const intptr_t capacity,
                                       mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
   let bufsz = cap_to_bufz(capacity);
   if (bufsz <= t->_bufsz) {
     mrln_umap_clear(t);
@@ -134,6 +182,10 @@ NODISCARD NONNULL(1, 3) int mrln_umap(mrln_umap_t *t, const intptr_t capacity,
 NONNULL(1, 3)
 NODISCARD int mrln_umap_reserve(mrln_umap_t *t, const intptr_t capacity,
                                 mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
   let bufsz = cap_to_bufz(capacity);
   if (t->_bufsz >= bufsz) {
     return 0;
@@ -141,8 +193,15 @@ NODISCARD int mrln_umap_reserve(mrln_umap_t *t, const intptr_t capacity,
   return rehash_to(t, bufsz, a);
 }
 
-__attribute__((nonnull(1, 2))) int mrln_umap_shrink(mrln_umap_t *t,
-                                                    mrln_aloctr_t *a) {
+NONNULL(1, 2) NODISCARD int mrln_umap_shrink(mrln_umap_t *t, mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
+  if (!t->_ctrl) {
+    return 0;
+  }
+
   let bufsz = cap_to_bufz(t->len);
   if (t->_bufsz <= bufsz) {
     return 0;
@@ -151,12 +210,23 @@ __attribute__((nonnull(1, 2))) int mrln_umap_shrink(mrln_umap_t *t,
 }
 
 NONNULL(1, 2) NODISCARD int mrln_umap_rehash(mrln_umap_t *t, mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
   return rehash_to(t, t->_bufsz, a);
 }
 
 NONNULL(1)
 NODISCARD CONST_FUNC bool mrln_umap_contains(const mrln_umap_t *t,
                                              const uint64_t key) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+
+  if (t->len == 0) {
+    return false;
+  }
+
   let i = mrln_umap_find(t, key);
   return t->_ctrl[i] & ISSET;
 }
@@ -164,13 +234,17 @@ NODISCARD CONST_FUNC bool mrln_umap_contains(const mrln_umap_t *t,
 NONNULL(1, 4)
 NODISCARD int mrln_umap_insert(mrln_umap_t *t, const uint64_t key, uint64_t val,
                                mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
   let err = grow_if(t, a);
   if (UNLIKELY(err)) {
     return err;
   }
+
   let h = hash(key);
   let i = find(t, key, h);
-
   if (!t->_ctrl[i]) {
     t->len += 1;
     t->_ctrl[i] = hash_to_ctrl(h);
@@ -186,6 +260,11 @@ NODISCARD int mrln_umap_insert(mrln_umap_t *t, const uint64_t key, uint64_t val,
 NONNULL(1, 3, 4)
 NODISCARD int mrln_umap_upsert(mrln_umap_t *t, const uint64_t key,
                                uint64_t *val, mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(val);
+  ASSUME(a);
+
   let err = grow_if(t, a);
   if (UNLIKELY(err)) {
     return err;
@@ -209,6 +288,13 @@ NODISCARD int mrln_umap_upsert(mrln_umap_t *t, const uint64_t key,
 NONNULL(1, 3)
 NODISCARD int mrln_umap_remove(mrln_umap_t *t, const uint64_t key,
                                mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
+  if (t->len == 0) {
+    return 0;
+  }
 
   let i = mrln_umap_find(t, key);
   if (!(t->_ctrl[i] & ISSET)) {
@@ -225,21 +311,36 @@ NODISCARD int mrln_umap_remove(mrln_umap_t *t, const uint64_t key,
   return 0;
 }
 
-__attribute__((nonnull(1))) void mrln_umap_clear(mrln_umap_t *t) {
-  t->len = 0;
-  t->_tomb = 0;
-  memset(t->_ctrl, 0, t->_bufsz + 32);
+NONNULL(1)
+void mrln_umap_clear(mrln_umap_t *t) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+
+  if (t->_ctrl) {
+    memset(t->_ctrl, 0, t->_bufsz + 32);
+    t->len = 0;
+    t->_tomb = 0;
+  }
 }
 
-__attribute__((nonnull(1), const)) bool mrln_umap_isset(mrln_umap_t *t,
-                                                        intptr_t i) {
+CONST_FUNC NONNULL(1) bool mrln_umap_isset(mrln_umap_t *t, intptr_t i) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  if (i < 0) {
+    return false;
+  }
   return t->_ctrl[i] & ISSET;
 }
 
-__attribute__((nonnull(1, 2, 3),
-               warn_unused_result("returns an error code"))) int
-mrln_umap_copy(mrln_umap_t *restrict dest, const mrln_umap_t *restrict src,
-               mrln_aloctr_t *a) {
+NONNULL(1, 2, 3);
+NODISCARD int mrln_umap_copy(mrln_umap_t *restrict dest,
+                             const mrln_umap_t *restrict src,
+                             mrln_aloctr_t *a) {
+  ASSUME(dest);
+  ASSUME(src);
+  ASSUME(umap_well_formed(src));
+  ASSUME(a);
+
   if (dest->_bufsz < src->_bufsz) {
     let err =
         mrln_alloc(a, (void **)&dest->_ctrl, &dest->_chnksz, 32, src->_chnksz);
@@ -257,6 +358,10 @@ mrln_umap_copy(mrln_umap_t *restrict dest, const mrln_umap_t *restrict src,
 }
 
 NONNULL(1, 2) void mrln_umap_destroy(mrln_umap_t *t, mrln_aloctr_t *a) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  ASSUME(a);
+
   (void)mrln_alloc(a, (void **)&t->_ctrl, &t->_chnksz, 32, 0);
   *t = (mrln_umap_t){};
 }
@@ -264,6 +369,12 @@ NONNULL(1, 2) void mrln_umap_destroy(mrln_umap_t *t, mrln_aloctr_t *a) {
 NONNULL(1)
 CONST_FUNC NODISCARD intptr_t mrln_umap_find(const mrln_umap_t *t,
                                              const uintptr_t key) {
+  ASSUME(t);
+  ASSUME(umap_well_formed(t));
+  if (t->len == 0) {
+    return -1;
+  }
+
   let h = hash(key);
   return find(t, key, h);
 }
