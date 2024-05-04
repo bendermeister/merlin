@@ -41,17 +41,16 @@ CONST_FUNC NODISCARD static bool umap_well_formed(const mrln_umap_t *t) {
   ASSUME(t);
 
   // either everything is corretly setup so all invariands hold
-  let b0 = t->_bufsz >= 32 && __builtin_popcountll(t->_bufsz) == 1;
-  let b1 = t->_chnksz >= bufz_to_chnksz(t->_bufsz);
-  let b2 = t->_ctrl != NULL && t->key != NULL && t->val != NULL;
-  let b3 = (void *)t->key < (void *)t->_ctrl + t->_chnksz;
-  let b4 = (void *)t->val < (void *)t->_ctrl + t->_chnksz;
-  let b5 = t->key == keybuf(t);
-  let b6 = t->val == valbuf(t);
-  let b7 = t->len >= 0 && t->_tomb >= 0;
-
-  if (b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7) {
-    return true;
+  if (t->_chnksz) {
+    let b0 = t->_bufsz >= 32 && __builtin_popcountll(t->_bufsz) == 1;
+    let b1 = t->_chnksz >= bufz_to_chnksz(t->_bufsz);
+    let b2 = t->_ctrl != NULL && t->key != NULL && t->val != NULL;
+    let b3 = (void *)t->key < (void *)t->_ctrl + t->_chnksz;
+    let b4 = (void *)t->val < (void *)t->_ctrl + t->_chnksz;
+    let b5 = t->key == keybuf(t);
+    let b6 = t->val == valbuf(t);
+    let b7 = t->len >= 0 && t->_tomb >= 0;
+    return b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7;
   }
 
   // or the map is empty initilized

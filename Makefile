@@ -33,7 +33,7 @@ OBJECT := $(patsubst %.c, %.o, ${SOURCE})
 SSE_FLAGS := -msse -msse2 -msse3 -msse4.1 -msse4.2
 AVX_FLAGS := -mavx -mavx2
 BASE_FLAGS := -Wall -Wextra -I include ${SSE_FLAGS} ${AVX_FLAGS}
-DEBUG_FLAGS := ${BASE_FLAGS} -g -fsanitize=address,leak,undefined
+DEBUG_FLAGS := ${BASE_FLAGS} -g -fsanitize=address,leak,undefined -DMRLN_ASSUME_TRAPS
 RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native -fno-omit-framepointer
 
 #CFLAGS := ${RELEASE_FLAGS}

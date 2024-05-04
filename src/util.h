@@ -7,7 +7,6 @@
 #ifdef MRLN_ASSUME_TRAPS
 #define ASSUME(A)                                                              \
   if (!(A)) {                                                                  \
-    \ 
     __builtin_trap();                                                          \
   }
 #else
