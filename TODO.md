@@ -26,3 +26,6 @@ we shouldnt be reliant on libc
 
 ## stack2
 is stack2 a good idea?
+
+## automatic testing
+how is a git ci/cd pipeline done?

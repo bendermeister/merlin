@@ -4,20 +4,24 @@
 #include <merlin/aloctr.h>
 #include <merlin/str8.h>
 #include <stdint.h>
-#include <xxhash.h>
 
 typedef struct mrln_smap_t mrln_smap_t;
 struct mrln_smap_t {
   mrln_str8view_t *key;
   uintptr_t *val;
   intptr_t len;
+  union {
+    intptr_t _bufsz;
+    intptr_t end;
+  };
 
   uint8_t *_ctrl;
-  intptr_t _bufsz;
   intptr_t _chnksz;
   int _tomb;
-  XXH128_hash_t
 };
+
+__attribute__((nonnull(1, 2))) void mrln_smap_destroy(mrln_smap_t *t,
+                                                      mrln_aloctr_t *a);
 
 __attribute__((nonnull(1, 3), warn_unused_result("returns an error code"))) int
 mrln_smap(mrln_smap_t *t, const intptr_t capacity, mrln_aloctr_t *a);
@@ -43,8 +47,8 @@ __attribute__((nonnull(1, 3, 4),
 mrln_smap_upsert(mrln_smap_t *t, const mrln_str8view_t key, uintptr_t *value,
                  mrln_aloctr_t *a);
 
-__attribute__((nonnull(1))) bool mrln_smap_remove(mrln_smap_t *t,
-                                                  const mrln_str8view_t key);
+__attribute__((nonnull(1), warn_unused_result("returns an error code"))) int
+mrln_smap_remove(mrln_smap_t *t, const mrln_str8view_t key, mrln_aloctr_t *a);
 
 __attribute__((nonnull(1))) void mrln_smap_clear(mrln_smap_t *t);
 
