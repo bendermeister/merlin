@@ -1,6 +1,10 @@
 #ifndef MRLN_ALOCTR_H
 #define MRLN_ALOCTR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 // opaque type for a general allocator. a general allocator is everything which
@@ -38,5 +42,9 @@ mrln_alloc(mrln_aloctr_t *a, void **chunk, intptr_t *chunk_size,
 // get a the global aloctr this should be used for everything passed between
 // threads. Currently this is just a wrapper around the systems malloc
 mrln_aloctr_t *mrln_aloctr_global(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MRLN_ALOCTR_H

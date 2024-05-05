@@ -1,6 +1,10 @@
 #ifndef MERLIN_UMAP_H
 #define MERLIN_UMAP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <merlin/aloctr.h>
 #include <merlin/str8.h>
 #include <stdint.h>
@@ -55,11 +59,15 @@ __attribute__((nonnull(1))) void mrln_umap_clear(mrln_umap_t *t);
 __attribute__((nonnull(1), const)) bool mrln_umap_isset(mrln_umap_t *t,
                                                         intptr_t i);
 
-__attribute__((nonnull(1, 2), warn_unused_result("returns an error code"))) int
-mrln_umap_copy(mrln_umap_t *restrict dest, const mrln_umap_t *restrict src,
-               mrln_aloctr_t *a);
+__attribute__((nonnull(1, 2, 3),
+               warn_unused_result("returns an error code"))) int
+mrln_umap_copy(mrln_umap_t *dest, const mrln_umap_t *src, mrln_aloctr_t *a);
 
 __attribute__((nonnull(1, 2))) void mrln_umap_destroy(mrln_umap_t *t,
                                                       mrln_aloctr_t *a);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MERLIN_UMAP_H

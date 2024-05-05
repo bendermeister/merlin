@@ -28,7 +28,7 @@ EXAMPLE_ALOCTR_SOURCE := $(wildcard example/aloctr/*.c)
 EXAMPLE_SOURCE := ${EXAMPLE_SIMD_SOURCE} ${EXAMPLE_STR8_SOURCE} ${EXAMPLE_ALOCTR_SOURCE}
 
 # combination of all sources
-SOURCE := ${MERLIN_SOUCE} ${BENCH_SOURCE} ${TEST_SOURCE} ${EXAMPLE_SOURCE}
+SOURCE := ${MERLIN_SOURCE} ${BENCH_SOURCE} ${TEST_SOURCE} ${EXAMPLE_SOURCE}
 OBJECT := $(patsubst %.c, %.o, ${SOURCE})
 
 # flags
@@ -36,10 +36,10 @@ SSE_FLAGS := -msse -msse2 -msse3 -msse4.1 -msse4.2
 AVX_FLAGS := -mavx -mavx2
 BASE_FLAGS := -Wall -Wextra -I include ${SSE_FLAGS} ${AVX_FLAGS}
 DEBUG_FLAGS := ${BASE_FLAGS} -g -fsanitize=address,undefined -DMRLN_ASSUME_TRAPS
-RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native -fno-omit-framepointer
+RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native -fno-omit-frame-pointer
 
-#CFLAGS := ${RELEASE_FLAGS}
-CFLAGS := ${DEBUG_FLAGS}
+CFLAGS := ${RELEASE_FLAGS}
+#CFLAGS := ${DEBUG_FLAGS}
 
 # targets
 # testing
