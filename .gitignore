@@ -2,6 +2,7 @@
 .ccls*
 compile_commands.json
 .cache/*
+*.csv
 
 # Prerequisites
 *.d

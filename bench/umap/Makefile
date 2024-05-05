@@ -1,7 +1,7 @@
 
 FLAGS := -O3 -I ../../include -march=native -mtune=native -fno-exceptions -fno-omit-frame-pointer ../../merlin.a -lbenchmark
 
-all: create.out insert.out
+all: umap.out
 
 %.out: %.cpp
 	clang++ $< ${FLAGS} -o $@
