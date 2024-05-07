@@ -5,68 +5,56 @@
 
 static mrln_aloctr_t *a;
 
-static void BM_baseline(benchmark::State &state) {
+__attribute__((constructor)) static void setup(void) {
   a = mrln_aloctr_global();
+}
+
+static void BM_insert_bl(benchmark::State &state) {
+  const size_t end = state.range(0);
+
   for (auto _ : state) {
     mrln_umap_t map = {};
-    (void)mrln_umap(&map, state.range(0), a);
-    mrln_umap_destroy(&map, a);
+    (void)mrln_umap(&map, end, a);
+    for (size_t i = 0; i < end; ++i) {
+      benchmark::DoNotOptimize(i);
+    }
   }
 }
-BENCHMARK(BM_baseline)
-    ->Arg(1 << 1)
-    ->Arg(1 << 2)
-    ->Arg(1 << 3)
-    ->Arg(1 << 4)
-    ->Arg(1 << 5)
-    ->Arg(1 << 6)
-    ->Arg(1 << 7)
-    ->Arg(1 << 8)
-    ->Arg(1 << 9)
-    ->Arg(1 << 10)
-    ->Arg(1 << 11)
-    ->Arg(1 << 12)
-    ->Arg(1 << 13)
-    ->Arg(1 << 14)
-    ->Arg(1 << 15)
-    ->Arg(1 << 16)
-    ->Arg(1 << 17)
-    ->Arg(1 << 18)
-    ->Arg(1 << 19);
+BENCHMARK(BM_insert_bl)->Range(4, 1 << 20);
 
-static void BM_insertn(benchmark::State &state) {
-  a = mrln_aloctr_global();
+static void BM_insert(benchmark::State &state) {
+  const size_t end = state.range(0);
+
   for (auto _ : state) {
     mrln_umap_t map = {};
-    (void)mrln_umap(&map, state.range(0), a);
-
-    uintptr_t i = 0;
-    for (; i < state.range(0); ++i) {
+    (void)mrln_umap(&map, end, a);
+    for (size_t i = 0; i < end; ++i) {
       (void)mrln_umap_insert(&map, i, i, a);
     }
-
-    mrln_umap_destroy(&map, a);
   }
 }
-BENCHMARK(BM_insertn)
-    ->Arg(1 << 1)
-    ->Arg(1 << 2)
-    ->Arg(1 << 3)
-    ->Arg(1 << 4)
-    ->Arg(1 << 5)
-    ->Arg(1 << 6)
-    ->Arg(1 << 7)
-    ->Arg(1 << 8)
-    ->Arg(1 << 9)
-    ->Arg(1 << 10)
-    ->Arg(1 << 11)
-    ->Arg(1 << 12)
-    ->Arg(1 << 13)
-    ->Arg(1 << 14)
-    ->Arg(1 << 15)
-    ->Arg(1 << 16)
-    ->Arg(1 << 17)
-    ->Arg(1 << 18)
-    ->Arg(1 << 19);
+BENCHMARK(BM_insert)->Range(4, 1 << 20);
+
+static void BM_find_bl(benchmark::State &state) {
+  const size_t end = state.range(0);
+  for (auto _ : state) {
+    benchmark::DoNotOptimize(rand() % end);
+  }
+}
+BENCHMARK(BM_find_bl)->Range(4, 1 << 20);
+
+static void BM_find(benchmark::State &state) {
+  const size_t end = state.range(0);
+  mrln_umap_t map = {};
+  (void)mrln_umap(&map, end, a);
+  for (size_t i = 0; i < end; ++i) {
+    (void)mrln_umap_insert(&map, i, i, a);
+  }
+  for (auto _ : state) {
+    auto i = mrln_umap_find(&map, rand() % end);
+    benchmark::DoNotOptimize(i);
+  }
+}
+BENCHMARK(BM_find)->Range(4, 1 << 20);
 
 BENCHMARK_MAIN();

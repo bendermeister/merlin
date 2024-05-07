@@ -87,18 +87,21 @@ CONST_FUNC NODISCARD NONNULL(1) static intptr_t
   for (intptr_t j = 32;; ++j, i = (i + j) & mod) {
     let row = mrln_v32u8_load_unaligned((const void *)&t->_ctrl[i]);
     let t0 = mrln_v32u8_cmpeq(row, ctrl);
-    let t1 = mrln_v32u8_cmpeq(row, zero);
-    let t2 = mrln_v32u8_or(t0, t1);
-    var m = mrln_v32u8_mask(t2);
+    var m = mrln_v32u8_mask(t0);
 
     for (intptr_t k = 0; m; ++k, m >>= 1) {
       let ctz = __builtin_ctz(m);
       m >>= ctz;
       k += ctz;
       let l = (i + k) & mod;
-      if (!t->_ctrl[l] || t->key[l] == key) {
+      if (t->key[l] == key) {
         return l;
       }
+    }
+    let t1 = mrln_v32u8_cmpeq(row, zero);
+    m = mrln_v32u8_mask(t1);
+    if (m) {
+      return (i + __builtin_ctz(m)) & mod;
     }
   }
 

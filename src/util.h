@@ -48,7 +48,8 @@ typedef intptr_t isize;
 #define var __auto_type
 
 #define NONNULL(...) __attribute__((nonnull(__VA_ARGS__)))
-#define CONST_FUNC __attribute__((const))
+#define CONST_FUNC __attribute__((const, warn_unused_result))
 #define NODISCARD __attribute__((warn_unused_result))
+#define AINLINE __attribute__((always_inline))
 
 #endif // SRC_UTIL_H

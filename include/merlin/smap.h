@@ -1,6 +1,10 @@
 #ifndef MERLIN_SMAP_H
 #define MERLIN_SMAP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <merlin/aloctr.h>
 #include <merlin/str8.h>
 #include <stdint.h>
@@ -18,7 +22,7 @@ struct mrln_smap_t {
   uint8_t *_ctrl;
   intptr_t _chnksz;
   int _tomb;
-};
+} __attribute__((aligned(64)));
 
 __attribute__((nonnull(1, 2))) void mrln_smap_destroy(mrln_smap_t *t,
                                                       mrln_aloctr_t *a);
@@ -57,7 +61,10 @@ mrln_smap_isset(mrln_smap_t *t, intptr_t i);
 
 __attribute__((nonnull(1, 2, 3),
                warn_unused_result("returns an error code"))) int
-mrln_smap_copy(mrln_smap_t *restrict dest, const mrln_smap_t *restrict src,
-               mrln_aloctr_t *a);
+mrln_smap_copy(mrln_smap_t *dest, const mrln_smap_t *src, mrln_aloctr_t *a);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MERLIN_SMAP_H
