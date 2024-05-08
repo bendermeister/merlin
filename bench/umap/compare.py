@@ -15,7 +15,7 @@ def anal(path):
             arg = int(arg)
             if bm not in d:
                 d[bm] = {}
-            d[bm][arg] = float(l[2])
+            d[bm][arg] = float(l[3])
 
     out = []
 

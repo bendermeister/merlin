@@ -1,4 +1,4 @@
-#include "gmap/gmap.h"
+#include "ddmap/ddmap.h"
 #include <benchmark/benchmark.h>
 #include <merlin/aloctr.h>
 #include <stdio.h>
@@ -23,12 +23,19 @@ CONST_FUNC NODISCARD static u64 uptr_hash(const void *p) {
   return x;
 }
 
+constexpr static struct ddmap_vt_t vt = {
+    .iseq = uptr_iseq,
+    .hash = uptr_hash,
+    .keysz = 8,
+    .valsz = 8,
+};
+
 static void BM_insert_bl(benchmark::State &state) {
   const uintptr_t end = state.range(0);
 
   for (auto _ : state) {
-    gmap_t map = {};
-    benchmark::DoNotOptimize(map);
+    ddmap_t map = {};
+    (void)ddmap(&map, &vt, end, a);
     for (uintptr_t i = 0; i < end; ++i) {
       benchmark::DoNotOptimize(i);
     }
@@ -40,14 +47,10 @@ static void BM_insert(benchmark::State &state) {
   const uintptr_t end = state.range(0);
 
   for (auto _ : state) {
-    gmap_t map = {};
+    ddmap_t map = {};
+    (void)ddmap(&map, &vt, end, a);
     for (uintptr_t i = 0; i < end; ++i) {
-      gmap_iter_t iter = gmap_iter(&map, uptr_hash(&i));
-      for (; iter.isset; iter = gmap_next(iter)) {
-      }
-      gmap_insert(&map, &iter);
-      *gmap_key(iter) = i;
-      *gmap_val(iter) = i;
+      (void)ddmap_insert(&map, &vt, &i, &i, a);
     }
   }
 }
@@ -63,21 +66,15 @@ BENCHMARK(BM_find_bl)->Range(4, 1 << 20);
 
 static void BM_find(benchmark::State &state) {
   const uintptr_t end = state.range(0);
-  gmap_t map = {};
+  ddmap_t map = {};
+  (void)ddmap(&map, &vt, end, a);
   for (uintptr_t i = 0; i < end; ++i) {
-    gmap_iter_t iter = gmap_iter(&map, uptr_hash(&i));
-    for (; iter.isset; iter = gmap_next(iter)) {
-    }
-    gmap_insert(&map, &iter);
-    *gmap_key(iter) = i;
-    *gmap_val(iter) = i;
+    (void)ddmap_insert(&map, &vt, &i, &i, a);
   }
-
   for (auto _ : state) {
     uintptr_t k = rand() % end;
-    gmap_iter_t iter = gmap_iter(&map, uptr_hash(&k));
-    for (; iter.isset && *gmap_key(iter) != k; iter = gmap_next(iter)) {
-    }
+    auto i = ddmap_find(&map, &vt, &k);
+    benchmark::DoNotOptimize(i);
   }
 }
 BENCHMARK(BM_find)->Range(4, 1 << 20);
