@@ -36,7 +36,7 @@ CONST_FUNC AINLINE i32 bufsz_to_chnksz(const i32 bufsz, const i16 keysz,
 }
 
 CONST_FUNC NONNULL(1, 2) static i32
-    find(const dmap_t *__attribute__((noescape)) t, const void *key, u64 h) {
+    find(const dmap_t *t, const void *key, u64 h) {
   let mod = t->bufsz - 1;
   let ctrl = mrln_v32u8_set1(hash_to_ctrl(h));
   let zero = mrln_v32u8_set1(0);

@@ -39,7 +39,7 @@ DEBUG_FLAGS := ${BASE_FLAGS} -g -fsanitize=address,undefined -DMRLN_ASSUME_TRAPS
 RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native -fno-omit-frame-pointer
 
 CFLAGS := ${RELEASE_FLAGS}
-#CFLAGS := ${DEBUG_FLAGS}
+#	CFLAGS := ${DEBUG_FLAGS}
 
 # targets
 # testing

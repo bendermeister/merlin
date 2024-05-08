@@ -79,10 +79,13 @@ CONST_FUNC NODISCARD NONNULL(1) static intptr_t
   ASSUME(t);
   ASSUME(is_well_formed(t));
 
-  let ctrl = mrln_v32u8_set1(hash_to_ctrl(h));
-  let zero = mrln_v32u8_set1(0);
   let mod = t->_bufsz - 1;
   intptr_t i = h & mod;
+
+  // __builtin_prefetch(t->_ctrl + i);
+
+  let ctrl = mrln_v32u8_set1(hash_to_ctrl(h));
+  let zero = mrln_v32u8_set1(0);
 
   for (intptr_t j = 32;; ++j, i = (i + j) & mod) {
     let row = mrln_v32u8_load_unaligned((const void *)&t->_ctrl[i]);
@@ -90,6 +93,7 @@ CONST_FUNC NODISCARD NONNULL(1) static intptr_t
     var m = mrln_v32u8_mask(t0);
 
     for (intptr_t k = 0; m; ++k, m >>= 1) {
+      // __builtin_prefetch(t->key + i);
       let ctz = __builtin_ctz(m);
       m >>= ctz;
       k += ctz;

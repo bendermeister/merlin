@@ -51,5 +51,6 @@ typedef intptr_t isize;
 #define CONST_FUNC __attribute__((const, warn_unused_result))
 #define NODISCARD __attribute__((warn_unused_result))
 #define AINLINE __attribute__((always_inline))
+#define noescape __attribute__((noescape))
 
 #endif // SRC_UTIL_H

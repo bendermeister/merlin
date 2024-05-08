@@ -1472,7 +1472,7 @@ MRLN_OP_ATTRS static mrln_v8u32_t mrln_v8u32_shift_right(const mrln_v8u32_t a,
   lower = mrln_v4u32_shift_right(lower, n);
   upper = mrln_v4u32_shift_right(upper, n);
 
-  return (mrln_v16u16_t){
+  return (mrln_v8u32_t){
       lower[0], lower[1], lower[2], lower[3],
       upper[0], upper[1], upper[2], upper[3],
   };

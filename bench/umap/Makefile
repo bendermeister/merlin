@@ -5,12 +5,15 @@ INCLUDE_FLAGS := -I ../../include
 CXXFLAGS = ${OPT_FLAGS} ${LINK_FLAGS} ${INCLUDE_FLAGS}
 CFLAGS := ${OPT_FLAGS} ${INCLUDE_FLAGS}
 
-all: umap.out dmap.out sdmap.out
+all: umap.out dmap.out sdmap.out gmap.out
 
 umap.out: umap.cpp
 	clang++ $< ${CXXFLAGS} -o $@
 
 dmap.out: dmap.cpp dmap.o
+	clang++ $^ ${CXXFLAGS} -o $@
+
+gmap.out: gmap.cpp gmap.o
 	clang++ $^ ${CXXFLAGS} -o $@
 
 sdmap.out: sdmap.cpp sdmap.o
@@ -20,6 +23,9 @@ dmap.o: dmap/dmap.c
 	clang ${CFLAGS} -c -o $@ $^
 
 sdmap.o: sdmap/sdmap.c
+	clang ${CFLAGS} -c -o $@ $^
+
+gmap.o: gmap/gmap.c
 	clang ${CFLAGS} -c -o $@ $^
 
 clean:
