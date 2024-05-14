@@ -29,3 +29,8 @@ is stack2 a good idea?
 
 ## automatic testing
 how is a git ci/cd pipeline done?
+
+## remove mrln_ prefix it gets annoying and is not necessary
+## rename str8 to s8, full on copy nullprogrom
+## store strings inplace if they are less than the size of the struct itself, maybe some nice bitmagic there? 
+## reimplement all stdc functions for cstr for s8s
