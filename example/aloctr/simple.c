@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <merlin/aloctr.h>
 #include <stddef.h> // for NULL
 #include <stdio.h>
@@ -5,66 +6,47 @@
 #include <string.h>
 
 int main(void) {
-  // get the global allocator
+  // get the global allocate, which is thread safe and can be thought of as a
+  // malloc/realloc/free replacement
+  aloctr_t *a = aloctr_global();
 
-  mrln_aloctr_t *a = mrln_aloctr_global();
+  // now we can use it to allocate an array of ints
+  int *array = allocate(a, 10 * sizeof(*array));
 
-  // now we can use it to allocate an array
-
-  int *array = NULL;
-  intptr_t capacity = 0;
-
-  // Explanation:
-  // 1. parameter is the allocator we want to use
-  // 2. paramter is a pointer to the current buffer, and will be set to
-  //    the new buffer want to allocate
-  // 3. paramter is the current capacity (in bytes) of the buffer, and will
-  //    be set to the new capacity of the buffer
-  // 4. paramter is the alignment of the buffer
-  // 5. paramter is the new capcity of the buffer
-  // -  return value is an error value
-  int err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int),
-                       10 * sizeof(*array));
-
-  // check the error value
-  if (err) {
-    // in most cases the error is an ENOMEM
-    fprintf(stderr, "ERROR: %s\n", strerror(err));
+  // check if an error occurred
+  if (array == NULL) {
+    // NOTE: if `size` passed to allocate is `0` it will return `NULL`, so this
+    // might not always be an error, if you might have `0` as a valid size check
+    // errno too!
+    fprintf(stderr, "ERROR: %s\n", strerror(errno));
     exit(1);
   }
 
-  // now we can use our array
+  // now we fill the array
   for (int i = 0; i < 10; ++i) {
     array[i] = i;
   }
 
-  // OH NO there is no space left in the array but I really need to put this
-  // `69` in there
-  //
-  // no problem we can use the same function to reallocate the array
+  // we can also reallocate the array
 
-  err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int),
-                   11 * sizeof(*array));
+  {
+    void *new = reallocate(a, array, 11 * sizeof(*array));
+    if (new == NULL) {
+      // NOTE: if `size` passed to reallocate is `0` it will return `NULL`, so
+      // this might not always be an error, if you might have `0` as a valid
+      // size check errno too!
+      fprintf(stderr, "ERROR: %s\n", strerror(errno));
+      exit(1);
+    }
 
-  // this reallocates the array, please keep in mind that capacity needs to be
-  // the capacity in bytes of the current buffer, a mrln_aloctr is not required
-  // to keep track of the buffer sizes
-
-  if (err) {
-    fprintf(stderr, "ERROR: %s\n", strerror(err));
-    exit(1);
+    // in case of an error `array` will not be altered so we have to asign to a
+    // tmp variable before assigning it to `array`
+    array = new;
   }
 
   array[10] = 69;
 
-  // we use the same function again to deallocate the buffer, by reallocating it
-  // to size zero, this will set `capacity` to `0` and `array` to NULL
-  err = mrln_alloc(a, (void **)&array, &capacity, _Alignof(int), 0);
-
-  if (err) {
-    // checking the error value of the global allocator is not necessary, this
-    // might not be true for custom, or special allocators
-  }
+  deallocate(a, array);
 
   return 0;
 }

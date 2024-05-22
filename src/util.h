@@ -1,33 +1,6 @@
 #ifndef SRC_UTIL_H
 #define SRC_UTIL_H
 
-#define LIKELY(A) __builtin_expect((A), 1)
-#define UNLIKELY(A) __builtin_expect((A), 0)
-
-#ifdef MRLN_ASSUME_TRAPS
-#define ASSUME(A)                                                              \
-  if (!(A)) {                                                                  \
-    __builtin_trap();                                                          \
-  }
-#else
-#define ASSUME(A) __builtin_assume((A))
-#endif // MRLN_ASSUME_TRAPS
-
-#include <stdint.h>
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-
-typedef uintptr_t usize;
-typedef intptr_t isize;
-
 #define UNUSED(A) (void)A
 
 #define MIN(A, B)                                                              \
@@ -51,6 +24,5 @@ typedef intptr_t isize;
 #define CONST_FUNC __attribute__((const, warn_unused_result))
 #define NODISCARD __attribute__((warn_unused_result))
 #define AINLINE __attribute__((always_inline))
-#define noescape __attribute__((noescape))
 
 #endif // SRC_UTIL_H

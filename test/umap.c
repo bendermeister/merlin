@@ -9,12 +9,12 @@ static void lazy_error(uintptr_t err) {
   }
 }
 
-static test_t TEST_upsert_on_empty() {
+static test_t TEST_upsert_on_empty(void) {
   test_t test = TEST_MAKE();
 
-  mrln_aloctr_t *a = mrln_aloctr_global();
+  aloctr_t *a = aloctr_global();
 
-  mrln_umap_t m = {};
+  mrln_umap_t m = {0};
 
   const intptr_t NUM = 1000;
   int err;
@@ -39,12 +39,12 @@ static test_t TEST_upsert_on_empty() {
   return test;
 }
 
-static test_t TEST_insert_on_empty() {
+static test_t TEST_insert_on_empty(void) {
   test_t test = TEST_MAKE();
 
-  mrln_aloctr_t *a = mrln_aloctr_global();
+  aloctr_t *a = aloctr_global();
 
-  mrln_umap_t m = {};
+  mrln_umap_t m = {0};
 
   const intptr_t NUM = 1000;
   int err;
@@ -70,12 +70,12 @@ static test_t TEST_insert_on_empty() {
 static test_t TEST_map(void) {
   test_t test = TEST_MAKE();
 
-  mrln_aloctr_t *a = mrln_aloctr_global();
+  aloctr_t *a = aloctr_global();
   uintptr_t err;
 
   const uintptr_t NUM = 100;
 
-  mrln_umap_t m = {};
+  mrln_umap_t m = {0};
 
   err = mrln_umap(&m, 8, a);
   lazy_error(err);

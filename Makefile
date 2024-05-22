@@ -3,29 +3,20 @@ CC := clang #just for now later support for other compilers will come
 
 # actual library source code
 HEADERS := $(wildcard include/merlin/*.h)
-STR8_SOURCE := $(wildcard src/str8/*.c)
 ALOCTR_SOURCE := $(wildcard src/aloctr/*.c)
 UMAP_SOURCE := $(wildcard src/umap/*.c)
-SMAP_SOURCE := $(wildcard src/smap/*.c)
-MERLIN_SOURCE := ${STR8_SOURCE} ${ALOCTR_SOURCE} ${UMAP_SOURCE} ${SMAP_SOURCE}
+MERLIN_SOURCE := ${ALOCTR_SOURCE} ${UMAP_SOURCE}
 MERLIN_OBJECT := $(patsubst %.c, %.o, ${MERLIN_SOURCE})
-
-# benchmarking sources
-BENCH_STR8_REPLACE_SOURCE := bench/str8/replace/replace.c
-BENCH_SOURCE := ${BENCH_STR8_REPLACE_SOURCE}
 
 # testing sources
 TEST_SIMD_SOURCE := test/simd.c
-TEST_STR8_SOURCE := test/str8.c
 TEST_UMAP_SOURCE := test/umap.c
-TEST_SMAP_SOURCE := test/smap.c
-TEST_SOURCE := ${TEST_SIMD_SOURCE} ${TEST_STR8_SOURCE}
+TEST_SOURCE := ${TEST_SIMD_SOURCE} 
 
 # example sources
 EXAMPLE_SIMD_SOURCE := $(wildcard example/simd/*.c)
-EXAMPLE_STR8_SOURCE := $(wildcard example/str8/*.c)
 EXAMPLE_ALOCTR_SOURCE := $(wildcard example/aloctr/*.c)
-EXAMPLE_SOURCE := ${EXAMPLE_SIMD_SOURCE} ${EXAMPLE_STR8_SOURCE} ${EXAMPLE_ALOCTR_SOURCE}
+EXAMPLE_SOURCE := ${EXAMPLE_SIMD_SOURCE} ${EXAMPLE_ALOCTR_SOURCE}
 
 # combination of all sources
 SOURCE := ${MERLIN_SOURCE} ${BENCH_SOURCE} ${TEST_SOURCE} ${EXAMPLE_SOURCE}
@@ -38,22 +29,19 @@ BASE_FLAGS := -Wall -Wextra -I include ${SSE_FLAGS} ${AVX_FLAGS}
 DEBUG_FLAGS := ${BASE_FLAGS} -g -fsanitize=address,undefined -DMRLN_ASSUME_TRAPS
 RELEASE_FLAGS := ${BASE_FLAGS} -O3 -march=native -mtune=native -fno-omit-frame-pointer
 
-CFLAGS := ${RELEASE_FLAGS}
-#	CFLAGS := ${DEBUG_FLAGS}
+# CFLAGS := ${RELEASE_FLAGS}
+CFLAGS := ${DEBUG_FLAGS}
 
 # targets
 # testing
-test/str8.out := test/str8.o
 test/simd.out := test/simd.o
 test/umap.out := test/umap.o
-test/smap.out := test/smap.o
-TEST_TARGETS := test/str8.out test/simd.out test/umap.out test/smap.out
+TEST_TARGETS := test/simd.out test/umap.out
 
 # examples
 example/simd/simple.out := example/simd/simple.o
-example/str8/simple.out := example/str8/simple.o
 example/aloctr/simple.out := example/aloctr/simple.o
-EXAMPLE_TARGETS := example/simd/simple.out example/str8/simple.out example/aloctr/simple.out
+EXAMPLE_TARGETS := example/simd/simple.out example/aloctr/simple.out
 
 TARGETS := ${TEST_TARGETS} merlin.a ${EXAMPLE_TARGETS}
 
