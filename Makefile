@@ -1,5 +1,5 @@
 HEADERS := include/merlin/simd.h
-CC := clang #just for now later support for other compilers will come
+CC := clang 
 
 # actual library source code
 HEADERS := $(wildcard include/merlin/*.h)

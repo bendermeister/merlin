@@ -59,8 +59,8 @@ v16u8_set(const uint8_t v00, const uint8_t v01, const uint8_t v02,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16u8_t
-v16u8_load_aligned(const v16u8_t *addr) {
-  return *addr;
+v16u8_load_aligned(const void *addr) {
+  return *(const v16u8_t *)addr;
 }
 
 // # v16u8_load_unaligned
@@ -70,26 +70,26 @@ v16u8_load_aligned(const v16u8_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16u8_t
-v16u8_load_unaligned(const v16u8_unaligned_t *addr) {
-  return *addr;
+v16u8_load_unaligned(const void *addr) {
+  return *(const v16u8_unaligned_t *)addr;
 }
 
 // # v16u8_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16u8_store_aligned(v16u8_t *addr,
+ATTR_INLINE static inline void v16u8_store_aligned(void *addr,
                                                    const v16u8_t data) {
-  *addr = data;
+  *(v16u8_t *)addr = data;
 }
 
 // # v16u8_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16u8_store_unaligned(v16u8_unaligned_t *addr,
+ATTR_INLINE static inline void v16u8_store_unaligned(void *addr,
                                                      const v16u8_t data) {
-  *addr = data;
+  *(v16u8_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -522,8 +522,8 @@ v16i8_set(const i8 v00, const i8 v01, const i8 v02, const i8 v03, const i8 v04,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16i8_t
-v16i8_load_aligned(const v16i8_t *addr) {
-  return *addr;
+v16i8_load_aligned(const void *addr) {
+  return *(const v16i8_t *)addr;
 }
 
 // # v16i8_load_unaligned
@@ -534,26 +534,26 @@ v16i8_load_aligned(const v16i8_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16i8_t
-v16i8_load_unaligned(const v16i8_unaligned_t *addr) {
-  return *addr;
+v16i8_load_unaligned(const void *addr) {
+  return *(const v16i8_unaligned_t *)addr;
 }
 
 // # v16i8_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16i8_store_aligned(v16i8_t *addr,
+ATTR_INLINE static inline void v16i8_store_aligned(void *addr,
                                                    const v16i8_t data) {
-  *addr = data;
+  *(v16i8_t *)addr = data;
 }
 
 // # v16i8_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16i8_store_unaligned(v16i8_unaligned_t *addr,
+ATTR_INLINE static inline void v16i8_store_unaligned(void *addr,
                                                      const v16i8_t data) {
-  *addr = data;
+  *(v16i8_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -944,8 +944,8 @@ v8u16_set(const uint16_t v00, const uint16_t v01, const uint16_t v02,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8u16_t
-v8u16_load_aligned(const v8u16_t *addr) {
-  return *addr;
+v8u16_load_aligned(const void *addr) {
+  return *(const v8u16_t *)addr;
 }
 
 // # v8u16_load_unaligned
@@ -955,26 +955,26 @@ v8u16_load_aligned(const v8u16_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8u16_t
-v8u16_load_unaligned(const v8u16_unaligned_t *addr) {
-  return *addr;
+v8u16_load_unaligned(const void *addr) {
+  return *(const v8u16_unaligned_t *)addr;
 }
 
 // # v8u16_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8u16_store_aligned(v8u16_t *addr,
+ATTR_INLINE static inline void v8u16_store_aligned(void *addr,
                                                    const v8u16_t data) {
-  *addr = data;
+  *(v8u16_t *)addr = data;
 }
 
 // # v8u16_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8u16_store_unaligned(v8u16_unaligned_t *addr,
+ATTR_INLINE static inline void v8u16_store_unaligned(void *addr,
                                                      const v8u16_t data) {
-  *addr = data;
+  *(v8u16_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -1383,8 +1383,8 @@ v8i16_set(const i16 v00, const i16 v01, const i16 v02, const i16 v03,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8i16_t
-v8i16_load_aligned(const v8i16_t *addr) {
-  return *addr;
+v8i16_load_aligned(const void *addr) {
+  return *(const v8i16_t *)addr;
 }
 
 // # v8i16_load_unaligned
@@ -1394,26 +1394,26 @@ v8i16_load_aligned(const v8i16_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8i16_t
-v8i16_load_unaligned(const v8i16_unaligned_t *addr) {
-  return *addr;
+v8i16_load_unaligned(const void *addr) {
+  return *(const v8i16_unaligned_t *)addr;
 }
 
 // # v8i16_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8i16_store_aligned(v8i16_t *addr,
+ATTR_INLINE static inline void v8i16_store_aligned(void *addr,
                                                    const v8i16_t data) {
-  *addr = data;
+  *(v8i16_t *)addr = data;
 }
 
 // # v8i16_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8i16_store_unaligned(v8i16_unaligned_t *addr,
+ATTR_INLINE static inline void v8i16_store_unaligned(void *addr,
                                                      const v8i16_t data) {
-  *addr = data;
+  *(v8i16_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -1809,8 +1809,8 @@ v4u32_set(const uint32_t v00, const uint32_t v01, const uint32_t v02,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4u32_t
-v4u32_load_aligned(const v4u32_t *addr) {
-  return *addr;
+v4u32_load_aligned(const void *addr) {
+  return *(const v4u32_t *)addr;
 }
 
 // # v4u32_load_unaligned
@@ -1820,26 +1820,26 @@ v4u32_load_aligned(const v4u32_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4u32_t
-v4u32_load_unaligned(const v4u32_unaligned_t *addr) {
-  return *addr;
+v4u32_load_unaligned(const void *addr) {
+  return *(const v4u32_unaligned_t *)addr;
 }
 
 // # v4u32_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4u32_store_aligned(v4u32_t *addr,
+ATTR_INLINE static inline void v4u32_store_aligned(void *addr,
                                                    const v4u32_t data) {
-  *addr = data;
+  *(v4u32_t *)addr = data;
 }
 
 // # v4u32_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4u32_store_unaligned(v4u32_unaligned_t *addr,
+ATTR_INLINE static inline void v4u32_store_unaligned(void *addr,
                                                      const v4u32_t data) {
-  *addr = data;
+  *(v4u32_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -2245,8 +2245,8 @@ v4i32_set(const i32 v00, const i32 v01, const i32 v02, const i32 v03) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4i32_t
-v4i32_load_aligned(const v4i32_t *addr) {
-  return *addr;
+v4i32_load_aligned(const void *addr) {
+  return *(const v4i32_t *)addr;
 }
 
 // # v4i32_load_unaligned
@@ -2256,26 +2256,26 @@ v4i32_load_aligned(const v4i32_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4i32_t
-v4i32_load_unaligned(const v4i32_unaligned_t *addr) {
-  return *addr;
+v4i32_load_unaligned(const void *addr) {
+  return *(const v4i32_unaligned_t *)addr;
 }
 
 // # v4i32_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4i32_store_aligned(v4i32_t *addr,
+ATTR_INLINE static inline void v4i32_store_aligned(void *addr,
                                                    const v4i32_t data) {
-  *addr = data;
+  *(v4i32_t *)addr = data;
 }
 
 // # v4i32_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4i32_store_unaligned(v4i32_unaligned_t *addr,
+ATTR_INLINE static inline void v4i32_store_unaligned(void *addr,
                                                      const v4i32_t data) {
-  *addr = data;
+  *(v4i32_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -2663,8 +2663,8 @@ v2u64_set(const u64 v00, const u64 v01) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v2u64_t
-v2u64_load_aligned(const v2u64_t *addr) {
-  return *addr;
+v2u64_load_aligned(const void *addr) {
+  return *(const v2u64_t *)addr;
 }
 
 // # v2u64_load_unaligned
@@ -2674,26 +2674,26 @@ v2u64_load_aligned(const v2u64_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v2u64_t
-v2u64_load_unaligned(const v2u64_unaligned_t *addr) {
-  return *addr;
+v2u64_load_unaligned(const void *addr) {
+  return *(const v2u64_unaligned_t *)addr;
 }
 
 // # v2u64_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v2u64_store_aligned(v2u64_t *addr,
+ATTR_INLINE static inline void v2u64_store_aligned(void *addr,
                                                    const v2u64_t data) {
-  *addr = data;
+  *(v2u64_t *)addr = data;
 }
 
 // # v2u64_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v2u64_store_unaligned(v2u64_unaligned_t *addr,
+ATTR_INLINE static inline void v2u64_store_unaligned(void *addr,
                                                      const v2u64_t data) {
-  *addr = data;
+  *(v2u64_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -3096,8 +3096,8 @@ v2i64_set(const i64 v00, const i64 v01) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v2i64_t
-v2i64_load_aligned(const v2i64_t *addr) {
-  return *addr;
+v2i64_load_aligned(const void *addr) {
+  return *(const v2i64_t *)addr;
 }
 
 // # v2i64_load_unaligned
@@ -3107,26 +3107,26 @@ v2i64_load_aligned(const v2i64_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v2i64_t
-v2i64_load_unaligned(const v2i64_unaligned_t *addr) {
-  return *addr;
+v2i64_load_unaligned(const void *addr) {
+  return *(const v2i64_unaligned_t *)addr;
 }
 
 // # v2i64_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v2i64_store_aligned(v2i64_t *addr,
+ATTR_INLINE static inline void v2i64_store_aligned(void *addr,
                                                    const v2i64_t data) {
-  *addr = data;
+  *(v2i64_t *)addr = data;
 }
 
 // # v2i64_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v2i64_store_unaligned(v2i64_unaligned_t *addr,
+ATTR_INLINE static inline void v2i64_store_unaligned(void *addr,
                                                      const v2i64_t data) {
-  *addr = data;
+  *(v2i64_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -3525,8 +3525,8 @@ v32u8_set(const u8 v00, const u8 v01, const u8 v02, const u8 v03, const u8 v04,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v32u8_t
-v32u8_load_aligned(const v32u8_t *addr) {
-  return *addr;
+v32u8_load_aligned(const void *addr) {
+  return *(const v32u8_t *)addr;
 }
 
 // # v32u8_load_unaligned
@@ -3536,26 +3536,26 @@ v32u8_load_aligned(const v32u8_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v32u8_t
-v32u8_load_unaligned(const v32u8_unaligned_t *addr) {
-  return *addr;
+v32u8_load_unaligned(const void *addr) {
+  return *(const v32u8_unaligned_t *)addr;
 }
 
 // # v32u8_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v32u8_store_aligned(v32u8_t *addr,
+ATTR_INLINE static inline void v32u8_store_aligned(void *addr,
                                                    const v32u8_t data) {
-  *addr = data;
+  *(v32u8_t *)addr = data;
 }
 
 // # v32u8_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v32u8_store_unaligned(v32u8_unaligned_t *addr,
+ATTR_INLINE static inline void v32u8_store_unaligned(void *addr,
                                                      const v32u8_t data) {
-  *addr = data;
+  *(v32u8_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -3964,7 +3964,6 @@ v32u8_mask(const v32u8_t a) {
   result |= v16u8_mask(lower);
 
   return result;
-
 #endif
 }
 
@@ -4010,8 +4009,8 @@ v32i8_set(const i8 v00, const i8 v01, const i8 v02, const i8 v03, const i8 v04,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v32i8_t
-v32i8_load_aligned(const v32i8_t *addr) {
-  return *addr;
+v32i8_load_aligned(const void *addr) {
+  return *(const v32i8_t *)addr;
 }
 
 // # v32i8_load_unaligned
@@ -4021,26 +4020,26 @@ v32i8_load_aligned(const v32i8_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v32i8_t
-v32i8_load_unaligned(const v32i8_unaligned_t *addr) {
-  return *addr;
+v32i8_load_unaligned(const void *addr) {
+  return *(const v32i8_unaligned_t *)addr;
 }
 
 // # v32i8_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v32i8_store_aligned(v32i8_t *addr,
+ATTR_INLINE static inline void v32i8_store_aligned(void *addr,
                                                    const v32i8_t data) {
-  *addr = data;
+  *(v32i8_t *)addr = data;
 }
 
 // # v32i8_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v32i8_store_unaligned(v32i8_unaligned_t *addr,
+ATTR_INLINE static inline void v32i8_store_unaligned(void *addr,
                                                      const v32i8_t data) {
-  *addr = data;
+  *(v32i8_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -4081,7 +4080,7 @@ v32i8_add(const v32i8_t a, const v32i8_t b) {
 // the resulting vector
 ATTR_NODISCARD ATTR_CONST ATTR_INLINE static inline v32i8_t
 v32i8_sub(const v32i8_t a, const v32i8_t b) {
-  return (v32i8_t)v32u8_add((v32u8_t)a, (v32u8_t)b);
+  return (v32i8_t)v32u8_sub((v32u8_t)a, (v32u8_t)b);
   return a - b;
 }
 
@@ -4436,8 +4435,8 @@ v16u16_set(const u16 v00, const u16 v01, const u16 v02, const u16 v03,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16u16_t
-v16u16_load_aligned(const v16u16_t *addr) {
-  return *addr;
+v16u16_load_aligned(const void *addr) {
+  return *(const v16u16_t *)addr;
 }
 
 // # v16u16_load_unaligned
@@ -4447,26 +4446,26 @@ v16u16_load_aligned(const v16u16_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16u16_t
-v16u16_load_unaligned(const v16u16_unaligned_t *addr) {
-  return *addr;
+v16u16_load_unaligned(const void *addr) {
+  return *(const v16u16_unaligned_t *)addr;
 }
 
 // # v16u16_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16u16_store_aligned(v16u16_t *addr,
+ATTR_INLINE static inline void v16u16_store_aligned(void *addr,
                                                     const v16u16_t data) {
-  *addr = data;
+  *(v16u16_t *)addr = data;
 }
 
 // # v16u16_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16u16_store_unaligned(v16u16_unaligned_t *addr,
+ATTR_INLINE static inline void v16u16_store_unaligned(void *addr,
                                                       const v16u16_t data) {
-  *addr = data;
+  *(v16u16_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -4898,8 +4897,8 @@ v16i16_set(const i16 v00, const i16 v01, const i16 v02, const i16 v03,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16i16_t
-v16i16_load_aligned(const v16i16_t *addr) {
-  return *addr;
+v16i16_load_aligned(const void *addr) {
+  return *(const v16i16_t *)addr;
 }
 
 // # v16i16_load_unaligned
@@ -4909,26 +4908,26 @@ v16i16_load_aligned(const v16i16_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v16i16_t
-v16i16_load_unaligned(const v16i16_unaligned_t *addr) {
-  return *addr;
+v16i16_load_unaligned(const void *addr) {
+  return *(const v16i16_unaligned_t *)addr;
 }
 
 // # v16i16_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16i16_store_aligned(v16i16_t *addr,
+ATTR_INLINE static inline void v16i16_store_aligned(void *addr,
                                                     const v16i16_t data) {
-  *addr = data;
+  *(v16i16_t *)addr = data;
 }
 
 // # v16i16_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v16i16_store_unaligned(v16i16_unaligned_t *addr,
+ATTR_INLINE static inline void v16i16_store_unaligned(void *addr,
                                                       const v16i16_t data) {
-  *addr = data;
+  *(v16i16_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -5317,8 +5316,8 @@ v8u32_set(const u32 v00, const u32 v01, const u32 v02, const u32 v03,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8u32_t
-v8u32_load_aligned(const v8u32_t *addr) {
-  return *addr;
+v8u32_load_aligned(const void *addr) {
+  return *(const v8u32_t *)addr;
 }
 
 // # v8u32_load_unaligned
@@ -5328,26 +5327,26 @@ v8u32_load_aligned(const v8u32_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8u32_t
-v8u32_load_unaligned(const v8u32_unaligned_t *addr) {
-  return *addr;
+v8u32_load_unaligned(const void *addr) {
+  return *(const v8u32_unaligned_t *)addr;
 }
 
 // # v8u32_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8u32_store_aligned(v8u32_t *addr,
+ATTR_INLINE static inline void v8u32_store_aligned(void *addr,
                                                    const v8u32_t data) {
-  *addr = data;
+  *(v8u32_t *)addr = data;
 }
 
 // # v8u32_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8u32_store_unaligned(v8u32_unaligned_t *addr,
+ATTR_INLINE static inline void v8u32_store_unaligned(void *addr,
                                                      const v8u32_t data) {
-  *addr = data;
+  *(v8u32_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -5771,8 +5770,8 @@ v8i32_set(const i32 v00, const i32 v01, const i32 v02, const i32 v03,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8i32_t
-v8i32_load_aligned(const v8i32_t *addr) {
-  return *addr;
+v8i32_load_aligned(const void *addr) {
+  return *(const v8i32_t *)addr;
 }
 
 // # v8i32_load_unaligned
@@ -5782,26 +5781,26 @@ v8i32_load_aligned(const v8i32_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v8i32_t
-v8i32_load_unaligned(const v8i32_unaligned_t *addr) {
-  return *addr;
+v8i32_load_unaligned(const void *addr) {
+  return *(const v8i32_unaligned_t *)addr;
 }
 
 // # v8i32_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8i32_store_aligned(v8i32_t *addr,
+ATTR_INLINE static inline void v8i32_store_aligned(void *addr,
                                                    const v8i32_t data) {
-  *addr = data;
+  *(v8i32_t *)addr = data;
 }
 
 // # v8i32_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v8i32_store_unaligned(v8i32_unaligned_t *addr,
+ATTR_INLINE static inline void v8i32_store_unaligned(void *addr,
                                                      const v8i32_t data) {
-  *addr = data;
+  *(v8i32_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -6190,8 +6189,8 @@ v4u64_set(const uint64_t v00, const uint64_t v01, const uint64_t v02,
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4u64_t
-v4u64_load_aligned(const v4u64_t *addr) {
-  return *addr;
+v4u64_load_aligned(const void *addr) {
+  return *(const v4u64_t *)addr;
 }
 
 // # v4u64_load_unaligned
@@ -6201,26 +6200,26 @@ v4u64_load_aligned(const v4u64_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4u64_t
-v4u64_load_unaligned(const v4u64_unaligned_t *addr) {
-  return *addr;
+v4u64_load_unaligned(const void *addr) {
+  return *(const v4u64_unaligned_t *)addr;
 }
 
 // # v4u64_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4u64_store_aligned(v4u64_t *addr,
+ATTR_INLINE static inline void v4u64_store_aligned(void *addr,
                                                    const v4u64_t data) {
-  *addr = data;
+  *(v4u64_t *)addr = data;
 }
 
 // # v4u64_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4u64_store_unaligned(v4u64_unaligned_t *addr,
+ATTR_INLINE static inline void v4u64_store_unaligned(void *addr,
                                                      const v4u64_t data) {
-  *addr = data;
+  *(v4u64_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
@@ -6639,8 +6638,8 @@ v4i64_set(const i64 v00, const i64 v01, const i64 v02, const i64 v03) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4i64_t
-v4i64_load_aligned(const v4i64_t *addr) {
-  return *addr;
+v4i64_load_aligned(const void *addr) {
+  return *(const v4i64_t *)addr;
 }
 
 // # v4i64_load_unaligned
@@ -6650,26 +6649,26 @@ v4i64_load_aligned(const v4i64_t *addr) {
 // Returns the vector loaded from `addr`
 ATTR_NONNULL(1)
 ATTR_INLINE ATTR_NODISCARD ATTR_PURE static inline v4i64_t
-v4i64_load_unaligned(const v4i64_unaligned_t *addr) {
-  return *addr;
+v4i64_load_unaligned(const void *addr) {
+  return *(const v4i64_unaligned_t *)addr;
 }
 
 // # v4i64_store_aligned
 // ## Description
 // Store `data` at the address `addr`. `addr` shall be `16` byte aligned
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4i64_store_aligned(v4i64_t *addr,
+ATTR_INLINE static inline void v4i64_store_aligned(void *addr,
                                                    const v4i64_t data) {
-  *addr = data;
+  *(v4i64_t *)addr = data;
 }
 
 // # v4i64_store_unaligned
 // ## Description
 // Store `data` at the address `addr`.
 ATTR_NONNULL(1)
-ATTR_INLINE static inline void v4i64_store_unaligned(v4i64_unaligned_t *addr,
+ATTR_INLINE static inline void v4i64_store_unaligned(void *addr,
                                                      const v4i64_t data) {
-  *addr = data;
+  *(v4i64_unaligned_t *)addr = data;
 }
 
 //==================================arithmetic===================================
